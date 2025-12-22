@@ -1,0 +1,74 @@
+[
+  {
+    "CategoryName": "Pizza",
+    "ProductName": [
+      "Margherita Pizza",
+      "Chilli Pizza",
+      "Veg Supreme Pizza",
+      "Paneer Tikka Pizza",
+      "Cheese Burst Pizza"
+    ]
+  },
+  {
+    "CategoryName": "Sandwich",
+    "ProductName": [
+      "Veg Sandwich",
+      "Cheese Sandwich",
+      "Grilled Sandwich",
+      "Paneer Sandwich"
+    ]
+  },
+  {
+    "CategoryName": "Garlic Bread",
+    "ProductName": [
+      "Classic Garlic Bread",
+      "Cheese Garlic Bread",
+      "Herb Garlic Bread"
+    ]
+  },
+  {
+    "CategoryName": "Burgers",
+    "ProductName": [
+      "Veg Burger",
+      "Cheese Burger",
+      "Paneer Burger",
+      "Aloo Tikki Burger"
+    ]
+  },
+  {
+    "CategoryName": "Snacks",
+    "ProductName": [
+      "French Fries",
+      "Cheese Balls",
+      "Paneer Tikka Roll",
+      "Veg Spring Roll"
+    ]
+  },
+  {
+    "CategoryName": "South Indian",
+    "ProductName": [
+      "Masala Dosa",
+      "Idli Sambar",
+      "Vada",
+      "Upma"
+    ]
+  },
+  {
+    "CategoryName": "North Indian",
+    "ProductName": [
+      "Chole Bhature",
+      "Aloo Paratha",
+      "Paneer Butter Masala",
+      "Rajma Chawal"
+    ]
+  },
+  {
+    "CategoryName": "Beverages",
+    "ProductName": [
+      "Cold Coffee",
+      "Masala Chai",
+      "Lassi",
+      "Fresh Juice"
+    ]
+  }
+]

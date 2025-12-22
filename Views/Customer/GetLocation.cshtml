@@ -1,0 +1,24 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "Select Location";
+}
+
+<h3>Select Your Location</h3>
+
+<form method="post">
+    <div>
+        <label for="location">Location</label><br />
+        <select id="location" name="location" required>
+            <option value="">-- Select Location --</option>
+            @foreach (var loc in Model)
+            {
+                <option value="@loc">@loc</option>
+            }
+        </select>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+</form>

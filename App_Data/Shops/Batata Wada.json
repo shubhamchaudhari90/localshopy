@@ -1,0 +1,43 @@
+{
+  "Id": "eec1d59c-cdd9-49a9-9e56-b1bd94ee0ac5",
+  "Name": "Batata Wada",
+  "Location": "123123",
+  "PhoneNo": "123123",
+  "OwnerEmailId": "test@gmail.com",
+  "Password": "ertert",
+  "IsOpen": true,
+  "Products": [
+    {
+      "Name": "Tasty Bites",
+      "Description": "qweq",
+      "Price": 234,
+      "IsAvailable": true,
+      "ImageFileName": "8aa2287b-26f1-4dd8-9569-f04ae7d1cf01.jpg",
+      "Discount": 2,
+      "DiscountValidFrom": null,
+      "DiscountValidTill": null,
+      "FinalPrice": 234
+    },
+    {
+      "Name": "2342345",
+      "Description": "23424",
+      "Price": 344,
+      "IsAvailable": true,
+      "ImageFileName": "934e9a33-6f38-494c-bb96-04b534e70ee1.jpg",
+      "Discount": 3,
+      "DiscountValidFrom": null,
+      "DiscountValidTill": null,
+      "FinalPrice": 344
+    }
+  ],
+  "ServedLocations": [
+    "Sukhwani Skylines",
+    
+    "Sai Luxaria",
+    "Westeria",
+    "Millinium Pacafic 1",
+    "Millinium Pacafic 2",
+    "Insignia",
+    "Picadilly"
+  ]
+}

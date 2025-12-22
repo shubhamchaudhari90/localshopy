@@ -1,0 +1,36 @@
+﻿@model List<localshopyNew.Models.Shop>
+
+<h2>All Shops</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Shop</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone No.</th>
+            <th>Location</th>
+            <th>Owner Email</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shop in Model)
+        {
+            <tr>
+                <td>@shop.Name</td>
+                <td>@shop.PhoneNo</td>
+                <td>@shop.Location</td>
+                <td>@shop.OwnerEmailId</td>
+                <td>@(shop.IsOpen ? "Open" : "Closed")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@shop.Name" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@shop.Name" class="btn btn-warning btn-sm">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

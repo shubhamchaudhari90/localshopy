@@ -1,0 +1,53 @@
+﻿@model List<CustomerProductViewModel>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h2>Available Products</h2>
+
+@if (!Model.Any())
+{
+    <p>No products available.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.Product.ImageFileName))
+                    {
+                        <img src="~/images/products/@item.Product.ImageFileName"
+                             class="card-img-top"
+                             style="height:200px; object-fit:cover;" />
+                    }
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Product.Name</h5>
+                        <p class="text-muted">@item.ShopName</p>
+
+                        <p class="card-text">@item.Product.Description</p>
+
+                        @if (item.Product.Discount > 0 &&
+                                        item.Product.DiscountValidFrom <= DateTime.UtcNow &&
+                                        item.Product.DiscountValidTill >= DateTime.UtcNow)
+                        {
+                            <p>
+                                <del>₹@item.Product.Price</del>
+                                <strong class="text-success">
+                                    ₹@item.Product.FinalPrice
+                                </strong>
+                            </p>
+                        }
+                        else
+                        {
+                            <p><strong>₹@item.Product.Price</strong></p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
