@@ -1,15 +1,18 @@
 [
   {
+    "Id": 1,
     "CategoryName": "Pizza",
     "ProductName": [
       "Margherita Pizza",
       "Chilli Pizza",
       "Veg Supreme Pizza",
       "Paneer Tikka Pizza",
-      "Cheese Burst Pizza"
+      "Cheese Burst Pizza",
+      "Jumbo Pizza"
     ]
   },
   {
+    "Id": 2,
     "CategoryName": "Sandwich",
     "ProductName": [
       "Veg Sandwich",
@@ -19,6 +22,7 @@
     ]
   },
   {
+    "Id": 3,
     "CategoryName": "Garlic Bread",
     "ProductName": [
       "Classic Garlic Bread",
@@ -27,6 +31,7 @@
     ]
   },
   {
+    "Id": 4,
     "CategoryName": "Burgers",
     "ProductName": [
       "Veg Burger",
@@ -36,6 +41,7 @@
     ]
   },
   {
+    "Id": 5,
     "CategoryName": "Snacks",
     "ProductName": [
       "French Fries",
@@ -45,6 +51,7 @@
     ]
   },
   {
+    "Id": 6,
     "CategoryName": "South Indian",
     "ProductName": [
       "Masala Dosa",
@@ -54,6 +61,7 @@
     ]
   },
   {
+    "Id": 7,
     "CategoryName": "North Indian",
     "ProductName": [
       "Chole Bhature",
@@ -63,12 +71,20 @@
     ]
   },
   {
+    "Id": 8,
     "CategoryName": "Beverages",
     "ProductName": [
       "Cold Coffee",
       "Masala Chai",
       "Lassi",
       "Fresh Juice"
+    ]
+  },
+  {
+    "Id": 9,
+    "CategoryName": "Juice",
+    "ProductName": [
+      "Mango Juice"
     ]
   }
 ]

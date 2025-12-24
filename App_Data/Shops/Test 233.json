@@ -1,0 +1,35 @@
+{
+  "Id": "52b4f326-7501-430b-a7ce-7e6f95352f7b",
+  "Name": "Test 233",
+  "PhoneNo": "23456789098",
+  "OwnerEmailId": "shubhamchaudhari90@gmail.com",
+  "Password": "ertert",
+  "IsOpen": true,
+  "Products": [
+    {
+      "Name": "Margherita Pizza",
+      "Description": "123",
+      "Price": 12,
+      "IsAvailable": true,
+      "ImageFileName": "9067a6c4-196f-4d48-a25d-935e1583b1a4.jpg",
+      "Discount": 12,
+      "DiscountValidFrom": "2025-12-17T00:00:00",
+      "DiscountValidTill": null,
+      "FinalPrice": 11
+    },
+    {
+      "Name": "Chilli Pizza",
+      "Description": "test",
+      "Price": 123,
+      "IsAvailable": true,
+      "ImageFileName": "db8610c6-2abb-4d3c-ab33-7aa00563cf31.jpg",
+      "Discount": 12,
+      "DiscountValidFrom": null,
+      "DiscountValidTill": null,
+      "FinalPrice": 123
+    }
+  ],
+  "ServedLocations": [
+    "RGS Forte"
+  ]
+}

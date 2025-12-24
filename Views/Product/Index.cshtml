@@ -1,0 +1,23 @@
+﻿@model List<localshopyNew.Models.Category>
+
+<h2>Categories</h2>
+<a asp-action="Create">Add New</a>
+
+<table class="table">
+    <tr>
+        <th>Category</th>
+        <th>Products</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.CategoryName</td>
+            <td>@string.Join(", ", item.ProductName)</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+</table>

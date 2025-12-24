@@ -7,19 +7,25 @@ namespace localshopyNew.Services
     {
         private readonly string _locationsPath;
         private readonly string _shopFolder;
+        private readonly string _productsPath;
 
         public CustomerService(IWebHostEnvironment env)
         {
             _shopFolder = Path.Combine(env.ContentRootPath, "App_Data", "Shops");
             _locationsPath = Path.Combine(env.ContentRootPath, "App_Data", "Locations.json");
+            _productsPath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
             Directory.CreateDirectory(_shopFolder);
         }
 
-        public List<CustomerProductViewModel> GetAllProducts(string location)
+        public List<CustomerProductViewModel> GetAllProducts(string? location)
         {
             var allProducts = new List<CustomerProductViewModel>();
-
+            if (string.IsNullOrEmpty(location))
+            {
+                return allProducts;
+            }
             var files = Directory.GetFiles(_shopFolder, "*.json");
+            var categories = ReadCategoryJson();
 
             foreach (var file in files)
             {
@@ -36,12 +42,14 @@ namespace localshopyNew.Services
                         allProducts.Add(new CustomerProductViewModel
                         {
                             ShopName = shop.Name,
-                            Product = product
+                            ShopPhoneNo = shop.PhoneNo,
+                            Product = product,
+                            CategotyName = GetCategoryByProduct(categories, product.Name),
                         });
                     }
                 }
             }
-            return allProducts;
+            return [.. allProducts.OrderBy(x => x.CategotyName)];
         }
 
         public List<string> GetAllLocations()
@@ -66,6 +74,26 @@ namespace localshopyNew.Services
             var json = File.ReadAllText(_locationsPath);
             return JsonSerializer.Deserialize<LocationsData>(json) ?? new LocationsData();
 
+        }
+
+        private List<Category> ReadCategoryJson()
+        {
+            if (!File.Exists(_productsPath))
+                return [];
+
+            var json = File.ReadAllText(_productsPath);
+
+            return JsonSerializer.Deserialize<List<Category>>(json) ?? [];
+        }
+
+        public string GetCategoryByProduct(List<Category> categories, string productName)
+        {
+            string? category = categories.FirstOrDefault(c => c.ProductName.Any(p => p.Equals(productName, StringComparison.OrdinalIgnoreCase)))?.CategoryName;
+            if (string.IsNullOrEmpty(category))
+            {
+                return "Other";
+            }
+            return category;
         }
     }
 }

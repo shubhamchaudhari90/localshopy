@@ -4,7 +4,6 @@
     {
         public string? Id { get; set; }
         public required string Name { get; set; }
-        public required string Location { get; set; }
         public required string PhoneNo { get; set; }
         public required string OwnerEmailId { get; set; }
         public required string Password { get; set; }

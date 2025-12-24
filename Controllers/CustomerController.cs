@@ -1,42 +1,53 @@
-﻿using localshopyNew.Services;
+﻿using localshopyNew.Models;
+using localshopyNew.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
-
     public class CustomerController : Controller
     {
-        private readonly CustomerService _service;
+        private readonly CustomerService _customerService;
+        private readonly ShopService _shopService;
 
-        public CustomerController(CustomerService service)
+        public CustomerController(CustomerService customerService, ShopService shopService)
         {
-            _service = service;
+            _customerService = customerService;
+            _shopService = shopService;
         }
 
         // GET: /Customer/Products
         public IActionResult Products()
         {
             var selectedLocation = HttpContext.Session.GetString("SelectedLocation");
-
-            if (selectedLocation == null || !_service.IsLocationValid(selectedLocation))
+            var allProducts = _customerService.GetAllProducts(selectedLocation);
+            if (selectedLocation == null || !_customerService.IsLocationValid(selectedLocation))
             {
-                return NotFound();
+                return Location();
             }
-            var allProducts = _service.GetAllProducts(selectedLocation);
             return View(allProducts);
         }
 
-        public IActionResult GetLocation()
+        public IActionResult Location()
         {
-            var locations = _service.GetAllLocations(); // List<string>
+            var locations = _customerService.GetAllLocations(); // List<string>
             return View(locations);
         }
 
         [HttpPost]
-        public IActionResult GetLocation(string location)
+        public IActionResult Location(string location)
         {
             HttpContext.Session.SetString("SelectedLocation", location);
             return RedirectToAction("Products");
+        }
+
+        [HttpGet]
+        public IActionResult ShopDetails(string shopName)
+        {
+            Shop shop = _shopService.GetShop(shopName);
+
+
+
+            return View(shop);
         }
     }
 }

@@ -7,15 +7,18 @@ namespace localshopyNew.Controllers
     public class ShopController : Controller
     {
         private readonly ShopService _service;
+        private readonly LocationService _locationService;
 
-        public ShopController(ShopService service)
+        public ShopController(ShopService service, LocationService locationService)
         {
             _service = service;
+            _locationService = locationService;
         }
 
         [HttpGet]
         public IActionResult Create()
         {
+            ViewBag.Locations = _locationService.GetAllLocations();
             return View();
         }
 
@@ -64,6 +67,7 @@ namespace localshopyNew.Controllers
             try
             {
                 var shop = _service.GetShop(name);
+                ViewBag.Locations = _locationService.GetAllLocations();
                 return View(shop);
             }
             catch

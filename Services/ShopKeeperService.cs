@@ -6,10 +6,11 @@ namespace localshopyNew.Services
     public class ShopkeeperService
     {
         private readonly string _shopFolder;
-
+        private readonly string _productsFilePath;
         public ShopkeeperService(IWebHostEnvironment env)
         {
             _shopFolder = Path.Combine(env.ContentRootPath, "App_Data", "Shops");
+            _productsFilePath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
             Directory.CreateDirectory(_shopFolder);
         }
 
@@ -82,6 +83,9 @@ namespace localshopyNew.Services
             if (shop.Products.Any(p => p.Name == product.Name))
                 throw new Exception("Product with same name already exists.");
 
+            if (!IsProductValid(product.Name))
+                throw new Exception("Product not found.");
+
             shop.Products.Add(product);
             // Save shop file
             var fileName = shop.Name + ".json"; // Or keep mapping of file names
@@ -93,6 +97,10 @@ namespace localshopyNew.Services
             var existing = shop.Products.FirstOrDefault(p => p.Name == product.Name);
             if (existing == null)
                 throw new Exception("Product not found.");
+
+            if (!IsProductValid(product.Name))
+                throw new Exception("Product not found.");
+
 
             if (!string.IsNullOrEmpty(product.ImageFileName))
             {
@@ -137,6 +145,9 @@ namespace localshopyNew.Services
         {
             var product = shop.Products.FirstOrDefault(p => p.Name == productName);
             if (product == null)
+                throw new Exception("Product not found.");
+
+            if (!IsProductValid(product.Name))
                 throw new Exception("Product not found.");
 
             shop.Products.Remove(product);
@@ -193,6 +204,20 @@ namespace localshopyNew.Services
             }
         }
 
+        private bool IsProductValid(string productName)
+        {
+            if (!File.Exists(_productsFilePath))
+                return false;
 
+            var json = File.ReadAllText(_productsFilePath);
+            var categories = JsonSerializer.Deserialize<List<Category>>(json) ?? new();
+
+            var products = categories
+                .SelectMany(c => c.ProductName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return products.Any(x => x.Equals(productName, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

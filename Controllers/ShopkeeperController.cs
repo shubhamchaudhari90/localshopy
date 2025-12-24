@@ -7,10 +7,14 @@ namespace localshopyNew.Controllers
     public class ShopkeeperController : Controller
     {
         private readonly ShopkeeperService _service;
+        private readonly CategoryService _categoryService;
+        private readonly LocationService _locationService;
 
-        public ShopkeeperController(ShopkeeperService service)
+        public ShopkeeperController(ShopkeeperService service, CategoryService categoryService, LocationService locationService)
         {
             _service = service;
+            _categoryService = categoryService;
+            _locationService = locationService;
         }
 
         [HttpGet]
@@ -43,7 +47,14 @@ namespace localshopyNew.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddProduct() => View();
+        public IActionResult AddProduct()
+        {
+            var products = _categoryService.GetAllProducts();
+
+            ViewBag.Products = products;
+
+            return View();
+        }
 
         [HttpPost]
         public IActionResult AddProduct(Product product, IFormFile? ProductImage)
@@ -86,11 +97,16 @@ namespace localshopyNew.Controllers
         public IActionResult EditProduct(string name)
         {
             var shop = GetLoggedInShop();
-            if (shop == null) return RedirectToAction("Login");
+            if (shop == null)
+                return RedirectToAction("Login");
 
             var product = shop.Products.FirstOrDefault(p => p.Name == name);
-            if (product == null) return NotFound();
+            if (product == null)
+                return NotFound();
 
+            var products = _categoryService.GetAllProducts();
+            ViewBag.Products = products;
+            HttpContext.Session.SetString("ProductName", name);
             return View(product);
         }
 
@@ -119,7 +135,9 @@ namespace localshopyNew.Controllers
 
                     product.ImageFileName = fileName;
                 }
-
+                string? productName = GetProductNameForEdit();
+                if (productName == null) return NotFound();
+                product.Name = productName;
                 _service.UpdateProduct(shop, product);
                 return RedirectToAction("Products");
             }
@@ -159,6 +177,7 @@ namespace localshopyNew.Controllers
                 var shop = _service.GetShopById(shopId);
                 if (shop == null)
                     return NotFound();
+                ViewBag.Locations = _locationService.GetAllLocations();
                 return View(shop);
             }
             catch
@@ -190,6 +209,7 @@ namespace localshopyNew.Controllers
                     _service.UpdateFromShopkeeper(shop);
                     return RedirectToAction("Products");
                 }
+                ViewBag.Locations = _locationService.GetAllLocations();
                 return View(shop);
             }
             catch (Exception ex)
@@ -206,6 +226,12 @@ namespace localshopyNew.Controllers
             if (string.IsNullOrEmpty(shopId))
                 return null;
             return _service.GetShopById(shopId);
+        }
+
+        private string? GetProductNameForEdit()
+        {
+            var productName = HttpContext.Session.GetString("ProductName");
+            return productName;
         }
     }
 }

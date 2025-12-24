@@ -12,42 +12,71 @@
 }
 else
 {
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    @if (!string.IsNullOrEmpty(item.Product.ImageFileName))
+    var groupedProducts = Model
+        .GroupBy(p => p.CategotyName)
+        .OrderBy(g => g.Key); // sort categories
+
+    int categoryIndex = 0; // unique IDs for collapse
+
+    foreach (var categoryGroup in groupedProducts)
+    {
+        string collapseId = "collapseCategory" + categoryIndex;
+
+        <div class="mb-3">
+            <h3>
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
+                    @categoryGroup.Key
+                </button>
+            </h3>
+
+            <div class="collapse show" id="@collapseId">
+                <div class="row">
+                    @foreach (var item in categoryGroup)
                     {
-                        <img src="~/images/products/@item.Product.ImageFileName"
-                             class="card-img-top"
-                             style="height:200px; object-fit:cover;" />
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                @if (!string.IsNullOrEmpty(item.Product.ImageFileName))
+                                {
+                                    <img src="~/images/products/@item.Product.ImageFileName"
+                                         class="card-img-top"
+                                         style="height:200px; object-fit:cover;" />
+                                }
+
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Product.Name</h5>
+                                    <p class="card-text">@item.Product.Description</p>
+
+                                    <!-- Shop name clickable -->
+                                    <p class="card-text">
+                                        <a asp-controller="Customer" asp-action="ShopDetails" asp-route-id="@item.ShopName">
+                                            @item.ShopName
+                                        </a>
+                                    </p>
+                                    <p class="card-text">@item.ShopPhoneNo</p>
+
+                                    @if (item.Product.Discount > 0 &&
+                                                            item.Product.DiscountValidFrom <= DateTime.UtcNow &&
+                                                            item.Product.DiscountValidTill >= DateTime.UtcNow)
+                                    {
+                                        <p>
+                                            <del>₹@item.Product.Price</del>
+                                            <strong class="text-success">
+                                                ₹@item.Product.FinalPrice
+                                            </strong>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p><strong>₹@item.Product.Price</strong></p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     }
-
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Product.Name</h5>
-                        <p class="text-muted">@item.ShopName</p>
-
-                        <p class="card-text">@item.Product.Description</p>
-
-                        @if (item.Product.Discount > 0 &&
-                                        item.Product.DiscountValidFrom <= DateTime.UtcNow &&
-                                        item.Product.DiscountValidTill >= DateTime.UtcNow)
-                        {
-                            <p>
-                                <del>₹@item.Product.Price</del>
-                                <strong class="text-success">
-                                    ₹@item.Product.FinalPrice
-                                </strong>
-                            </p>
-                        }
-                        else
-                        {
-                            <p><strong>₹@item.Product.Price</strong></p>
-                        }
-                    </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+
+        categoryIndex++; // increment for unique collapse ID
+    }
 }

@@ -23,12 +23,12 @@
             <tr>
                 <td>@shop.Name</td>
                 <td>@shop.PhoneNo</td>
-                <td>@shop.Location</td>
+                <td>@string.Join(" | ", shop.ServedLocations)</td>
                 <td>@shop.OwnerEmailId</td>
                 <td>@(shop.IsOpen ? "Open" : "Closed")</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@shop.Name" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-id="@shop.Name" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-name="@shop.Name" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-name="@shop.Name" class="btn btn-warning btn-sm">Edit</a>
                 </td>
             </tr>
         }

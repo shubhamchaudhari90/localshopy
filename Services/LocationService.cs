@@ -10,6 +10,7 @@ namespace localshopyNew.Services
         public LocationService(IWebHostEnvironment env)
         {
             _locationsPath = Path.Combine(env.ContentRootPath, "App_Data", "Locations.json");
+
         }
         private LocationsData ReadLocationsJson()
         {
@@ -57,7 +58,5 @@ namespace localshopyNew.Services
                 WriteLocationsJson(data);
             }
         }
-
-
     }
 }

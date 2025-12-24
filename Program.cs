@@ -18,6 +18,7 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<ShopkeeperService>();
 builder.Services.AddScoped<ShopService>();
+builder.Services.AddScoped<CategoryService>();
 
 //// Authentication
 //builder.Services.AddAuthentication(options =>
@@ -57,6 +58,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Customer}/{action=GetLocation}/{id?}");
+    pattern: "{controller=Customer}/{action=Location}/{id?}");
 
 app.Run();

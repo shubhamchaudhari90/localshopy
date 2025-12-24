@@ -3,9 +3,8 @@ using System.IO.Compression;
 
 namespace localshopyNew.Controllers
 {
-    [ApiController]
-    [Route("api/backup")]
-    public class BackupController : ControllerBase
+
+    public class BackupController : Controller
     {
         private readonly IWebHostEnvironment _env;
 
@@ -14,7 +13,7 @@ namespace localshopyNew.Controllers
             _env = env;
         }
 
-        [HttpGet("download")]
+        [HttpGet]
         public IActionResult DownloadBackup()
         {
             var tempPath = Path.Combine(Path.GetTempPath(),
@@ -40,7 +39,7 @@ namespace localshopyNew.Controllers
             var fileBytes = System.IO.File.ReadAllBytes(tempPath);
             System.IO.File.Delete(tempPath);
 
-            return File(fileBytes, "application/zip", "AppBackup.zip");
+            return File(fileBytes, "application/zip", $"Localshopy_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.zip");
         }
 
         private void AddFolderToZip(ZipArchive zip, string sourceDir, string entryName)

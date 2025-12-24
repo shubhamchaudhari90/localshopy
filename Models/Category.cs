@@ -1,9 +1,9 @@
 ﻿namespace localshopyNew.Models
 {
-    public class CategoryProducts
+    public class Category
     {
+        public int Id { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public List<string> ProductName { get; set; } = new();
     }
-
 }

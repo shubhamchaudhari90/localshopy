@@ -3,7 +3,7 @@
 <h2>@Model.Name (@(Model.IsOpen ? "Open" : "Closed"))</h2>
 
 <p><b>Phone No:</b> @Model.PhoneNo</p>
-<p><b>Location:</b> @Model.Location</p>
+<p><b>Location:</b> @string.Join(" | ", Model.ServedLocations)</p>
 <p><b>Owner Email:</b> @Model.OwnerEmailId</p>
 
 <h3>Products</h3>
@@ -39,7 +39,3 @@ else
         </tbody>
     </table>
 }
-
-<p>
-    <a asp-action="AddProduct" asp-route-id="@Model.Name" class="btn btn-success">Add Product</a>
-</p>

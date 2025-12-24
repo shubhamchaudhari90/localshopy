@@ -1,7 +1,6 @@
 {
   "Id": "eec1d59c-cdd9-49a9-9e56-b1bd94ee0ac5",
   "Name": "Batata Wada",
-  "Location": "123123",
   "PhoneNo": "123123",
   "OwnerEmailId": "test@gmail.com",
   "Password": "ertert",
@@ -28,16 +27,24 @@
       "DiscountValidFrom": null,
       "DiscountValidTill": null,
       "FinalPrice": 344
+    },
+    {
+      "Name": "Margherita Pizza",
+      "Description": "cheesy",
+      "Price": 120,
+      "IsAvailable": true,
+      "ImageFileName": "c2ebea79-5979-4860-b77f-1da0b70fe325.jpg",
+      "Discount": 10,
+      "DiscountValidFrom": null,
+      "DiscountValidTill": null,
+      "FinalPrice": 120
     }
   ],
   "ServedLocations": [
     "Sukhwani Skylines",
-    
     "Sai Luxaria",
     "Westeria",
     "Millinium Pacafic 1",
-    "Millinium Pacafic 2",
-    "Insignia",
-    "Picadilly"
+    "Insignia"
   ]
 }

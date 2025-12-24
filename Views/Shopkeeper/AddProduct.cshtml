@@ -7,9 +7,15 @@
 <h2>Add Product</h2>
 
 <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
-    <div class="form-group mb-2">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" required />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+
+        <select asp-for="Name"
+                class="form-control"
+                asp-items="@(new SelectList(ViewBag.Products))">
+            <option value="">-- Select Product --</option>
+        </select>
+
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
