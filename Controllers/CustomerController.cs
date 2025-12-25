@@ -15,10 +15,10 @@ namespace localshopyNew.Controllers
             _shopService = shopService;
         }
 
-        // GET: /Customer/Products
         public IActionResult Products()
         {
             var selectedLocation = HttpContext.Session.GetString("SelectedLocation");
+            ViewBag.SelectedLocation = selectedLocation;
             var allProducts = _customerService.GetAllProducts(selectedLocation);
             if (selectedLocation == null || !_customerService.IsLocationValid(selectedLocation))
             {

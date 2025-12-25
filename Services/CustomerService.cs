@@ -32,7 +32,7 @@ namespace localshopyNew.Services
                 var json = File.ReadAllText(file);
                 var shop = JsonSerializer.Deserialize<Shop>(json);
 
-                if (shop == null || !shop.IsOpen)
+                if (shop == null || !shop.IsOpen || shop.AccountValidTill < DateTime.Now)
                     continue;
 
                 if (shop.ServedLocations.Contains(location, StringComparer.OrdinalIgnoreCase))

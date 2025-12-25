@@ -25,15 +25,15 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public IActionResult Create(Shop shop)
         {
+            ViewBag.Locations = _locationService.GetAllLocations();
             if (!ModelState.IsValid)
                 return View(shop);
-
             try
             {
                 string shopId = Guid.NewGuid().ToString();
                 shop.Id = shopId;
                 _service.CreateShop(shop);
-                return RedirectToAction("Details", new { name = shop.Name });
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -81,7 +81,6 @@ namespace localshopyNew.Controllers
         {
             if (!ModelState.IsValid)
                 return View(shop);
-
             try
             {
                 _service.UpdateShop(shop);
@@ -109,6 +108,5 @@ namespace localshopyNew.Controllers
                 return NotFound();
             }
         }
-
     }
 }

@@ -8,7 +8,9 @@
         public required string OwnerEmailId { get; set; }
         public required string Password { get; set; }
         public bool IsOpen { get; set; } = true;
-        public List<Product> Products { get; set; } = new();
-        public List<string> ServedLocations { get; set; } = new();
+        public List<Product> Products { get; set; } = [];
+        public List<string> ServedLocations { get; set; } = [];
+        public DateTime AccountValidTill { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
     }
 }

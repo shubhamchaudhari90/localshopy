@@ -200,7 +200,7 @@ namespace localshopyNew.Services
 
                 if (!usedImages.Contains(imageName))
                 {
-                    //File.Delete(imagePath);
+                    File.Delete(imagePath);
                 }
             }
         }

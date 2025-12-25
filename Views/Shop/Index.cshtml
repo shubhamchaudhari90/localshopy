@@ -14,6 +14,7 @@
             <th>Location</th>
             <th>Owner Email</th>
             <th>Status</th>
+            <th>Valid Till</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -26,6 +27,7 @@
                 <td>@string.Join(" | ", shop.ServedLocations)</td>
                 <td>@shop.OwnerEmailId</td>
                 <td>@(shop.IsOpen ? "Open" : "Closed")</td>
+                <td>@shop.AccountValidTill.ToShortDateString()</td>
                 <td>
                     <a asp-action="Details" asp-route-name="@shop.Name" class="btn btn-info btn-sm">Details</a>
                     <a asp-action="Edit" asp-route-name="@shop.Name" class="btn btn-warning btn-sm">Edit</a>

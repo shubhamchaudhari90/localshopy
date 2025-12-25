@@ -43,7 +43,7 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("Login");
             }
             // Pass list of products to the view
-            return View(shop.Products);
+            return View(shop);
         }
 
         [HttpGet]
@@ -206,6 +206,7 @@ namespace localshopyNew.Controllers
                     && existing.PhoneNo == shop.PhoneNo
                     )
                 {
+                    shop.AccountValidTill = existing.AccountValidTill;
                     _service.UpdateFromShopkeeper(shop);
                     return RedirectToAction("Products");
                 }

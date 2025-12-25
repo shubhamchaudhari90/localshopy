@@ -1,11 +1,68 @@
-﻿@model List<Product>
+﻿@model Shop
 
 @{
-    ViewData["Title"] = "Products";
+    ViewData["Title"] = "Shop Details";
 }
 
-<h2>Products</h2>
+<h2>Shop Details</h2>
 
+<h4>Name: @Model.Name</h4>
+@if (Model.IsOpen)
+{
+    <h4 style="background-color: blue; color: white; padding: 8px;">
+        Shop is Open
+    </h4>
+}
+else
+{
+    <h4 style="background-color: red; color: white; padding: 8px;">
+        Shop is Closed
+    </h4>
+}
+
+@{
+    var daysLeft = (Model.AccountValidTill - DateTime.Now).TotalDays;
+
+    string cssClass;
+    string statusText;
+
+    if (daysLeft > 10)
+    {
+        cssClass = "valid-ok";
+        statusText = "Active";
+    }
+    else if (daysLeft > 5)
+    {
+        cssClass = "valid-warning";
+        statusText = "Expiring Soon";
+    }
+    else if (daysLeft > 0)
+    {
+        cssClass = "valid-danger";
+        statusText = "Urgent";
+    }
+    else
+    {
+        cssClass = "valid-expired";
+        statusText = "Expired";
+    }
+}
+<div class="validity-card @cssClass">
+    <strong>Account Validity</strong><br />
+    @Model.AccountValidTill.ToShortDateString()
+    <span class="status-text">@statusText</span>
+</div>
+
+<h4>Phone No: @Model.PhoneNo</h4>
+
+<h4>
+    Served Location:
+    @(Model.ServedLocations != null && Model.ServedLocations.Any()
+        ? string.Join(" | ", Model.ServedLocations)
+        : "N/A")
+</h4>
+
+<h3>Products</h3>
 <p>
     <a asp-action="AddProduct" class="btn btn-success">Add New Product</a>
 </p>
@@ -30,7 +87,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var product in Model)
+        @foreach (var product in Model.Products)
         {
             <tr>
                 <td>@product.Name</td>
@@ -57,3 +114,34 @@
         }
     </tbody>
 </table>
+<style>
+    .validity-card {
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: #fff;
+        max-width: 280px;
+    }
+
+    .valid-ok {
+        background-color: #0d6efd; /* blue */
+    }
+
+    .valid-warning {
+        background-color: #fd7e14; /* orange */
+    }
+
+    .valid-danger {
+        background-color: #dc3545; /* red */
+    }
+
+    .valid-expired {
+        background-color: #000;
+        color: #ff4d4d;
+    }
+
+    .status-text {
+        float: right;
+        font-weight: 600;
+    }
+
+</style>

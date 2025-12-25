@@ -13,6 +13,26 @@ namespace localshopyNew.Services
             Directory.CreateDirectory(_shopFolder);
         }
 
+        public bool IsShopExists(string name, string ownerEmailId)
+        {
+            var path = GetShopPath(name);
+
+            if (File.Exists(path))
+                return true;
+
+            var shops = new List<Shop>();
+            var files = Directory.GetFiles(_shopFolder, "*.json");
+
+            foreach (var file in files)
+            {
+                var json = File.ReadAllText(file);
+                var shop = JsonSerializer.Deserialize<Shop>(json);
+                if (shop != null && shop.OwnerEmailId == ownerEmailId)
+                    return true;
+            }
+            return false;
+        }
+
         private string GetShopPath(string Name)
             => Path.Combine(_shopFolder, $"{Name}.json");
 
@@ -39,16 +59,30 @@ namespace localshopyNew.Services
                 if (shop != null)
                     shops.Add(shop);
             }
-
             return shops;
+        }
+
+        public Shop? GetShopById(string shopId)
+        {
+            var files = Directory.GetFiles(_shopFolder, "*.json");
+            foreach (var file in files)
+            {
+                var json = File.ReadAllText(file);
+                var shop = JsonSerializer.Deserialize<Shop>(json);
+                if (shop != null && shop.Id == shopId)
+                    return shop;
+            }
+            return null;
         }
 
         public void CreateShop(Shop shop)
         {
             var path = GetShopPath(shop.Name);
 
-            if (File.Exists(path))
-                throw new InvalidOperationException("Shop already exists.");
+            if (IsShopExists(shop.Name, shop.OwnerEmailId))
+                throw new InvalidOperationException("Shop Name/Owner Email already exists.");
+
+            shop.CreatedAt = DateTime.Now;
 
             var json = JsonSerializer.Serialize(shop, new JsonSerializerOptions
             {
@@ -60,21 +94,41 @@ namespace localshopyNew.Services
 
         public void UpdateShop(Shop shop)
         {
-            var path = GetShopPath(shop.Name);
-
-            if (!File.Exists(path))
+            if (string.IsNullOrEmpty(shop.Id))
                 throw new FileNotFoundException("Shop not found.");
 
-            Shop existing = GetShop(shop.Name);
+            var existing = GetShopById(shop.Id);
+            if (existing == null)
+                throw new FileNotFoundException("Shop not found.");
+
             shop.Products = existing.Products;
-            shop.Id = existing.Id;
+            shop.CreatedAt = existing.CreatedAt;
+            shop.OwnerEmailId = existing.OwnerEmailId;
 
-            var json = JsonSerializer.Serialize(shop, new JsonSerializerOptions
+            if (shop.Name != existing.Name)
             {
-                WriteIndented = true
-            });
+                CreateShop(shop);
+                DeleteShop(existing.Name);
+            }
+            else
+            {
+                var json = JsonSerializer.Serialize(shop, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+                var path = GetShopPath(existing.Name);
+                File.WriteAllText(path, json);
+            }
+        }
 
-            File.WriteAllText(path, json);
+        public void DeleteShop(string shopName)
+        {
+            var path = GetShopPath(shopName);
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException("Shop does not exist.");
+
+            File.Delete(path);
         }
     }
 }
