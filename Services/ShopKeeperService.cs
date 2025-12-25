@@ -127,6 +127,7 @@ namespace localshopyNew.Services
                 throw new FileNotFoundException("Shop not found.");
 
             Shop existing = GetShop(shop.Name);
+            shop.Id = existing.Id;
             shop.Name = existing.Name;
             shop.OwnerEmailId = existing.OwnerEmailId;
             shop.PhoneNo = existing.PhoneNo;

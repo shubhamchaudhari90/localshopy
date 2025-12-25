@@ -200,7 +200,7 @@ namespace localshopyNew.Controllers
                 var existing = _service.GetShopById(shopId);
 
                 if (existing != null
-                    && existing.Id == shop.Id
+                    && existing.Id == shopId
                     && existing.Name == shop.Name
                     && existing.OwnerEmailId == shop.OwnerEmailId
                     && existing.PhoneNo == shop.PhoneNo

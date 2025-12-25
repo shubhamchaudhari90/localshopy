@@ -1,5 +1,5 @@
 {
-  "Id": "52b4f326-7501-430b-a7ce-7e6f95352f7b",
+  "Id": "2345678",
   "Name": "Test 233",
   "PhoneNo": "23456789098",
   "OwnerEmailId": "shubhamchaudhari90@gmail.com",
@@ -27,9 +27,21 @@
       "DiscountValidFrom": null,
       "DiscountValidTill": null,
       "FinalPrice": 123
+    },
+    {
+      "Name": "Vada",
+      "Description": "esertwtr",
+      "Price": 234,
+      "IsAvailable": true,
+      "ImageFileName": "3e46960d-9526-4fe8-920f-c74f13f3d6c0.jpg",
+      "Discount": 10,
+      "DiscountValidFrom": "2025-12-10T00:00:00",
+      "DiscountValidTill": "2026-01-02T00:00:00",
+      "FinalPrice": 211
     }
   ],
   "ServedLocations": [
-    "RGS Forte"
+    "Sukhwani Skylines",
+    "Millinium Pacafic 1"
   ]
 }

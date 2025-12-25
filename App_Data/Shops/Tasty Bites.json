@@ -1,0 +1,12 @@
+{
+  "Id": "6d8df77d-be33-4a8a-b365-2c4b643d00aa",
+  "Name": "Tasty Bites",
+  "PhoneNo": "234325",
+  "OwnerEmailId": "shubhamchaudhari909@gmail.com",
+  "Password": "1234567",
+  "IsOpen": true,
+  "Products": [],
+  "ServedLocations": [
+    "Sukhwani Skylines"
+  ]
+}

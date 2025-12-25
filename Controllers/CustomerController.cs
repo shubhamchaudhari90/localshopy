@@ -43,11 +43,14 @@ namespace localshopyNew.Controllers
         [HttpGet]
         public IActionResult ShopDetails(string shopName)
         {
-            Shop shop = _shopService.GetShop(shopName);
-
-
-
-            return View(shop);
+            List<CustomerProductViewModel> products = _customerService.GetProductsByShop(shopName);
+            if (products.Any())
+            {
+                ViewBag.ShopName = products.First().ShopName;
+                ViewBag.ShopPhoneNo = products.First().ShopPhoneNo;
+                return View(products);
+            }
+            return Location();
         }
     }
 }

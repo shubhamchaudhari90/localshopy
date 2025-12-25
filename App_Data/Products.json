@@ -7,8 +7,7 @@
       "Chilli Pizza",
       "Veg Supreme Pizza",
       "Paneer Tikka Pizza",
-      "Cheese Burst Pizza",
-      "Jumbo Pizza"
+      "Cheese Burst Pizza"
     ]
   },
   {
@@ -61,16 +60,6 @@
     ]
   },
   {
-    "Id": 7,
-    "CategoryName": "North Indian",
-    "ProductName": [
-      "Chole Bhature",
-      "Aloo Paratha",
-      "Paneer Butter Masala",
-      "Rajma Chawal"
-    ]
-  },
-  {
     "Id": 8,
     "CategoryName": "Beverages",
     "ProductName": [
@@ -78,13 +67,6 @@
       "Masala Chai",
       "Lassi",
       "Fresh Juice"
-    ]
-  },
-  {
-    "Id": 9,
-    "CategoryName": "Juice",
-    "ProductName": [
-      "Mango Juice"
     ]
   }
 ]

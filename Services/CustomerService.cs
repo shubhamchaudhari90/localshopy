@@ -29,7 +29,7 @@ namespace localshopyNew.Services
 
             foreach (var file in files)
             {
-                var json = System.IO.File.ReadAllText(file);
+                var json = File.ReadAllText(file);
                 var shop = JsonSerializer.Deserialize<Shop>(json);
 
                 if (shop == null || !shop.IsOpen)
@@ -47,6 +47,34 @@ namespace localshopyNew.Services
                             CategotyName = GetCategoryByProduct(categories, product.Name),
                         });
                     }
+                }
+            }
+            return [.. allProducts.OrderBy(x => x.CategotyName)];
+        }
+
+        public List<CustomerProductViewModel> GetProductsByShop(string shopName)
+        {
+            var allProducts = new List<CustomerProductViewModel>();
+            var files = Directory.GetFiles(_shopFolder, $"{shopName}.json");
+            var categories = ReadCategoryJson();
+
+            foreach (var file in files)
+            {
+                var json = File.ReadAllText(file);
+                var shop = JsonSerializer.Deserialize<Shop>(json);
+
+                if (shop == null)
+                    return allProducts;
+
+                foreach (var product in shop.Products.Where(p => p.IsAvailable))
+                {
+                    allProducts.Add(new CustomerProductViewModel
+                    {
+                        ShopName = shop.Name,
+                        ShopPhoneNo = shop.PhoneNo,
+                        Product = product,
+                        CategotyName = GetCategoryByProduct(categories, product.Name),
+                    });
                 }
             }
             return [.. allProducts.OrderBy(x => x.CategotyName)];
