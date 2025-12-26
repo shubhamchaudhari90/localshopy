@@ -18,17 +18,23 @@ namespace localshopyNew.Controllers
         public IActionResult Products()
         {
             var selectedLocation = HttpContext.Session.GetString("SelectedLocation");
+            if (string.IsNullOrEmpty(selectedLocation))
+            {
+                return RedirectToAction("Location");
+            }
             ViewBag.SelectedLocation = selectedLocation;
             var allProducts = _customerService.GetAllProducts(selectedLocation);
             if (selectedLocation == null || !_customerService.IsLocationValid(selectedLocation))
             {
-                return Location();
+                return RedirectToAction("Location");
             }
+            ViewBag.CurrentPage = "Products";
             return View(allProducts);
         }
 
         public IActionResult Location()
         {
+            ViewBag.CurrentPage = "Location";
             var locations = _customerService.GetAllLocations(); // List<string>
             return View(locations);
         }
