@@ -1,4 +1,4 @@
-namespace localshopyNew.Models
+namespace localshopyNew.ViewModels
 {
     public class ErrorViewModel
     {

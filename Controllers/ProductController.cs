@@ -24,7 +24,7 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Category category, string products)
+        public IActionResult Create(ProductMaster category, string products)
         {
             category.ProductName = products
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -47,7 +47,7 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Category category, string products)
+        public IActionResult Edit(ProductMaster category, string products)
         {
             category.ProductName = products
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)

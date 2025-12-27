@@ -32,21 +32,55 @@ else
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Location">Customer</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index">Shop</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Location" asp-action="Index">Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Shopkeeper Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Backup" asp-action="DownloadBackup">Backup</a>
-                        </li>
+                        @{
+                            var shopLoggedIn = Context.Session.GetString("ShopLoggedIn");
+                        }
+                        @{
+                            var admin = Context.Session.GetString("Data");
+                        }
+                        @if (!string.IsNullOrEmpty(admin) && admin == "ShubhamGmRQ3xcRqDQhfmfL")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index">Shop</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Location" asp-action="Index">Location</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Backup" asp-action="DownloadBackup">Backup</a>
+                            </li>
+                        }
+                        @if (!string.IsNullOrEmpty(shopLoggedIn) || !string.IsNullOrEmpty(admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Shopkeeper" asp-action="Products">Product</a>
+                            </li>
+                            <!-- SHOW LOGOUT -->
+                            <li class="nav-item ms-auto">
+                                <form asp-controller="Shopkeeper" asp-action="Logout" method="post">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- SHOW LOGIN -->
+                            <li class="nav-item ms-auto">
+                                <form asp-controller="Shopkeeper" asp-action="Login" method="get">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                                        Login
+                                    </button>
+                                </form>
+                            </li>
+                        }
+
+
+
                     </ul>
                 </div>
             </div>

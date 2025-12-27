@@ -57,7 +57,7 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddProduct(Product product, IFormFile? ProductImage)
+        public IActionResult AddProduct(ShopProduct product, IFormFile? ProductImage)
         {
             var shop = GetLoggedInShop();
             if (shop == null) return RedirectToAction("Login");
@@ -111,7 +111,7 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditProduct(Product product, IFormFile? ProductImage)
+        public IActionResult EditProduct(ShopProduct product, IFormFile? ProductImage)
         {
             var shop = GetLoggedInShop();
             if (shop == null) return RedirectToAction("Login");

@@ -12,16 +12,16 @@ namespace localshopyNew.Services
             _locationsPath = Path.Combine(env.ContentRootPath, "App_Data", "Locations.json");
 
         }
-        private LocationsData ReadLocationsJson()
+        private Location ReadLocationsJson()
         {
             if (!File.Exists(_locationsPath))
-                return new LocationsData();
+                return new Location();
 
             var json = File.ReadAllText(_locationsPath);
-            return JsonSerializer.Deserialize<LocationsData>(json) ?? new LocationsData();
+            return JsonSerializer.Deserialize<Location>(json) ?? new Location();
         }
 
-        private void WriteLocationsJson(LocationsData data)
+        private void WriteLocationsJson(Location data)
         {
             var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_locationsPath, json);

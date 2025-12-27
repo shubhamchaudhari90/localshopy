@@ -1,5 +1,5 @@
-﻿using localshopyNew.Models;
-using localshopyNew.Services;
+﻿using localshopyNew.Services;
+using localshopyNew.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers

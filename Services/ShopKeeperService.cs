@@ -78,7 +78,7 @@ namespace localshopyNew.Services
         private string GetShopPath(string Name)
             => Path.Combine(_shopFolder, $"{Name}.json");
 
-        public void AddProduct(Shop shop, Product product)
+        public void AddProduct(Shop shop, ShopProduct product)
         {
             if (shop.Products.Any(p => p.Name == product.Name))
                 throw new Exception("Product with same name already exists.");
@@ -92,7 +92,7 @@ namespace localshopyNew.Services
             SaveShop(fileName, shop);
         }
 
-        public void UpdateProduct(Shop shop, Product product)
+        public void UpdateProduct(Shop shop, ShopProduct product)
         {
             var existing = shop.Products.FirstOrDefault(p => p.Name == product.Name);
             if (existing == null)
@@ -211,7 +211,7 @@ namespace localshopyNew.Services
                 return false;
 
             var json = File.ReadAllText(_productsFilePath);
-            var categories = JsonSerializer.Deserialize<List<Category>>(json) ?? new();
+            var categories = JsonSerializer.Deserialize<List<ProductMaster>>(json) ?? new();
 
             var products = categories
                 .SelectMany(c => c.ProductName)

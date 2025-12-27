@@ -12,16 +12,16 @@ namespace localshopyNew.Services
             _filePath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
         }
 
-        private List<Category> ReadFile()
+        private List<ProductMaster> ReadFile()
         {
             if (!File.Exists(_filePath))
-                return new List<Category>();
+                return new List<ProductMaster>();
 
             var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<List<Category>>(json) ?? new();
+            return JsonSerializer.Deserialize<List<ProductMaster>>(json) ?? new();
         }
 
-        private void WriteFile(List<Category> categories)
+        private void WriteFile(List<ProductMaster> categories)
         {
             var json = JsonSerializer.Serialize(categories, new JsonSerializerOptions
             {
@@ -32,7 +32,7 @@ namespace localshopyNew.Services
         }
 
         // READ
-        public List<Category> GetAll() => ReadFile();
+        public List<ProductMaster> GetAll() => ReadFile();
 
         public List<string> GetAllProducts()
         {
@@ -46,11 +46,11 @@ namespace localshopyNew.Services
             return products;
         }
 
-        public Category? GetById(int id) =>
+        public ProductMaster? GetById(int id) =>
             ReadFile().FirstOrDefault(c => c.Id == id);
 
         // CREATE
-        public void Add(Category category)
+        public void Add(ProductMaster category)
         {
             var categories = ReadFile();
             category.Id = categories.Any() ? categories.Max(c => c.Id) + 1 : 1;
@@ -59,7 +59,7 @@ namespace localshopyNew.Services
         }
 
         // UPDATE
-        public void Update(Category category)
+        public void Update(ProductMaster category)
         {
             var categories = ReadFile();
             var existing = categories.FirstOrDefault(c => c.Id == category.Id);

@@ -1,4 +1,5 @@
 ﻿using localshopyNew.Models;
+using localshopyNew.ViewModels;
 using System.Text.Json;
 
 namespace localshopyNew.Services
@@ -94,27 +95,27 @@ namespace localshopyNew.Services
             return false;
         }
 
-        private LocationsData ReadLocationsJson()
+        private Location ReadLocationsJson()
         {
             if (!File.Exists(_locationsPath))
-                return new LocationsData();
+                return new Location();
 
             var json = File.ReadAllText(_locationsPath);
-            return JsonSerializer.Deserialize<LocationsData>(json) ?? new LocationsData();
+            return JsonSerializer.Deserialize<Location>(json) ?? new Location();
 
         }
 
-        private List<Category> ReadCategoryJson()
+        private List<ProductMaster> ReadCategoryJson()
         {
             if (!File.Exists(_productsPath))
                 return [];
 
             var json = File.ReadAllText(_productsPath);
 
-            return JsonSerializer.Deserialize<List<Category>>(json) ?? [];
+            return JsonSerializer.Deserialize<List<ProductMaster>>(json) ?? [];
         }
 
-        public string GetCategoryByProduct(List<Category> categories, string productName)
+        public string GetCategoryByProduct(List<ProductMaster> categories, string productName)
         {
             string? category = categories.FirstOrDefault(c => c.ProductName.Any(p => p.Equals(productName, StringComparison.OrdinalIgnoreCase)))?.CategoryName;
             if (string.IsNullOrEmpty(category))
