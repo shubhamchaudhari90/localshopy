@@ -4,40 +4,34 @@ namespace localshopyNew.Models
 {
     public class Shop
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
 
-        [MaxLength(100)]
-        public required string Name { get; set; }
+        [Required, MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
         [MaxLength(100)]
         public string? Description { get; set; }
 
         [Required]
-        [MaxLength(10)]
-        [MinLength(10)]
-        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must contain exactly 10 digits.")]
-        public required string PhoneNo { get; set; }
+        [RegularExpression(@"^\d{10}$")]
+        public string PhoneNo { get; set; } = string.Empty;
+
+        [Required, EmailAddress]
+        public string OwnerEmailId { get; set; } = string.Empty;
 
         [Required]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
-        public required string OwnerEmailId { get; set; }
-
-        public required string Password { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
 
         public bool IsOpen { get; set; } = true;
 
-        public List<Product> Products { get; set; } = new();
-        public List<string> ServedLocations { get; set; } = new();
-
-        public List<ShopProduct> Products { get; set; } = [];
-
-        public List<Location> ServedLocations { get; set; } = [];
-
-        public DateTime AccountValidTill { get; set; } = DateTime.Now;
+        public DateTime AccountValidTill { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
->>>>>>> Stashed changes
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<ShopProduct> Products { get; set; } = new List<ShopProduct>();
+        public ICollection<ShopLocation> ShopLocations { get; set; } = new List<ShopLocation>();
     }
+
 }

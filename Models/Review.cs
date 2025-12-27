@@ -6,19 +6,22 @@ namespace localshopyNew.Models
     {
         public int Id { get; set; }
 
-        public required string ShopProductId { get; set; }
+        public int ShopProductId { get; set; }
+        public ShopProduct ShopProduct { get; set; } = null!;
 
-        public required string Reviewer { get; set; }
-
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
+        [Required, MaxLength(100)]
+        public string Reviewer { get; set; } = string.Empty;
 
         [Range(0, 5)]
-        public int Rating { get; set; }
+        public decimal Rating { get; set; }
 
         public string? Comment { get; set; }
 
-        public bool IsReviewed { get; set; } = false;
+        public bool IsApproved { get; set; } = false;
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     }
+
 }
