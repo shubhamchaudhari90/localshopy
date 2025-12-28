@@ -1,4 +1,6 @@
-﻿namespace localshopyNew.Models
+﻿using localshopyNew.Models;
+
+namespace localshopyNew.ViewModel
 {
     public class CustomerProductViewModel
     {

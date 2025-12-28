@@ -1,9 +1,15 @@
+using localshopyNew.Data;
 using localshopyNew.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register the DbContext
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add session services
 builder.Services.AddDistributedMemoryCache(); // required for session storage
@@ -19,6 +25,7 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<ShopkeeperService>();
 builder.Services.AddScoped<ShopService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<IEncodingService, EncodingService>();
 
 //// Authentication
 //builder.Services.AddAuthentication(options =>
