@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Categoty>
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Categories</h2>
+    <a class="btn btn-colorful mb-3 animate__animated animate__fadeInUp" href="@Url.Action("Create")">Add Category</a>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var cat in Model)
+        {
+            <div class="col">
+                <div class="card animate__animated animate__zoomIn">
+                    <div class="card-body">
+                        <h5 class="card-title">@cat.Name</h5>
+                        <p class="card-text">Sort Order: @cat.SortOrder</p>
+                        <p class="card-text">Status: @(cat.IsActive ? "Active" : "Inactive")</p>
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("Edit", new { id = cat.Id })">Edit</a>
+                        <a class="btn btn-danger btn-sm" href="@Url.Action("Delete", new { id = cat.Id })">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
