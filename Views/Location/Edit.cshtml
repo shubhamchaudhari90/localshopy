@@ -1,10 +1,10 @@
-﻿@model Categoty
+﻿@model Location
 @{
-    ViewData["Title"] = "Edit Category";
+    ViewData["Title"] = "Edit Location";
 }
 
 <div class="container mt-5">
-    <h2 class="animate__animated animate__fadeInDown">Edit Category</h2>
+    <h2 class="animate__animated animate__fadeInDown">Edit Location</h2>
 
     <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
         <input type="hidden" asp-for="Id" />
@@ -28,7 +28,7 @@
                    onchange="updateStatusText()" />
 
             <label class="form-check-label" id="isActiveLabel">
-                Category is inactive
+                Location is inactive
             </label>
         </div>
 
@@ -42,8 +42,8 @@
         const label = document.getElementById('isActiveLabel');
 
         label.textContent = checkbox.checked
-            ? 'Category is active'
-            : 'Category is inactive';
+            ? 'Location is active'
+            : 'Location is inactive';
     }
 
     // Run on page load (important for Edit view)

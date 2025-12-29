@@ -1,0 +1,30 @@
+﻿@model Categoty
+@{
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="container mt-5">
+    <h2 class="text-danger animate__animated animate__fadeInDown">
+        Delete Category
+    </h2>
+
+    <div class="alert alert-warning animate__animated animate__fadeIn">
+        Are you sure you want to delete this category?
+    </div>
+
+    <form asp-action="Delete" method="post" class="animate__animated animate__fadeInUp">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input class="form-control" value="@Model.Name" disabled />
+        </div>
+
+        <button type="submit" class="btn btn-warning">
+            Delete
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>

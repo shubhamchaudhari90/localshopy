@@ -1,26 +1,36 @@
 ﻿@model IEnumerable<Categoty>
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Active Categories";
 }
 
 <div class="container mt-5">
     <h2 class="mb-4 animate__animated animate__fadeInDown">Categories</h2>
-    <a class="btn btn-colorful mb-3 animate__animated animate__fadeInUp" href="@Url.Action("Create")">Add Category</a>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var cat in Model)
-        {
-            <div class="col">
-                <div class="card animate__animated animate__zoomIn">
-                    <div class="card-body">
-                        <h5 class="card-title">@cat.Name</h5>
-                        <p class="card-text">Sort Order: @cat.SortOrder</p>
-                        <p class="card-text">Status: @(cat.IsActive ? "Active" : "Inactive")</p>
-                        <a class="btn btn-primary btn-sm" href="@Url.Action("Edit", new { id = cat.Id })">Edit</a>
-                        <a class="btn btn-danger btn-sm" href="@Url.Action("Delete", new { id = cat.Id })">Delete</a>
+    <a class="btn mb-3 animate__animated animate__fadeInUp btn-orange" href="@Url.Action("Create")">Add New Category</a>
+    <a class="btn mb-3 animate__animated animate__fadeInUp btn-neutral" href="@Url.Action("Deleted")">Show Removed Categories</a>
+    @if (!Model.Any())
+    {
+        <!-- No data message -->
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No categories found.</strong><br />
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var cat in Model)
+            {
+                <div class="col">
+                    <div class="card animate__animated animate__zoomIn">
+                        <div class="card-body">
+                            <h5 class="card-title">@cat.Name</h5>
+                            <p class="card-text">Sort Order: @cat.SortOrder</p>
+                            <p class="card-text">Status: @(cat.IsActive ? "Active" : "Inactive")</p>
+                            <a class="btn mb-3 btn-orange-light" href="@Url.Action("Edit", new { id = cat.Id })">Edit</a>
+                            <a class="btn mb-3 btn-danger-custom" href="@Url.Action("Delete", new { id = cat.Id })">Delete</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 </div>

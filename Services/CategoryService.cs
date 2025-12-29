@@ -1,82 +1,84 @@
-﻿namespace localshopyNew.Services
+﻿using localshopyNew.Data;
+using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace localshopyNew.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
-        //private readonly string _filePath;
+        private readonly AppDBContext _context;
 
-        //public CategoryService(IWebHostEnvironment env)
-        //{
-        //    _filePath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
-        //}
+        public CategoryService(AppDBContext context)
+        {
+            _context = context;
+        }
 
-        //private List<ProductMaster> ReadFile()
-        //{
-        //    if (!File.Exists(_filePath))
-        //        return new List<ProductMaster>();
+        public async Task<bool> IsCategoryNameExists(string name)
+        {
+            return await _context.Categoties.AnyAsync(x => x.Name == name);
+        }
 
-        //    var json = File.ReadAllText(_filePath);
-        //    return JsonSerializer.Deserialize<List<ProductMaster>>(json) ?? new();
-        //}
+        public async Task<Categoty?> GetCategoryById(Guid id)
+        {
+            return await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
+        }
 
-        //private void WriteFile(List<ProductMaster> categories)
-        //{
-        //    var json = JsonSerializer.Serialize(categories, new JsonSerializerOptions
-        //    {
-        //        WriteIndented = true
-        //    });
+        public async Task<List<Categoty>> GetActiveCategories()
+        {
+            var categories = await _context.Categoties.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
+            return categories;
+        }
 
-        //    File.WriteAllText(_filePath, json);
-        //}
+        public async Task<List<Categoty>> GetInActiveCategories()
+        {
+            var categories = await _context.Categoties.Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
+            return categories;
+        }
 
-        //// READ
-        //public List<ProductMaster> GetAll() => ReadFile();
+        public async Task<bool> AddCategory(Categoty category)
+        {
+            category.Id = Guid.NewGuid();
+            int count = _context.Categoties.Any() ? _context.Categoties.Max(x => x.SortOrder) : 0;
+            category.SortOrder = count + 1;
+            category.IsActive = true;
+            await _context.AddAsync(category);
+            int rowsInserted = await _context.SaveChangesAsync();
+            if (rowsInserted > 0)
+            {
+                return true;
+            }
+            return false;
+        }
 
-        //public List<string> GetAllProducts()
-        //{
-        //    var categories = GetAll();
+        public async Task<bool> UpdateCategory(Categoty model)
+        {
+            var category = await _context.Categoties.FindAsync(model.Id);
+            if (category == null)
+                return false;
 
-        //    var products = categories
-        //        .SelectMany(c => c.ProductName)
-        //        .Distinct(StringComparer.OrdinalIgnoreCase)
-        //        .ToList();
+            category.Name = model.Name;
+            category.SortOrder = model.SortOrder;
+            category.IsActive = model.IsActive;
 
-        //    return products;
-        //}
+            int rowsInserted = await _context.SaveChangesAsync();
+            if (rowsInserted > 0)
+                return true;
+            return false;
+        }
 
-        //public ProductMaster? GetById(int id) =>
-        //    ReadFile().FirstOrDefault(c => c.Id == id);
-
-        //// CREATE
-        //public void Add(ProductMaster category)
-        //{
-        //    var categories = ReadFile();
-        //    category.Id = categories.Any() ? categories.Max(c => c.Id) + 1 : 1;
-        //    categories.Add(category);
-        //    WriteFile(categories);
-        //}
-
-        //// UPDATE
-        //public void Update(ProductMaster category)
-        //{
-        //    var categories = ReadFile();
-        //    var existing = categories.FirstOrDefault(c => c.Id == category.Id);
-        //    if (existing == null) return;
-
-        //    existing.CategoryName = category.CategoryName;
-        //    existing.ProductName = category.ProductName;
-
-        //    WriteFile(categories);
-        //}
-
-        //// DELETE
-        //public void Delete(int id)
-        //{
-        //    var categories = ReadFile();
-        //    var category = categories.FirstOrDefault(c => c.Id == id);
-        //    if (category == null) return;
-
-        //    categories.Remove(category);
-        //    WriteFile(categories);
-        //}
+        public async Task<bool> DeleteCategory(Guid id)
+        {
+            var category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
+            if (category != null)
+            {
+                _context.Categoties.Remove(category);
+                int rowsDeleted = await _context.SaveChangesAsync();
+                if (rowsDeleted > 0)
+                    return true;
+                return false;
+            }
+            return false;
+        }
     }
 }

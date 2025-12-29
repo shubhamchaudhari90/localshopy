@@ -1,4 +1,6 @@
-﻿namespace localshopyNew.Services
+﻿using localshopyNew.Services.Interfaces;
+
+namespace localshopyNew.Services
 {
     public class EncodingService : IEncodingService
     {

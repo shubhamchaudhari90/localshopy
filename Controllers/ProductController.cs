@@ -1,13 +1,13 @@
-﻿using localshopyNew.Services;
+﻿using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly CategoryService _service;
+        private readonly ICategoryService _service;
 
-        public ProductController(CategoryService service)
+        public ProductController(ICategoryService service)
         {
             _service = service;
         }

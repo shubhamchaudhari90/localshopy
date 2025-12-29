@@ -1,4 +1,5 @@
 ﻿using localshopyNew.Services;
+using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
@@ -8,10 +9,10 @@ namespace localshopyNew.Controllers
         private readonly IConfiguration _configuration;
 
         private readonly ShopkeeperService _service;
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
         private readonly LocationService _locationService;
 
-        public ShopkeeperController(IConfiguration configuration, ShopkeeperService service, CategoryService categoryService, LocationService locationService)
+        public ShopkeeperController(IConfiguration configuration, ShopkeeperService service, ICategoryService categoryService, LocationService locationService)
         {
             _configuration = configuration;
             _service = service;

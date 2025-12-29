@@ -1,5 +1,6 @@
 using localshopyNew.Data;
 using localshopyNew.Services;
+using localshopyNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +22,10 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddScoped<CustomerService>();
-builder.Services.AddScoped<LocationService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ShopkeeperService>();
 builder.Services.AddScoped<ShopService>();
-builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
 
 //// Authentication

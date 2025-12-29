@@ -1,106 +1,140 @@
-﻿using localshopyNew.Data;
-using localshopyNew.Models;
+﻿using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Controllers
 {
 
     public class CategoryController : Controller
     {
-        private readonly AppDBContext _context;
+        private readonly ICategoryService _service;
 
-        public CategoryController(AppDBContext context)
+        public CategoryController(ICategoryService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: Category
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categoties.OrderBy(x => x.SortOrder).ToListAsync();
+            var categories = await _service.GetActiveCategories();
             return View(categories);
         }
 
-        // GET: Category/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Categoty category)
         {
-            if (ModelState.IsValid)
+            if (string.IsNullOrEmpty(category.Name))
+                return View(category);
+
+            bool isNameExists = await _service.IsCategoryNameExists(category.Name);
+            if (isNameExists)
             {
-                category.Id = Guid.NewGuid();
-                _context.Add(category);
-                await _context.SaveChangesAsync();
+                ViewBag.ErrorMessage = "Category Name already exists";
+                return View(category);
+            }
+            bool isAdded = await _service.AddCategory(category);
+            if (isAdded)
+            {
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.ErrorMessage = "Category Not Added";
             return View(category);
         }
 
-        // GET: Category/Edit/Id
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            if (id == null) return NotFound();
-            var category = await _context.Categoties.FindAsync(id);
-
+            var category = await _service.GetCategoryById(id);
             if (category == null) return NotFound();
             return View(category);
         }
 
-        // POST: Category/Edit/Id
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, Categoty category)
+        public async Task<IActionResult> Edit(Categoty model)
         {
-            if (id != category.Id) return NotFound();
-
             if (ModelState.IsValid)
             {
-                try
+                var existsingCategory = await _service.GetCategoryById(model.Id);
+                if (existsingCategory == null) return NotFound();
+                bool isNameExists = await _service.IsCategoryNameExists(model.Name);
+                if (isNameExists)
                 {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
+                    ViewBag.ErrorMessage = "Category Name already exists";
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
+                bool isUpdated = await _service.UpdateCategory(model);
+                if (isUpdated)
                 {
-                    if (!_context.Categoties.Any(e => e.Id == id))
-                        return NotFound();
-                    else
-                        throw;
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(model);
         }
 
-        // GET: Category/Delete/Id
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (id == null) return NotFound();
-            var category = await _context.Categoties.FirstOrDefaultAsync(c => c.Id == id);
+            var category = await _service.GetCategoryById(id);
             if (category == null) return NotFound();
             return View(category);
         }
 
-        // POST: Category/Delete/Id
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var category = await _context.Categoties.FindAsync(id);
+            var category = await _service.GetCategoryById(id);
             if (category != null)
             {
-                _context.Categoties.Remove(category);
-                await _context.SaveChangesAsync();
+                category.IsActive = false;
+                bool isUpdated = await _service.UpdateCategory(category);
+                if (isUpdated)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
             return RedirectToAction(nameof(Index));
         }
-    }
 
+        public async Task<IActionResult> Deleted()
+        {
+            var categories = await _service.GetInActiveCategories();
+            return View(categories);
+        }
+
+        [HttpPost, ActionName("Restore")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(Guid id)
+        {
+            var category = await _service.GetCategoryById(id);
+            if (category != null)
+            {
+                category.IsActive = true;
+                bool isUpdated = await _service.UpdateCategory(category);
+                if (isUpdated)
+                {
+                    return RedirectToAction(nameof(Deleted));
+                }
+            }
+            return RedirectToAction(nameof(Deleted));
+        }
+
+        [HttpPost, ActionName("RemoveFromDatabase")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromDatabase(Guid id)
+        {
+            bool isDeleted = await _service.DeleteCategory(id);
+            if (isDeleted)
+            {
+                return RedirectToAction(nameof(Deleted));
+            }
+            ViewBag.ErrorMessage = "Category Not Deleted";
+            return RedirectToAction(nameof(Deleted));
+        }
+    }
 }

@@ -1,59 +1,85 @@
-﻿namespace localshopyNew.Services
+﻿using localshopyNew.Data;
+using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace localshopyNew.Services
 {
-    public class LocationService
+    public class LocationService : ILocationService
     {
-        //private readonly string _locationsPath;
+        private readonly AppDBContext _context;
 
-        //public LocationService(IWebHostEnvironment env)
-        //{
-        //    _locationsPath = Path.Combine(env.ContentRootPath, "App_Data", "Locations.json");
+        public LocationService(AppDBContext context)
+        {
+            _context = context;
+        }
 
-        //}
-        //private Location ReadLocationsJson()
-        //{
-        //    if (!File.Exists(_locationsPath))
-        //        return new Location();
+        public async Task<bool> IsLocationNameExists(string name)
+        {
+            return await _context.Locations.AnyAsync(x => x.Name == name);
+        }
 
-        //    var json = File.ReadAllText(_locationsPath);
-        //    return JsonSerializer.Deserialize<Location>(json) ?? new Location();
-        //}
+        public async Task<Location?> GetLocationById(Guid id)
+        {
+            return await _context.Locations.FirstOrDefaultAsync(x => x.Id == id);
+        }
 
-        //private void WriteLocationsJson(Location data)
-        //{
-        //    var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-        //    File.WriteAllText(_locationsPath, json);
-        //}
+        public async Task<List<Location>> GetActiveLocations()
+        {
+            var locations = await _context.Locations.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
+            return locations;
+        }
 
-        //public List<string> GetAllLocations() => ReadLocationsJson().Locations;
+        public async Task<List<Location>> GetInActiveLocations()
+        {
+            var locations = await _context.Locations.Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
+            return locations;
+        }
 
-        //public void AddLocation(string location)
-        //{
-        //    var data = ReadLocationsJson();
-        //    if (!data.Locations.Contains(location, StringComparer.OrdinalIgnoreCase))
-        //    {
-        //        data.Locations.Add(location);
-        //        WriteLocationsJson(data);
-        //    }
-        //}
+        public async Task<bool> AddLocation(Location location)
+        {
+            location.Id = Guid.NewGuid();
+            int count = _context.Locations.Any() ? _context.Locations.Max(x => x.SortOrder) : 0;
 
-        //public void UpdateLocation(string oldLocation, string newLocation)
-        //{
-        //    var data = ReadLocationsJson();
-        //    var index = data.Locations.FindIndex(l => l.Equals(oldLocation, StringComparison.OrdinalIgnoreCase));
-        //    if (index >= 0)
-        //    {
-        //        data.Locations[index] = newLocation;
-        //        WriteLocationsJson(data);
-        //    }
-        //}
+            location.SortOrder = count + 1;
+            location.IsActive = true;
+            await _context.AddAsync(location);
+            int rowsInserted = await _context.SaveChangesAsync();
+            if (rowsInserted > 0)
+            {
+                return true;
+            }
+            return false;
+        }
 
-        //public void Delete(string location)
-        //{
-        //    var data = ReadLocationsJson();
-        //    if (data.Locations.RemoveAll(l => l.Equals(location, StringComparison.OrdinalIgnoreCase)) > 0)
-        //    {
-        //        WriteLocationsJson(data);
-        //    }
-        //}
+        public async Task<bool> UpdateLocation(Location model)
+        {
+            var location = await _context.Locations.FindAsync(model.Id);
+            if (location == null)
+                return false;
+
+            location.Name = model.Name;
+            location.SortOrder = model.SortOrder;
+            location.IsActive = model.IsActive;
+
+            int rowsInserted = await _context.SaveChangesAsync();
+            if (rowsInserted > 0)
+                return true;
+            return false;
+        }
+
+        public async Task<bool> DeleteLocation(Guid id)
+        {
+            var location = await _context.Locations.FirstOrDefaultAsync(x => x.Id == id);
+            if (location != null)
+            {
+                _context.Locations.Remove(location);
+                int rowsDeleted = await _context.SaveChangesAsync();
+                if (rowsDeleted > 0)
+                    return true;
+                return false;
+            }
+            return false;
+        }
     }
 }

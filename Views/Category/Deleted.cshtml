@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Categoty>
+@{
+    ViewData["Title"] = "Removed Categories";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Removed Categories</h2>
+    <a class="btn mb-3 animate__animated animate__fadeInUp btn-neutral" href="@Url.Action("Index")">← Back</a>
+    @if (!Model.Any())
+    {
+        <!-- No data message -->
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No categories found.</strong><br />
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var cat in Model)
+            {
+                <div class="col">
+                    <div class="card animate__animated animate__zoomIn">
+                        <div class="card-body">
+                            <h5 class="card-title">@cat.Name</h5>
+                            <p class="card-text">Sort Order: @cat.SortOrder</p>
+                            <p class="card-text">Status: @(cat.IsActive ? "Active" : "Inactive")</p>
+                            <form asp-action="Restore" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@cat.Id" />
+                                <button type="submit" class="btn mb-3 btn-success-custom">
+                                    Restore
+                                </button>
+                            </form>
+
+                            <form asp-action="RemoveFromDatabase" method="post" class="d-inline"
+                                  onsubmit="return confirm('Are you sure you want to permanently delete this item?');">
+                                <input type="hidden" name="id" value="@cat.Id" />
+                                <button type="submit" class="btn mb-3 btn-danger-custom">
+                                    Remove From Database
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

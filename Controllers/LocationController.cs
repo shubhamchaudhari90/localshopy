@@ -1,45 +1,139 @@
-﻿using localshopyNew.Services;
+﻿using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
     public class LocationController : Controller
     {
-        private readonly LocationService _service;
+        private readonly ILocationService _service;
 
-        public LocationController(LocationService service)
+        public LocationController(ILocationService service)
         {
             _service = service;
         }
-        //public IActionResult Index()
-        //{
-        //    var locations = _service.GetAllLocations();
-        //    return View(locations);
-        //}
 
-        //// CREATE
-        //[HttpPost]
-        //public IActionResult Create(string locationName)
-        //{
-        //    if (string.IsNullOrWhiteSpace(locationName))
-        //        return RedirectToAction(nameof(Index));
-        //    _service.AddLocation(locationName.Trim());
-        //    return RedirectToAction(nameof(Index));
-        //}
+        public async Task<IActionResult> Index()
+        {
+            var locations = await _service.GetActiveLocations();
+            return View(locations);
+        }
 
-        //// UPDATE
-        //[HttpPost]
-        //public IActionResult Edit(string oldName, string newName)
-        //{
-        //    _service.UpdateLocation(oldName.Trim(), newName.Trim());
-        //    return RedirectToAction(nameof(Index));
-        //}
+        public IActionResult Create()
+        {
+            return View();
+        }
 
-        //// DELETE
-        //public IActionResult Delete(string name)
-        //{
-        //    _service.Delete(name.Trim());
-        //    return RedirectToAction(nameof(Index));
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Location location)
+        {
+            if (string.IsNullOrEmpty(location.Name))
+                return View(location);
+
+            bool isNameExists = await _service.IsLocationNameExists(location.Name);
+            if (isNameExists)
+            {
+                ViewBag.ErrorMessage = "Location Name already exists";
+                return View(location);
+            }
+            bool isAdded = await _service.AddLocation(location);
+            if (isAdded)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.ErrorMessage = "Location Not Added";
+            return View(location);
+        }
+
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var location = await _service.GetLocationById(id);
+            if (location == null) return NotFound();
+            return View(location);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Location model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existsingLocation = await _service.GetLocationById(model.Id);
+                if (existsingLocation == null) return NotFound();
+                bool isNameExists = await _service.IsLocationNameExists(model.Name);
+                if (isNameExists)
+                {
+                    ViewBag.ErrorMessage = "Location Name already exists";
+                    return View(model);
+                }
+                bool isUpdated = await _service.UpdateLocation(model);
+                if (isUpdated)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var location = await _service.GetLocationById(id);
+            if (location == null) return NotFound();
+            return View(location);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            var location = await _service.GetLocationById(id);
+            if (location != null)
+            {
+                location.IsActive = false;
+                bool isUpdated = await _service.UpdateLocation(location);
+                if (isUpdated)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Deleted()
+        {
+            var locations = await _service.GetInActiveLocations();
+            return View(locations);
+        }
+
+        [HttpPost, ActionName("Restore")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(Guid id)
+        {
+            var location = await _service.GetLocationById(id);
+            if (location != null)
+            {
+                location.IsActive = true;
+                bool isUpdated = await _service.UpdateLocation(location);
+                if (isUpdated)
+                {
+                    return RedirectToAction(nameof(Deleted));
+                }
+            }
+            return RedirectToAction(nameof(Deleted));
+        }
+
+        [HttpPost, ActionName("RemoveFromDatabase")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromDatabase(Guid id)
+        {
+            bool isDeleted = await _service.DeleteLocation(id);
+            if (isDeleted)
+            {
+                return RedirectToAction(nameof(Deleted));
+            }
+            ViewBag.ErrorMessage = "Location Not Deleted";
+            return RedirectToAction(nameof(Deleted));
+        }
     }
 }
