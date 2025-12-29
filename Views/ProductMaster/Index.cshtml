@@ -1,0 +1,85 @@
+﻿@model IEnumerable<localshopyNew.ViewModel.CategoryProductViewModel>
+@{
+    ViewData["Title"] = "Active Products";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Products</h2>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-warning animate__animated animate__fadeInUp"
+           href="@Url.Action("Create")">
+            Add New Product
+        </a>
+
+        <a class="btn btn-secondary animate__animated animate__fadeInUp"
+           href="@Url.Action("Deleted")">
+            Show Removed Products
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No product found.</strong>
+        </div>
+    }
+    else
+    {
+        <!-- Responsive table wrapper -->
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Categoty Name</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var productCategory in Model)
+                    {
+                        foreach (var products in productCategory.ProductMasters)
+                        {
+                            <tr>
+                                <td data-label="Name">
+                                    <strong>@products.ProductName</strong>
+                                </td>
+
+                                <td data-label="Categoty Name">
+                                    @productCategory.Categoty.Name
+                                </td>
+
+                                <td data-label="Status">
+                                    @if (products.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+
+                                <td class="text-center" data-label="Actions">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a class="btn btn-sm btn-warning"
+                                           href="@Url.Action("Edit", new { id = products.Id })">
+                                            Edit
+                                        </a>
+
+                                        <a class="btn btn-sm btn-danger"
+                                           href="@Url.Action("Delete", new { id = products.Id })">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

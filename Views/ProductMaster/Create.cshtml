@@ -1,0 +1,26 @@
+﻿@model ProductMaster
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<div class="container mt-5">
+    <h2 class="animate__animated animate__fadeInDown">Add Product</h2>
+
+    <form asp-action="Create" class="animate__animated animate__fadeInUp">
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId"
+                    asp-items="ViewBag.CategoryList"
+                    class="form-select">
+                <option value="">-- Select Category --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ProductName" class="form-label"></label>
+            <input asp-for="ProductName" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-warning">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

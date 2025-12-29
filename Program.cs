@@ -23,6 +23,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IProductMasterService, ProductMasterService>();
 builder.Services.AddScoped<ShopkeeperService>();
 builder.Services.AddScoped<ShopService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();

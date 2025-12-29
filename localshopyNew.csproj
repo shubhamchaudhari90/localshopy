@@ -26,8 +26,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="App_Data\Shops\" />
-  </ItemGroup>
-
 </Project>
