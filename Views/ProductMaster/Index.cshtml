@@ -31,8 +31,9 @@
             <table class="table table-bordered table-hover align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Name</th>
                         <th>Categoty Name</th>
+                        <th>Name</th>                        
+                        <th>Sort Order</th>
                         <th>Status</th>
                         <th class="text-center" style="width: 160px;">Actions</th>
                     </tr>
@@ -43,12 +44,16 @@
                         foreach (var products in productCategory.ProductMasters)
                         {
                             <tr>
+                                <td data-label="Categoty Name">
+                                    @productCategory.Categoty.Name
+                                </td>
+
                                 <td data-label="Name">
                                     <strong>@products.ProductName</strong>
                                 </td>
 
-                                <td data-label="Categoty Name">
-                                    @productCategory.Categoty.Name
+                                <td data-label="Sort Order">
+                                    @products.SortOrder
                                 </td>
 
                                 <td data-label="Status">

@@ -8,6 +8,11 @@
 
     <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
         <input type="hidden" asp-for="Id" />
+        
+        <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input class="form-control" value="@ViewBag.CategoryName" disabled />
+        </div>
 
         <div class="mb-3">
             <label asp-for="ProductName" class="form-label"></label>

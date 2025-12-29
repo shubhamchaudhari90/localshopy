@@ -49,7 +49,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             var location = await _service.GetLocationById(id);
-            if (location == null) return NotFound();
+            if (location == null) return RedirectToAction(nameof(Index));
             return View(location);
         }
 
@@ -60,7 +60,7 @@ namespace localshopyNew.Controllers
             if (ModelState.IsValid)
             {
                 var existsingLocation = await _service.GetLocationById(model.Id);
-                if (existsingLocation == null) return NotFound();
+                if (existsingLocation == null) return RedirectToAction(nameof(Index));
 
                 if (existsingLocation.Name != model.Name)
                 {
@@ -81,7 +81,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var location = await _service.GetLocationById(id);
-            if (location == null) return NotFound();
+            if (location == null) return RedirectToAction(nameof(Index));
             return View(location);
         }
 

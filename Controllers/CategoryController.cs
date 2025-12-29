@@ -50,7 +50,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             var category = await _service.GetCategoryById(id);
-            if (category == null) return NotFound();
+            if (category == null) return RedirectToAction(nameof(Index));
             return View(category);
         }
 
@@ -61,7 +61,7 @@ namespace localshopyNew.Controllers
             if (ModelState.IsValid)
             {
                 var existsingCategory = await _service.GetCategoryById(model.Id);
-                if (existsingCategory == null) return NotFound();
+                if (existsingCategory == null) return RedirectToAction(nameof(Index));
                 if (existsingCategory.Name != model.Name)
                 {
                     bool isNameExists = await _service.IsCategoryNameExists(model.Name);
@@ -80,7 +80,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var category = await _service.GetCategoryById(id);
-            if (category == null) return NotFound();
+            if (category == null) return RedirectToAction(nameof(Index));
             return View(category);
         }
 

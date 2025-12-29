@@ -18,8 +18,8 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var locations = await _service.GetActiveProducts();
-            return View(locations);
+            var products = await _service.GetActiveProducts();
+            return View(products);
         }
 
         public async Task<IActionResult> Create()
@@ -36,31 +36,37 @@ namespace localshopyNew.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductMaster location)
+        public async Task<IActionResult> Create(ProductMaster product)
         {
-            if (string.IsNullOrEmpty(location.ProductName))
-                return View(location);
+            if (string.IsNullOrEmpty(product.ProductName))
+                return View(product);
 
-            bool isNameExists = await _service.IsProductNameExists(location.ProductName);
+            bool isNameExists = await _service.IsProductNameExists(product.ProductName);
             if (isNameExists)
             {
                 ViewBag.ErrorMessage = "Product Name already exists";
-                return View(location);
+                return View(product);
             }
-            bool isAdded = await _service.AddProduct(location);
+            bool isAdded = await _service.AddProduct(product);
             if (isAdded)
             {
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.ErrorMessage = "Product Not Added";
-            return View(location);
+            return View(product);
         }
 
         public async Task<IActionResult> Edit(Guid id)
         {
-            var location = await _service.GetProductById(id);
-            if (location == null) return NotFound();
-            return View(location);
+            var product = await _service.GetProductById(id);
+            if (product == null) return RedirectToAction(nameof(Index));
+            Categoty? category = await _categoryService.GetCategoryById(product.CategoryId);
+            if (category == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.CategoryName = category.Name;
+            return View(product);
         }
 
         [HttpPost]
@@ -70,7 +76,7 @@ namespace localshopyNew.Controllers
             if (ModelState.IsValid)
             {
                 var existsingProduct = await _service.GetProductById(model.Id);
-                if (existsingProduct == null) return NotFound();
+                if (existsingProduct == null) return RedirectToAction(nameof(Index));
 
                 if (existsingProduct.ProductName != model.ProductName)
                 {
@@ -78,6 +84,12 @@ namespace localshopyNew.Controllers
                     bool isNameExists = await _service.IsProductNameExists(model.ProductName);
                     if (isNameExists)
                     {
+                        Categoty? category = await _categoryService.GetCategoryById(model.CategoryId);
+                        if (category == null)
+                        {
+                            return RedirectToAction(nameof(Index));
+                        }
+                        ViewBag.CategoryName = category.Name;
                         ViewBag.ErrorMessage = "Product Name already exists";
                         return View(model);
                     }
@@ -90,20 +102,27 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Delete(Guid id)
         {
-            var location = await _service.GetProductById(id);
-            if (location == null) return NotFound();
-            return View(location);
+            var product = await _service.GetProductById(id);
+            if (product == null) return RedirectToAction(nameof(Index));
+            Categoty? category = await _categoryService.GetCategoryById(product.CategoryId);
+            if (category == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.CategoryName = category.Name;
+            if (product == null) return RedirectToAction(nameof(Index));
+            return View(product);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var location = await _service.GetProductById(id);
-            if (location != null)
+            var product = await _service.GetProductById(id);
+            if (product != null)
             {
-                location.IsActive = false;
-                bool isUpdated = await _service.UpdateProduct(location);
+                product.IsActive = false;
+                bool isUpdated = await _service.UpdateProduct(product);
                 if (isUpdated)
                 {
                     return RedirectToAction(nameof(Index));
@@ -114,19 +133,19 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Deleted()
         {
-            var locations = await _service.GetInActiveProducts();
-            return View(locations);
+            var products = await _service.GetInActiveProducts();
+            return View(products);
         }
 
         [HttpPost, ActionName("Restore")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Restore(Guid id)
         {
-            var location = await _service.GetProductById(id);
-            if (location != null)
+            var product = await _service.GetProductById(id);
+            if (product != null)
             {
-                location.IsActive = true;
-                bool isUpdated = await _service.UpdateProduct(location);
+                product.IsActive = true;
+                bool isUpdated = await _service.UpdateProduct(product);
                 if (isUpdated)
                 {
                     return RedirectToAction(nameof(Deleted));
