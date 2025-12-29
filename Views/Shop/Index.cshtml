@@ -1,38 +1,97 @@
-﻿@model List<localshopyNew.Models.Shop>
+﻿@model IEnumerable<Shop>
+@{
+    ViewData["Title"] = "Active Shop";
+}
 
-<h2>All Shops</h2>
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Shops
+    </h2>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Add New Shop</a>
-</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-warning animate__animated animate__fadeInUp"
+           href="@Url.Action("Create")">
+            Add New Shop
+        </a>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Phone No.</th>
-            <th>Location</th>
-            <th>Owner Email</th>
-            <th>Status</th>
-            <th>Valid Till</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var shop in Model)
-        {
-            <tr>
-                <td>@shop.Name</td>
-                <td>@shop.PhoneNo</td>
-                <td>@string.Join(" | ", shop.ServedLocations)</td>
-                <td>@shop.OwnerEmailId</td>
-                <td>@(shop.IsOpen ? "Open" : "Closed")</td>
-                <td>@shop.AccountValidTill.ToShortDateString()</td>
-                <td>
-                    <a asp-action="Details" asp-route-name="@shop.Name" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-name="@shop.Name" class="btn btn-warning btn-sm">Edit</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <a class="btn btn-secondary animate__animated animate__fadeInUp"
+           href="@Url.Action("Deleted")">
+            Show Removed Shops
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No shop found.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone Number</th>
+                        <th>Owner Email</th>
+                        <th>Password</th>
+                        <th>Status</th>
+                        <th>Valid Till</th>
+                        <th class="text-center" style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var shop in Model)
+                    {
+                        <tr>
+                            <td data-label="Name">
+                                <strong>@shop.Name</strong>
+                            </td>
+
+                            <td data-label="Phone Number">
+                                @shop.PhoneNo
+                            </td>
+
+                            <td data-label="Owner Email">
+                                <strong>@shop.OwnerEmailId</strong>
+                            </td>
+
+                            <td data-label="Password">
+                                @shop.Password
+                            </td>
+
+                            <td data-label="Status">
+                                @if (shop.IsOpen)
+                                {
+                                    <span class="badge bg-success">Open</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Close</span>
+                                }
+                            </td>
+
+                            <td data-label="Valid Till">
+                                @shop.AccountValidTill
+                            </td>
+
+                            <td class="text-center" data-label="Actions">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a class="btn btn-sm btn-warning"
+                                       href="@Url.Action("Edit", new { id = shop.Id })">
+                                        Edit
+                                    </a>
+                                    <a class="btn btn-sm btn-danger"
+                                       href="@Url.Action("Delete", new { id = shop.Id })">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

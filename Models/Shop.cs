@@ -2,13 +2,13 @@
 {
     public class Shop
     {
-        public string? Id { get; set; }
+        public Guid Id { get; set; }
         public required string Name { get; set; }
         public required string PhoneNo { get; set; }
         public required string OwnerEmailId { get; set; }
         public required string Password { get; set; }
         public bool IsOpen { get; set; } = true;
-        public List<string> ServedLocations { get; set; } = [];
+        public List<Guid> ServedLocations { get; set; } = [];
         public DateTime AccountValidTill { get; set; } = DateTime.Now;
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
 

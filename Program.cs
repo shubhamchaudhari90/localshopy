@@ -25,7 +25,7 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IProductMasterService, ProductMasterService>();
 builder.Services.AddScoped<ShopkeeperService>();
-builder.Services.AddScoped<ShopService>();
+builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
 

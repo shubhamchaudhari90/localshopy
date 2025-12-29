@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2 class="animate__animated animate__fadeInDown">Add Product</h2>
 
-    <form asp-action="Create" class="animate__animated animate__fadeInUp">
+    <form asp-action="Create" method="post" class="animate__animated animate__fadeInUp">
         <div class="mb-3">
             <label asp-for="CategoryId" class="form-label">Category</label>
             <select asp-for="CategoryId"

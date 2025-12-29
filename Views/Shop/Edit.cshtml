@@ -1,93 +1,75 @@
-﻿@model localshopyNew.Models.Shop
+﻿@model Shop
+@{
+    ViewData["Title"] = "Add Product";
+}
 
-<h2>Edit Shop</h2>
-<button type="button" id="UpdatePassword" class="btn btn-primary mt-2">Update Password</button>
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+<div class="container mt-5">
+    <h2 class="animate__animated animate__fadeInDown">Add Product</h2>
 
-    <div class="form-group">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-    </div>
+    <form asp-action="Create" method="post" class="animate__animated animate__fadeInUp">
 
-    <div class="form-group">
-        <label class="form-label d-block">Select Locations</label>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+        </div>
 
-        @foreach (var location in ViewBag.Locations as List<string>)
-        {
-            bool isChecked = Model?.ServedLocations?.Contains(location) == true;
+        <div class="mb-3">
+            <label asp-for="PhoneNo" class="form-label"></label>
+            <input asp-for="PhoneNo" class="form-control" />
+        </div>
 
-            <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       name="ServedLocations"
-                       value="@location"
-                       id="loc_@location.Replace(" ", "_")"
-                       @(isChecked ? "checked" : "") />
+        <div class="mb-3">
+            <label asp-for="OwnerEmailId" class="form-label"></label>
+            <input asp-for="OwnerEmailId" class="form-control" />
+        </div>
 
-                <label class="form-check-label"
-                       for="loc_@location.Replace(" ", "_")">
-                    @location
-                </label>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountValidTill" class="form-label"></label>
+            <input asp-for="AccountValidTill" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Locations</label>
+
+            <div class="border rounded p-3">
+                @foreach (var location in ViewBag.LocationList)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="LocationIds"
+                               value="@location.Value"
+                               id="loc_@location.Value"
+                               @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
+
+                        <label class="form-check-label" for="loc_@location.Value">
+                            @location.Text
+                        </label>
+                    </div>
+                }
+
             </div>
-        }
-    </div>
+        </div>
 
-    <div class="form-group">
-        <label>Phone No.</label>
-        <textarea asp-for="PhoneNo" class="form-control"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>Owner Email</label>
-        <input asp-for="OwnerEmailId" type="email" class="form-control" readonly />
-    </div>
-
-    <div class="form-group">
-        <label>Password</label>
-        <input asp-for="Password" type="text" class="form-control" readonly />
-    </div>
-
-    <div class="form-group">
-        <label>Valid Till</label>
-        <input asp-for="AccountValidTill" type="date" class="form-control" />
-        <span asp-validation-for="AccountValidTill" class="text-danger"></span>
-    </div>
-
-    <div class="form-check">
-        <input asp-for="IsOpen" class="form-check-input" />
-        <label asp-for="IsOpen" class="form-check-label">Is Open</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary mt-2">Cancel</a>
-</form>
-<br />
-
-
-<div asp-validation-summary="All" class="text-danger"></div>
-
+        <button type="submit" class="btn btn-warning">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
 <script>
-    const input = document.getElementById('Password');
-    const button = document.getElementById('UpdatePassword');
+    function updateStatusText() {
+        const checkbox = document.getElementById('isOpenSwitch');
+        const label = document.getElementById('isOpenLabel');
 
-    // Store original password value
-    const originalPassword = input.value;
+        label.textContent = checkbox.checked
+            ? 'Shop is Open'
+            : 'Shop is Close';
+    }
 
-    button.addEventListener('click', function () {
-        if (input.hasAttribute('readonly')) {
-            // Enable editing
-            input.removeAttribute('readonly');
-            input.focus();
-            button.textContent = 'Old Password';
-        } else {
-            // Restore old password and lock field
-            input.value = originalPassword;
-            input.setAttribute('readonly', true);
-            button.textContent = 'Edit Password';
-        }
-    });
+    // Run on page load (important for Edit view)
+    document.addEventListener('DOMContentLoaded', updateStatusText);
 </script>
-
-
-
