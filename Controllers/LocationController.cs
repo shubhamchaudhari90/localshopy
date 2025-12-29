@@ -61,17 +61,19 @@ namespace localshopyNew.Controllers
             {
                 var existsingLocation = await _service.GetLocationById(model.Id);
                 if (existsingLocation == null) return NotFound();
-                bool isNameExists = await _service.IsLocationNameExists(model.Name);
-                if (isNameExists)
+
+                if (existsingLocation.Name != model.Name)
                 {
-                    ViewBag.ErrorMessage = "Location Name already exists";
-                    return View(model);
+
+                    bool isNameExists = await _service.IsLocationNameExists(model.Name);
+                    if (isNameExists)
+                    {
+                        ViewBag.ErrorMessage = "Location Name already exists";
+                        return View(model);
+                    }
                 }
-                bool isUpdated = await _service.UpdateLocation(model);
-                if (isUpdated)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
+                await _service.UpdateLocation(model);
+                return RedirectToAction(nameof(Index));
             }
             return View(model);
         }

@@ -4,45 +4,83 @@
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4 animate__animated animate__fadeInDown">Removed Locations</h2>
-    <a class="btn mb-3 animate__animated animate__fadeInUp btn-neutral" href="@Url.Action("Index")">← Back</a>
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Removed Locations
+    </h2>
+
+    <div class="mb-3">
+        <a class="btn btn-secondary animate__animated animate__fadeInUp"
+           href="@Url.Action("Index")">
+            ← Back
+        </a>
+    </div>
+
     @if (!Model.Any())
     {
-        <!-- No data message -->
         <div class="alert alert-info animate__animated animate__fadeIn">
-            <strong>No locations found.</strong><br />
+            <strong>No locations found.</strong>
         </div>
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach (var cat in Model)
-            {
-                <div class="col">
-                    <div class="card animate__animated animate__zoomIn">
-                        <div class="card-body">
-                            <h5 class="card-title">@cat.Name</h5>
-                            <p class="card-text">Sort Order: @cat.SortOrder</p>
-                            <p class="card-text">Status: @(cat.IsActive ? "Active" : "Inactive")</p>
-                            <form asp-action="Restore" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@cat.Id" />
-                                <button type="submit" class="btn mb-3 btn-success-custom">
-                                    Restore
-                                </button>
-                            </form>
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Sort Order</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td data-label="Name">
+                                <strong>@cat.Name</strong>
+                            </td>
 
-                            <form asp-action="RemoveFromDatabase" method="post" class="d-inline"
-                                  onsubmit="return confirm('Are you sure you want to permanently delete this item?');">
-                                <input type="hidden" name="id" value="@cat.Id" />
-                                <button type="submit" class="btn mb-3 btn-danger-custom">
-                                    Remove From Database
-                                </button>
-                            </form>
+                            <td data-label="Sort Order">
+                                @cat.SortOrder
+                            </td>
 
-                        </div>
-                    </div>
-                </div>
-            }
+                            <td data-label="Status">
+                                <span class="badge bg-danger">
+                                    Removed
+                                </span>
+                            </td>
+
+                            <td class="text-center" data-label="Actions">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                    <form asp-action="Restore"
+                                          method="post"
+                                          class="d-inline">
+                                        <input type="hidden" name="id" value="@cat.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-success">
+                                            Restore
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="RemoveFromDatabase"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete this item?');">
+                                        <input type="hidden" name="id" value="@cat.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger">
+                                            Remove
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>

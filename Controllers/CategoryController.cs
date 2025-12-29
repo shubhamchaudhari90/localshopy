@@ -62,17 +62,17 @@ namespace localshopyNew.Controllers
             {
                 var existsingCategory = await _service.GetCategoryById(model.Id);
                 if (existsingCategory == null) return NotFound();
-                bool isNameExists = await _service.IsCategoryNameExists(model.Name);
-                if (isNameExists)
+                if (existsingCategory.Name != model.Name)
                 {
-                    ViewBag.ErrorMessage = "Category Name already exists";
-                    return View(model);
+                    bool isNameExists = await _service.IsCategoryNameExists(model.Name);
+                    if (isNameExists)
+                    {
+                        ViewBag.ErrorMessage = "Category Name already exists";
+                        return View(model);
+                    }
                 }
-                bool isUpdated = await _service.UpdateCategory(model);
-                if (isUpdated)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
+                await _service.UpdateCategory(model);
+                return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
