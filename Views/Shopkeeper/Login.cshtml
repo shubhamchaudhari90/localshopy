@@ -1,0 +1,42 @@
+﻿@using localshopyNew.ViewModel
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm animate__animated animate__fadeInUp" style="max-width: 400px; width: 100%;">
+        <div class="card-body p-4">
+
+            <!-- Header -->
+            <h3 class="card-title text-center mb-4 animate__animated animate__fadeInDown">Login</h3>
+
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            <form asp-action="Login" method="post" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" required />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

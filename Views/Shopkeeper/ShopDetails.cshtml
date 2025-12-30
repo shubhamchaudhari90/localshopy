@@ -1,0 +1,201 @@
+﻿@using localshopyNew.ViewModel
+@model ShopProductsViewModel
+@{
+    var daysLeft = (Model.Shop.AccountValidTill.Date - DateTime.Today).Days;
+
+    string shopBadgeClass;
+    string shopBadgeText;
+
+    if (daysLeft < 0)
+    {
+        shopBadgeClass = "btn btn-danger btn-sm";
+        shopBadgeText = " (Expired)";
+    }
+    else if (daysLeft <= 5)
+    {
+        shopBadgeClass = "btn btn-warning btn-sm";
+        shopBadgeText = $" ({daysLeft} day{(daysLeft > 1 ? "s" : "")} left)";
+    }
+    else
+    {
+        shopBadgeClass = "";
+        shopBadgeText = $"";
+    }
+}
+
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
+        <div class="card-body p-4">
+
+            <!-- Top Actions -->
+            <div class="d-flex justify-content-between mb-3">
+                <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+                <a asp-action="Edit" asp-route-id="@Model.Shop.Id" class="btn btn-warning">Edit</a>
+            </div>
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h3 class="animate__animated animate__fadeInDown mb-1">@Model.Shop.Name</h3>
+                <span class="badge px-4 py-2 fs-6 @(Model.Shop.IsOpen ? "bg-success" : "bg-danger")">
+                    @(Model.Shop.IsOpen ? "SHOP OPEN" : "SHOP CLOSED")
+                </span>
+            </div>
+
+            <!-- Shop Details -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Phone:</strong> @Model.Shop.PhoneNo</p>
+                    <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        <strong>Valid Till:</strong>
+                        <span class="@shopBadgeClass">
+                            <strong>@Model.Shop.AccountValidTill.ToString("dd-MMM-yyyy") @shopBadgeText</strong>
+                        </span>
+
+                    </p>
+                    <p>
+                        <strong>Created On:</strong> @(Model.Shop.CreatedAt?.ToString("dd-MMM-yyyy") ?? "-")
+                    </p>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- Product Section Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Products</h4>
+                <a class="btn btn-warning btn-sm" href="@Url.Action("Create", "Product", new { shopId = Model.Shop.Id })">
+                    Add Product
+                </a>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="alert alert-info">
+                    <strong>No products found.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var product in Model.Products.OrderBy(x => x.SortOrder))
+                    {
+                        bool discountActive =
+                        product.Discount > 0 &&
+                        product.DiscountValidFrom.HasValue &&
+                        product.DiscountValidTill.HasValue &&
+                        DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                        DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                        daysLeft = product.DiscountValidTill.HasValue
+                        ? (product.DiscountValidTill.Value.Date - DateTime.Today).Days
+                        : int.MaxValue;
+
+                        string productCardClass;
+                        if (!product.IsAvailable)
+                        {
+                            productCardClass = "border-secondary bg-secondary bg-opacity-10";
+                        }
+                        else if (discountActive)
+                        {
+                            productCardClass = "border-warning bg-warning bg-opacity-10";
+                        }
+                        else
+                        {
+                            productCardClass = "border-success bg-success bg-opacity-10";
+                        }
+
+                        // Determine filter category
+                        string validFilter =
+                        !product.DiscountValidTill.HasValue ? "all" :
+                        daysLeft < 0 ? "expired" :
+                        daysLeft <= 5 ? "less5" :
+                        "more5";
+                        string countdownBadge = "";
+                        if (daysLeft > 0 && daysLeft <= 3)
+                        {
+                            countdownBadge = $"{daysLeft} day{(daysLeft > 1 ? "s" : "")} left";
+                        }
+
+                        <div class="col-12 col-md-6 col-lg-4 product-card" data-filter="@validFilter">
+                            <div class="card h-100 shadow-sm @productCardClass">
+                                <div class="card-body d-flex flex-column">
+
+                                    <!-- Product Header -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0">Product #@product.SortOrder</h6>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <span class="badge @(product.IsAvailable ? "bg-success" : "bg-secondary")">
+                                                @(product.IsAvailable ? "Available" : "Out")
+                                            </span>
+
+                                            @if (discountActive)
+                                            {
+                                                <span class="badge bg-warning text-dark">@product.Discount% OFF</span>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(countdownBadge))
+                                            {
+                                                <span class="badge bg-danger text-white">@countdownBadge</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-2" />
+
+                                    <!-- Image -->
+                                    @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                    {
+                                        <img src="~/uploads/@product.ImageFileName"
+                                             class="img-fluid rounded mb-2"
+                                             style="max-height: 140px; object-fit: cover;" />
+                                    }
+
+                                    <!-- Details -->
+                                    <p class="mb-1"><strong>Price:</strong> ₹@product.Price</p>
+
+                                    @if (discountActive)
+                                    {
+                                        <p class="mb-1 text-success">
+                                            <strong>Discount Till:</strong> @product.DiscountValidTill?.ToShortDateString()
+                                        </p>
+                                    }
+
+                                    <p class="mb-2 text-muted small">@product.Description</p>
+
+                                    <!-- Actions -->
+                                    <div class="mt-auto d-flex gap-2">
+                                        <a class="btn btn-sm btn-warning flex-fill" href="@Url.Action("Edit", "Product", new { id = product.Id })">
+                                            Edit
+                                        </a>
+                                        <a class="btn btn-sm btn-danger flex-fill" href="@Url.Action("Delete", "Product", new { id = product.Id })">
+                                            Delete
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- JS Filter -->
+<script>
+    function filterProducts(filter) {
+        document.querySelectorAll('.product-card').forEach(card => {
+            if (filter === 'all' || card.dataset.filter === filter) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>

@@ -1,0 +1,65 @@
+﻿@model Shop
+@{
+    ViewData["Title"] = "Edit Shop";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm animate__animated animate__fadeInUp" style="max-width: 600px; width: 100%;">
+        <div class="card-body p-4">
+
+            <!-- Header -->
+            <h3 class="card-title text-center mb-4 animate__animated animate__fadeInDown">
+                Edit Shop
+            </h3>
+
+            <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNo" class="form-label"></label>
+                    <input asp-for="PhoneNo" class="form-control" required />
+                    <span asp-validation-for="PhoneNo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="OwnerEmailId" class="form-label"></label>
+                    <input asp-for="OwnerEmailId" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AccountValidTill" class="form-label"></label>
+                    <input asp-for="AccountValidTill" type="date" class="form-control" />
+                </div>
+
+                <div class="form-check mb-2">
+                    <input asp-for="IsOpen" class="form-check-input" />
+                    <label asp-for="IsOpen" class="form-check-label"></label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsActive" class="form-check-input" />
+                    <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-warning">
+                        Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

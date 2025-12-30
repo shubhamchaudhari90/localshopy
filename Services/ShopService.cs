@@ -19,6 +19,11 @@ namespace localshopyNew.Services
             return await _context.Shops.AnyAsync(x => x.Name == name);
         }
 
+        public async Task<bool> IsShopOwnerEmailExists(string ownerEmailId)
+        {
+            return await _context.Shops.AnyAsync(x => x.OwnerEmailId == ownerEmailId);
+        }
+
         public async Task<Shop?> GetShopById(Guid id)
         {
             return await _context.Shops.FirstOrDefaultAsync(x => x.Id == id);
@@ -38,10 +43,15 @@ namespace localshopyNew.Services
 
         public async Task<bool> AddShop(Shop shop)
         {
+            var existingShop = _context.Shops.FirstOrDefaultAsync(x => x.Name == shop.Name || x.OwnerEmailId == shop.OwnerEmailId);
+            if (existingShop != null)
+            {
+                return false;
+            }
             shop.Id = Guid.NewGuid();
             shop.CreatedAt = DateTime.Now;
             shop.IsActive = true;
-            shop.AccountValidTill = DateTime.Now.AddMonths(1);
+            shop.AccountValidTill = DateTime.Today.AddMonths(1);
             await _context.AddAsync(shop);
             int rowsInserted = await _context.SaveChangesAsync();
             if (rowsInserted > 0)
@@ -66,6 +76,15 @@ namespace localshopyNew.Services
                 }
             }
 
+            if (existingShop.OwnerEmailId != shop.OwnerEmailId)
+            {
+                bool isShopExists = await IsShopOwnerEmailExists(shop.OwnerEmailId);
+                if (isShopExists)
+                {
+                    return false;
+                }
+            }
+
             existingShop.Name = shop.Name;
             existingShop.PhoneNo = shop.PhoneNo;
             existingShop.OwnerEmailId = shop.OwnerEmailId;
@@ -73,14 +92,9 @@ namespace localshopyNew.Services
             existingShop.IsOpen = shop.IsOpen;
             existingShop.ServedLocations = shop.ServedLocations;
             existingShop.AccountValidTill = shop.AccountValidTill;
-            existingShop.IsActive = shop.IsActive;
 
-            shop.CreatedAt = existingShop.CreatedAt;
-
-            int rowsInserted = await _context.SaveChangesAsync();
-            if (rowsInserted > 0)
-                return true;
-            return false;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteShop(Guid id)
