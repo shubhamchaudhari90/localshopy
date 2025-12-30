@@ -1,0 +1,139 @@
+﻿@model IEnumerable<Shop>
+@{
+    ViewData["Title"] = "Active Shop";
+    var today = DateTime.Today;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Shops
+    </h2>
+
+    <!-- Top Actions -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-secondary"
+           href="@Url.Action("Index")">
+            ← Back
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <strong>No shop found.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3" id="shopContainer">
+
+            @foreach (var shop in Model)
+            {
+                var daysLeft = (shop.AccountValidTill.Date - today).Days;
+
+                string cardClass = "";
+                string badgeClass = "";
+                string badgeText = "";
+                string filterCategory = "";
+
+                if (daysLeft < 0)
+                {
+                    cardClass = "border-danger bg-dark bg-opacity-10";
+                    badgeClass = "bg-dark";
+                    badgeText = "Expired";
+                    filterCategory = "expired";
+                }
+                else if (daysLeft <= 5)
+                {
+                    cardClass = "border-warning bg-warning bg-opacity-10";
+                    badgeClass = "bg-warning text-dark";
+                    badgeText = $"{daysLeft} days left";
+                    filterCategory = "less5";
+                }
+                else
+                {
+                    filterCategory = "more5";
+                }
+
+                <div class="col-12 col-md-6 col-lg-4 shop-card" data-filter="@filterCategory">
+                    <div class="card h-100 shadow-sm @cardClass">
+
+                        <div class="card-body d-flex flex-column">
+
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@shop.Name</h5>
+
+                                <div class="d-flex gap-1 flex-wrap">
+                                    @if (shop.IsOpen)
+                                    {
+                                        <span class="badge bg-success">Open</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Close</span>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(badgeText))
+                                    {
+                                        <span class="badge @badgeClass">
+                                            @badgeText
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <!-- Details -->
+                            <p class="mb-1"><strong>Phone:</strong> @shop.PhoneNo</p>
+                            <p class="mb-1"><strong>Email:</strong> @shop.OwnerEmailId</p>
+                            <p class="mb-1"><strong>Password:</strong> @shop.Password</p>
+                            <p class="mb-3"><strong>Valid Till:</strong> @shop.AccountValidTill.ToShortDateString()</p>
+
+                            @* <!-- Actions -->
+                            <div class="mt-auto d-flex gap-2">
+                                <a class="btn btn-sm btn-warning flex-fill"
+                                   href="@Url.Action("Edit", new { id = shop.Id })">
+                                    Edit
+                                </a>
+                                <a class="btn btn-sm btn-danger flex-fill"
+                                   href="@Url.Action("Delete", new { id = shop.Id })">
+                                    Delete
+                                </a>
+                            </div> *@
+
+                            <!-- Actions -->
+                            <div class="mt-auto d-flex gap-2">
+
+                                <form asp-action="Restore"
+                                      method="post"
+                                      class="flex-fill">
+                                    <input type="hidden" name="id" value="@shop.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success w-100">
+                                        Restore
+                                    </button>
+                                </form>
+
+                                <form asp-action="RemoveFromDatabase"
+                                      method="post"
+                                      class="flex-fill"
+                                      onsubmit="return confirm('Are you sure you want to permanently delete this item?');">
+                                    <input type="hidden" name="id" value="@shop.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger w-100">
+                                        Remove
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+</div>

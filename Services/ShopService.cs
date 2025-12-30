@@ -39,7 +39,9 @@ namespace localshopyNew.Services
         public async Task<bool> AddShop(Shop shop)
         {
             shop.Id = Guid.NewGuid();
-
+            shop.CreatedAt = DateTime.Now;
+            shop.IsActive = true;
+            shop.AccountValidTill = DateTime.Now.AddMonths(1);
             await _context.AddAsync(shop);
             int rowsInserted = await _context.SaveChangesAsync();
             if (rowsInserted > 0)
@@ -55,6 +57,24 @@ namespace localshopyNew.Services
             if (existingShop == null)
                 return false;
 
+            if (existingShop.Name != shop.Name)
+            {
+                bool isNameExists = await IsShopNameExists(shop.Name);
+                if (isNameExists)
+                {
+                    return false;
+                }
+            }
+
+            existingShop.Name = shop.Name;
+            existingShop.PhoneNo = shop.PhoneNo;
+            existingShop.OwnerEmailId = shop.OwnerEmailId;
+            existingShop.Password = shop.Password;
+            existingShop.IsOpen = shop.IsOpen;
+            existingShop.ServedLocations = shop.ServedLocations;
+            existingShop.AccountValidTill = shop.AccountValidTill;
+            existingShop.IsActive = shop.IsActive;
+
             shop.CreatedAt = existingShop.CreatedAt;
 
             int rowsInserted = await _context.SaveChangesAsync();
@@ -65,10 +85,10 @@ namespace localshopyNew.Services
 
         public async Task<bool> DeleteShop(Guid id)
         {
-            var category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
-            if (category != null)
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == id);
+            if (shop != null)
             {
-                _context.Categoties.Remove(category);
+                _context.Shops.Remove(shop);
                 int rowsDeleted = await _context.SaveChangesAsync();
                 if (rowsDeleted > 0)
                     return true;

@@ -1,97 +1,175 @@
 ﻿@model IEnumerable<Shop>
 @{
     ViewData["Title"] = "Active Shop";
+    var today = DateTime.Today;
+
+    // Pre-calculate counts
+    var moreThan5Count = Model.Count(s => (s.AccountValidTill.Date - today).Days > 5);
+    var lessOrEqual5Count = Model.Count(s =>
+    {
+        var days = (s.AccountValidTill.Date - today).Days;
+        return days <= 5 && days >= 0;
+    });
+    var expiredCount = Model.Count(s => (s.AccountValidTill.Date - today).Days < 0);
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4 animate__animated animate__fadeInDown">
-        Shops
-    </h2>
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Active Shops</h2>
 
+    <!-- Top action buttons -->
     <div class="d-flex flex-wrap gap-2 mb-3">
-        <a class="btn btn-warning animate__animated animate__fadeInUp"
-           href="@Url.Action("Create")">
-            Add New Shop
-        </a>
+        <a class="btn btn-warning" href="@Url.Action("Create")">Add New Shop</a>
+        <a class="btn btn-secondary" href="@Url.Action("Deleted")">Show Removed Shops</a>
+    </div>
 
-        <a class="btn btn-secondary animate__animated animate__fadeInUp"
-           href="@Url.Action("Deleted")">
-            Show Removed Shops
-        </a>
+    <!-- Filter buttons with counts -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <button type="button" class="btn btn-outline-success btn-sm filter-btn" data-filter="more5" onclick="filterShops(this)">
+            Valid > 5 Days (@moreThan5Count)
+        </button>
+        <button type="button" class="btn btn-outline-warning btn-sm filter-btn" data-filter="less5" onclick="filterShops(this)">
+            Valid ≤ 5 Days (@lessOrEqual5Count)
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm filter-btn" data-filter="expired" onclick="filterShops(this)">
+            Expired (@expiredCount)
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm filter-btn" data-filter="all" onclick="filterShops(this)">
+            Show All (@Model.Count())
+        </button>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info animate__animated animate__fadeIn">
+        <div class="alert alert-info">
             <strong>No shop found.</strong>
         </div>
     }
     else
     {
-        <div class="table-responsive animate__animated animate__fadeInUp">
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Phone Number</th>
-                        <th>Owner Email</th>
-                        <th>Password</th>
-                        <th>Status</th>
-                        <th>Valid Till</th>
-                        <th class="text-center" style="width: 160px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var shop in Model)
-                    {
-                        <tr>
-                            <td data-label="Name">
-                                <strong>@shop.Name</strong>
-                            </td>
+        <div class="row g-3" id="shopContainer">
 
-                            <td data-label="Phone Number">
-                                @shop.PhoneNo
-                            </td>
+            @foreach (var shop in Model)
+            {
+                var daysLeft = (shop.AccountValidTill.Date - today).Days;
 
-                            <td data-label="Owner Email">
-                                <strong>@shop.OwnerEmailId</strong>
-                            </td>
+                string cardClass = "";
+                string badgeClass = "";
+                string badgeText = "";
+                string filterCategory = "";
 
-                            <td data-label="Password">
-                                @shop.Password
-                            </td>
+                if (daysLeft < 0)
+                {
+                    cardClass = "border-danger bg-dark bg-opacity-10";
+                    badgeClass = "bg-dark";
+                    badgeText = "Expired";
+                    filterCategory = "expired";
+                }
+                else if (daysLeft <= 5)
+                {
+                    cardClass = "border-warning bg-warning bg-opacity-10";
+                    badgeClass = "bg-warning text-dark";
+                    badgeText = $"{daysLeft} days left";
+                    filterCategory = "less5";
+                }
+                else
+                {
+                    filterCategory = "more5";
+                }
 
-                            <td data-label="Status">
-                                @if (shop.IsOpen)
-                                {
-                                    <span class="badge bg-success">Open</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Close</span>
-                                }
-                            </td>
+                <div class="col-12 col-md-6 col-lg-4 shop-card" data-filter="@filterCategory">
+                    <div class="card h-100 shadow-sm @cardClass">
+                        <div class="card-body d-flex flex-column">
 
-                            <td data-label="Valid Till">
-                                @shop.AccountValidTill
-                            </td>
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@shop.Name</h5>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    @if (shop.IsOpen)
+                                    {
+                                        <span class="badge bg-success">Open</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Close</span>
+                                    }
 
-                            <td class="text-center" data-label="Actions">
-                                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    <a class="btn btn-sm btn-warning"
-                                       href="@Url.Action("Edit", new { id = shop.Id })">
-                                        Edit
-                                    </a>
-                                    <a class="btn btn-sm btn-danger"
-                                       href="@Url.Action("Delete", new { id = shop.Id })">
-                                        Delete
-                                    </a>
+                                    @if (!string.IsNullOrEmpty(badgeText))
+                                    {
+                                        <span class="badge @badgeClass">@badgeText</span>
+                                    }
                                 </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <!-- Details -->
+                            <p class="mb-1"><strong>Phone:</strong> @shop.PhoneNo</p>
+                            <p class="mb-1"><strong>Email:</strong> @shop.OwnerEmailId</p>
+                            <p class="mb-1"><strong>Password:</strong> @shop.Password</p>
+                            <p class="mb-3"><strong>Valid Till:</strong> @shop.AccountValidTill.ToShortDateString()</p>
+
+                            <!-- Actions -->
+                            <div class="mt-auto d-flex gap-2">
+                                <a class="btn btn-sm btn-warning flex-fill"
+                                   href="@Url.Action("Edit", new { id = shop.Id })">Edit</a>
+                                <a class="btn btn-sm btn-danger flex-fill"
+                                   href="@Url.Action("Delete", new { id = shop.Id })">Delete</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
         </div>
     }
 </div>
+
+<script>
+    function filterShops(button) {
+        const category = button.dataset.filter;
+        const cards = document.querySelectorAll('.shop-card');
+        const buttons = document.querySelectorAll('.filter-btn');
+
+        // Show/hide cards with fade
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.filter === category) {
+                card.style.display = '';
+                card.style.opacity = 1;
+            } else {
+                card.style.opacity = 0;
+                setTimeout(() => card.style.display = 'none', 300);
+            }
+        });
+
+        // Reset all buttons
+        buttons.forEach(btn => {
+            btn.classList.remove('border','border-2','border-dark');
+            const filter = btn.dataset.filter;
+            btn.classList.remove('btn-success','btn-warning','btn-danger','btn-secondary');
+            if(filter === 'more5') btn.classList.add('btn-outline-success');
+            if(filter === 'less5') btn.classList.add('btn-outline-warning');
+            if(filter === 'expired') btn.classList.add('btn-outline-danger');
+            if(filter === 'all') btn.classList.add('btn-outline-secondary');
+        });
+
+        // Highlight clicked button
+        button.classList.add('border','border-2','border-dark');
+        const activeFilter = button.dataset.filter;
+        button.classList.remove(`btn-outline-${activeFilter==='more5'?'success':activeFilter==='less5'?'warning':activeFilter==='expired'?'danger':'secondary'}`);
+        button.classList.add(activeFilter==='more5'?'btn-success':activeFilter==='less5'?'btn-warning':activeFilter==='expired'?'btn-danger':'btn-secondary');
+    }
+
+    // Default active button
+    document.addEventListener('DOMContentLoaded', () => {
+        const defaultBtn = document.querySelector('.filter-btn[data-filter="all"]');
+        if (defaultBtn) filterShops(defaultBtn);
+    });
+</script>
+
+<style>
+    /* Smooth fade transition for shop cards */
+    .shop-card {
+        transition: all 0.3s ease-in-out;
+    }
+</style>

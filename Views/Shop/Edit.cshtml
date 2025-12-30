@@ -1,12 +1,12 @@
 ﻿@model Shop
 @{
-    ViewData["Title"] = "Add Product";
+    ViewData["Title"] = "Edit Shop";
 }
 
 <div class="container mt-5">
-    <h2 class="animate__animated animate__fadeInDown">Add Product</h2>
+    <h2 class="animate__animated animate__fadeInDown">Edit Shop</h2>
 
-    <form asp-action="Create" method="post" class="animate__animated animate__fadeInUp">
+    <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
 
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
@@ -28,21 +28,34 @@
             <input asp-for="Password" class="form-control" />
         </div>
 
-        <div class="mb-3">
-            <label asp-for="AccountValidTill" class="form-label"></label>
-            <input asp-for="AccountValidTill" class="form-control" />
+        <!-- User-friendly IsOpen toggle -->
+        <div class="mb-3 form-check form-switch">
+            <input asp-for="IsOpen"
+                   class="form-check-input"
+                   type="checkbox"
+                   id="isOpenSwitch"
+                   onchange="updateStatusText()" />
+
+            <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
+                @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
+            </label>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Locations</label>
+            <label asp-for="AccountValidTill" class="form-label"></label>
+            <input asp-for="AccountValidTill" type="date" class="form-control" />
+        </div>
 
+        <!-- Locations Multi-select checkboxes -->
+        <div class="mb-3">
+            <label class="form-label">Locations</label>
             <div class="border rounded p-3">
                 @foreach (var location in ViewBag.LocationList)
                 {
                     <div class="form-check">
                         <input class="form-check-input"
                                type="checkbox"
-                               name="LocationIds"
+                               name="ServedLocations"
                                value="@location.Value"
                                id="loc_@location.Value"
                                @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
@@ -52,7 +65,6 @@
                         </label>
                     </div>
                 }
-
             </div>
         </div>
 
@@ -60,6 +72,7 @@
         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
 <script>
     function updateStatusText() {
         const checkbox = document.getElementById('isOpenSwitch');
@@ -70,6 +83,6 @@
             : 'Shop is Close';
     }
 
-    // Run on page load (important for Edit view)
+    // Run on page load to show correct status
     document.addEventListener('DOMContentLoaded', updateStatusText);
 </script>
