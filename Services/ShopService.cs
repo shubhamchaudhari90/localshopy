@@ -88,7 +88,8 @@ namespace localshopyNew.Services
             existingShop.Name = shop.Name;
             existingShop.PhoneNo = shop.PhoneNo;
             existingShop.OwnerEmailId = shop.OwnerEmailId;
-            existingShop.Password = shop.Password;
+            if (!string.IsNullOrEmpty(shop.Password))
+                existingShop.Password = shop.Password;
             existingShop.IsOpen = shop.IsOpen;
             existingShop.ServedLocations = shop.ServedLocations;
             existingShop.AccountValidTill = shop.AccountValidTill;

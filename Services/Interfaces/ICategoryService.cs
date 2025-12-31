@@ -6,6 +6,7 @@ namespace localshopyNew.Services.Interfaces
     {
         Task<bool> IsCategoryNameExists(string name);
         Task<Categoty?> GetCategoryById(Guid id);
+        Task<List<ProductMaster>> GetProductsByCategoryId(Guid id);
         Task<List<Categoty>> GetActiveCategories();
         Task<List<Categoty>> GetInActiveCategories();
         Task<bool> AddCategory(Categoty category);

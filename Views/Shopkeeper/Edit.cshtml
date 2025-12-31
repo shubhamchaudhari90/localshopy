@@ -7,7 +7,12 @@
     <h2 class="animate__animated animate__fadeInDown">Edit Shop</h2>
 
     <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
-
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @ViewData["ErrorMessage"]
+            </div>
+        }
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
             <input asp-for="Name" class="form-control" readonly disabled />
@@ -24,7 +29,7 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
+            <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
             <a href="javascript:void(0)"
                id="lnkEditPassword"
                class="ms-2 text-warning fw-bold text-decoration-none">
@@ -33,7 +38,7 @@
 
             <input asp-for="Password"
                    id="txtPassword"
-                   class="form-control mt-2"
+                   class="form-control mt-2" required
                    disabled />
         </div>
 

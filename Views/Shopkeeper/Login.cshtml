@@ -20,13 +20,13 @@
 
             <form asp-action="Login" method="post" class="needs-validation" novalidate>
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
+                    <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
                     <input asp-for="Email" class="form-control" placeholder="Enter your email" required />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Password</label>
+                    <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
                     <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>

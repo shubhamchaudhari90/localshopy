@@ -30,7 +30,7 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("Index", "Category");
             }
 
-            ViewBag.CategoryList = new SelectList(categoryList, "Id", "Name"); ;
+            ViewBag.CategoryList = new SelectList(categoryList, "Id", "Name");
             return View();
         }
 

@@ -9,17 +9,17 @@
     if (daysLeft < 0)
     {
         shopAlertClass = "alert alert-danger d-inline-block py-1 px-2 mb-0 fw-bold";
-        shopAlertText = "Expired";
+        shopAlertText = " (Expired)";
     }
     else if (daysLeft <= 5)
     {
         shopAlertClass = "alert alert-warning d-inline-block py-1 px-2 mb-0 fw-bold";
-        shopAlertText = $"{daysLeft} day{(daysLeft > 1 ? "s" : "")} left";
+        shopAlertText = $" ({daysLeft} day{(daysLeft > 1 ? "s" : "")} left)";
     }
     else
     {
-        shopAlertClass = "alert alert-info d-inline-block py-1 px-2 mb-0 fw-bold";
-        shopAlertText = "Valid";
+        shopAlertClass = "d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = "";
     }
 }
 
@@ -43,8 +43,10 @@
                 <div class="col-md-6">
                     <p>
                         <strong>Status:</strong>
-                        <span class="status-pill @(Model.Shop.IsOpen ? "bg-success" : "bg-danger") me-1"></span>
-                        @(Model.Shop.IsOpen ? "Open" : "Closed")
+                        <span class="@(Model.Shop.IsOpen ? "text-success" : "text-danger") fw-bold me-1">
+                            @(Model.Shop.IsOpen ? "Open" : "Closed")
+                        </span>
+                        @* <span class="status-pill @(Model.Shop.IsOpen ? "bg-success" : "bg-danger") me-1"></span> *@
                     </p>
                 </div>
 
@@ -53,7 +55,7 @@
                         <strong>Valid Till:</strong>
                         <span class="@shopAlertClass">
                             @Model.Shop.AccountValidTill.ToString("dd-MMM-yyyy")
-                            (@shopAlertText)
+                            @shopAlertText
                         </span>
                     </p>
                 </div>
@@ -65,7 +67,7 @@
                     <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
 
                 </div>
-                
+
                 @* <div class="col-md-6">
                     <p>
                         <strong>Created On:</strong> @(Model.Shop.CreatedAt?.ToString("dd-MMM-yyyy") ?? "-")
@@ -99,7 +101,7 @@
             <!-- Product Section Header -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="mb-0">Products</h4>
-                <a class="btn btn-warning btn-sm" href="@Url.Action("Create", "Product", new { shopId = Model.Shop.Id })">
+                <a class="btn btn-warning btn-sm" href="@Url.Action("AddProduct", "Shopkeeper")">
                     Add Product
                 </a>
             </div>
@@ -200,10 +202,10 @@
 
                                     <!-- Actions -->
                                     <div class="mt-auto d-flex gap-2">
-                                        <a class="btn btn-sm btn-warning flex-fill" href="@Url.Action("Edit", "Product", new { id = product.Id })">
+                                        <a class="btn btn-sm btn-warning flex-fill" href="@Url.Action("Upsert", "Shopkeeper", new { id = product.Id })">
                                             Edit
                                         </a>
-                                        <a class="btn btn-sm btn-danger flex-fill" href="@Url.Action("Delete", "Product", new { id = product.Id })">
+                                        <a class="btn btn-sm btn-danger flex-fill" href="@Url.Action("Delete", "Shopkeeper", new { id = product.Id })">
                                             Delete
                                         </a>
                                     </div>
@@ -230,7 +232,7 @@
         });
     }
 </script>
-<style>
+@* <style>
     .status-pill {
         width: 12px;
         height: 12px;
@@ -238,4 +240,4 @@
         display: inline-block;
         vertical-align: middle;
     }
-</style>
+</style> *@

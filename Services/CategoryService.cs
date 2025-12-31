@@ -24,6 +24,11 @@ namespace localshopyNew.Services
             return await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<List<ProductMaster>> GetProductsByCategoryId(Guid id)
+        {
+            return await _context.ProductMasters.Where(x => x.CategoryId == id && x.IsActive).ToListAsync();
+        }
+
         public async Task<List<Categoty>> GetActiveCategories()
         {
             var categories = await _context.Categoties.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();

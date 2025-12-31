@@ -1,0 +1,128 @@
+﻿@model Product
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<div class="container mt-5">
+    <h2 class="animate__animated animate__fadeInDown">
+        Add Product
+    </h2>
+
+    <form asp-action="AddProduct" method="post" enctype="multipart/form-data" class="animate__animated animate__fadeInUp">
+
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @ViewData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Category Dropdown -->
+        <div class="mb-3">
+            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <select id="ddlCategory" class="form-select" asp-items="ViewBag.Categories">
+                <option value="">-- Select Category --</option>
+            </select>
+        </div>
+
+
+        <!-- Product Master Dropdown -->
+        <div class="mb-3">
+            <label asp-for="ProductMasterId" class="form-label">Product Master <span class="text-danger">*</span></label>
+            <select id="ddlProductMaster" asp-for="ProductMasterId" class="form-select">
+                <option value="">-- Select Product Master --</option>
+            </select>
+
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+            <input asp-for="Description" type="text" class="form-control" id="txtDescription" maxlength="100" required />
+
+        </div>
+
+        <!-- Price -->
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label">Price (₹) <span class="text-danger">*</span></label>
+            <input asp-for="Price" class="form-control" id="txtPrice" max="10000" required />
+        </div>
+
+        <!-- User-friendly IsAvailable toggle -->
+        <div class="mb-3 form-check form-switch">
+            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="isAvailableSwitch" onchange="updateStatusText()" />
+            <label class="form-check-label" id="isAvailableLabel" for="isAvailableSwitch">
+                @(Model.IsAvailable ? "Available" : "Out of stock")
+            </label>
+        </div>
+
+        <!-- Image -->
+        <div class="mb-3">
+            <label asp-for="ImageFileName" class="form-label">Product Image</label>
+            <input asp-for="ImageFileName" type="file" class="form-control" id="fileImage" />
+        </div>
+
+        <!-- Discount -->
+        <div class="mb-3">
+            <label asp-for="Discount" class="form-label">Discount (%)</label>
+            <input asp-for="Discount" class="form-control" id="txtDiscount" />
+        </div>
+
+        <!-- Discount Validity -->
+        <div class="mb-3">
+            <label asp-for="DiscountValidFrom" class="form-label">Discount Valid From</label>
+            <input asp-for="DiscountValidFrom" type="date" class="form-control" id="txtDiscountFrom" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DiscountValidTill" class="form-label">Discount Valid Till</label>
+            <input asp-for="DiscountValidTill" type="date" class="form-control" id="txtDiscountTill" />
+        </div>
+
+        <!-- Buttons -->
+        <button type="submit" class="btn btn-warning">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+
+<script>
+    function updateStatusText() {
+        const checkbox = document.getElementById('isAvailableSwitch');
+        const label = document.getElementById('isAvailableLabel');
+
+        label.textContent = checkbox.checked ? 'Available' : 'Out of stock';
+    }
+    $(document).ready(function () {
+
+        $('#ddlCategory').on('change', function () {
+
+            var categoryId = $(this).val();
+            console.log("Category changed:", categoryId);
+
+            var productDropdown = $('#ddlProductMaster');
+            productDropdown.empty()
+                .append('<option value="">-- Select Product Master --</option>');
+
+            if (!categoryId) return;
+
+            $.ajax({
+                url: '@Url.Action("GetProductsByCategory", "Shopkeeper")',
+                type: 'GET',
+                data: { categoryId: categoryId },
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        productDropdown.append(
+                            `<option value="${item.id}">${item.productName}</option>`
+                        );
+                    });
+                },
+                error: function (err) {
+                    console.error(err);
+                    alert('Unable to load product masters.');
+                }
+            });
+        });
+
+    });
+</script>
