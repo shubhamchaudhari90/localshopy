@@ -46,11 +46,28 @@ namespace localshopyNew.Services
 
             var productViewModels = MapProducts(products);
 
+            List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
+
             return new ShopProductsViewModel
             {
                 Shop = shop,
+                Locations = locations,
                 Products = productViewModels
             };
+        }
+
+        public async Task<ShopProductsViewModel?> UpdateShopData(Shop shop)
+        {
+            var existingShop = await _context.Shops.FindAsync(shop.Id);
+            if (existingShop == null)
+                return null;
+            if (!string.IsNullOrEmpty(shop.Password))
+                existingShop.Password = shop.Password;
+            existingShop.IsOpen = shop.IsOpen;
+            existingShop.ServedLocations = shop.ServedLocations;
+
+            await _context.SaveChangesAsync();
+            return await GetShopDetailsById(shop.Id);
         }
 
         private List<ProductViewModel> MapProducts(List<Product> products)
@@ -78,5 +95,7 @@ namespace localshopyNew.Services
             }
             return productList;
         }
+
+
     }
 }

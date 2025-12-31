@@ -7,5 +7,7 @@ namespace localshopyNew.Services.Interfaces
     {
         Task<Shop?> GetShopByLoginModel(LoginViewModel model);
         Task<ShopProductsViewModel> GetShopDetailsById(Guid id);
+        Task<ShopProductsViewModel> UpdateShopData(Shop shop);
+
     }
 }

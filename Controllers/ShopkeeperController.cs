@@ -2,6 +2,7 @@
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace localshopyNew.Controllers
 {
@@ -9,27 +10,13 @@ namespace localshopyNew.Controllers
     {
         private readonly IShopkeeperService _shopkeeperService;
         private readonly IEncodingService _encodingService;
+        private readonly ILocationService _locationService;
 
-        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService)
+        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService)
         {
             _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
-        }
-
-        public IActionResult Index()
-        {
-            var x = _encodingService.Encode("UserName");
-            var x1 = _encodingService.Encode(Guid.NewGuid().ToString());
-            var x2 = _encodingService.Encode(x);
-            var x3 = _encodingService.Encode(x2);
-
-            var y = _encodingService.Decode(x);
-            var y1 = _encodingService.Decode(x1);
-            var y2 = _encodingService.Decode(x2);
-            var y3 = _encodingService.Decode(x3);
-
-
-            return View();
+            _locationService = locationService;
         }
 
         public IActionResult Login()
@@ -60,15 +47,10 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> ShopDetails()
         {
-            string shopIdKey = _encodingService.Encode("ShopId");
-            string? encodedShopId = HttpContext.Session.GetString(shopIdKey);
-            if (string.IsNullOrEmpty(encodedShopId))
-            {
-                RedirectToAction(nameof(Login));
-            }
-            string shopIdValue = _encodingService.Decode(encodedShopId);
-            Guid shopId = Guid.Parse(shopIdValue);
+            Guid shopId = GetShopIdFromSession();
             ShopProductsViewModel model = await _shopkeeperService.GetShopDetailsById(shopId);
+            if (model == null)
+                RedirectToAction(nameof(Login));
             return View(model);
         }
 
@@ -85,5 +67,47 @@ namespace localshopyNew.Controllers
             return RedirectToAction("Login");
         }
 
+        public async Task<IActionResult> Edit()
+        {
+            Guid shopId = GetShopIdFromSession();
+            ShopProductsViewModel model = await _shopkeeperService.GetShopDetailsById(shopId);
+            if (model == null || model.Shop == null)
+                RedirectToAction(nameof(Login));
+
+            var locationList = await _locationService.GetActiveLocations();
+            if (locationList == null)
+            {
+                ViewData["ErrorMessage"] = "Locations are not active";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+
+            return View(model.Shop);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Shop shop)
+        {
+            Guid shopId = GetShopIdFromSession();
+            shop.Id = shopId;
+            ShopProductsViewModel model = await _shopkeeperService.UpdateShopData(shop);
+            if (model == null || model.Shop == null)
+                RedirectToAction(nameof(Login));
+            return RedirectToAction(nameof(ShopDetails), model);
+        }
+
+        private Guid GetShopIdFromSession()
+        {
+            string shopIdKey = _encodingService.Encode("ShopId");
+            string? encodedShopId = HttpContext.Session.GetString(shopIdKey);
+            if (string.IsNullOrEmpty(encodedShopId))
+            {
+                RedirectToAction(nameof(Login));
+            }
+            string shopIdValue = _encodingService.Decode(encodedShopId);
+            Guid shopId = Guid.Parse(shopIdValue);
+            return shopId;
+        }
     }
 }

@@ -3,23 +3,23 @@
 @{
     var daysLeft = (Model.Shop.AccountValidTill.Date - DateTime.Today).Days;
 
-    string shopBadgeClass;
-    string shopBadgeText;
+    string shopAlertClass;
+    string shopAlertText;
 
     if (daysLeft < 0)
     {
-        shopBadgeClass = "btn btn-danger btn-sm";
-        shopBadgeText = " (Expired)";
+        shopAlertClass = "alert alert-danger d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = "Expired";
     }
     else if (daysLeft <= 5)
     {
-        shopBadgeClass = "btn btn-warning btn-sm";
-        shopBadgeText = $" ({daysLeft} day{(daysLeft > 1 ? "s" : "")} left)";
+        shopAlertClass = "alert alert-warning d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = $"{daysLeft} day{(daysLeft > 1 ? "s" : "")} left";
     }
     else
     {
-        shopBadgeClass = "";
-        shopBadgeText = $"";
+        shopAlertClass = "alert alert-info d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = "Valid";
     }
 }
 
@@ -28,40 +28,71 @@
     <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
         <div class="card-body p-4">
 
-            <!-- Top Actions -->
-            <div class="d-flex justify-content-between mb-3">
-                <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
-                <a asp-action="Edit" asp-route-id="@Model.Shop.Id" class="btn btn-warning">Edit</a>
-            </div>
-
             <!-- Header -->
             <div class="text-center mb-4">
-                <h3 class="animate__animated animate__fadeInDown mb-1">@Model.Shop.Name</h3>
-                <span class="badge px-4 py-2 fs-6 @(Model.Shop.IsOpen ? "bg-success" : "bg-danger")">
-                    @(Model.Shop.IsOpen ? "SHOP OPEN" : "SHOP CLOSED")
-                </span>
+                <!-- Shop Name -->
+                <div class="animate__animated animate__fadeInDown fw-bold"
+                     style="font-size: 2.2rem; line-height: 1.2;">
+                    @Model.Shop.Name
+                </div>
             </div>
 
             <!-- Shop Details -->
             <div class="row mb-4">
+
                 <div class="col-md-6">
-                    <p><strong>Phone:</strong> @Model.Shop.PhoneNo</p>
-                    <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="status-pill @(Model.Shop.IsOpen ? "bg-success" : "bg-danger") me-1"></span>
+                        @(Model.Shop.IsOpen ? "Open" : "Closed")
+                    </p>
                 </div>
+
                 <div class="col-md-6">
                     <p>
                         <strong>Valid Till:</strong>
-                        <span class="@shopBadgeClass">
-                            <strong>@Model.Shop.AccountValidTill.ToString("dd-MMM-yyyy") @shopBadgeText</strong>
+                        <span class="@shopAlertClass">
+                            @Model.Shop.AccountValidTill.ToString("dd-MMM-yyyy")
+                            (@shopAlertText)
                         </span>
-
-                    </p>
-                    <p>
-                        <strong>Created On:</strong> @(Model.Shop.CreatedAt?.ToString("dd-MMM-yyyy") ?? "-")
                     </p>
                 </div>
 
+                <div class="col-md-6">
+                    <p><strong>Phone:</strong> @Model.Shop.PhoneNo</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
+
+                </div>
+                
+                @* <div class="col-md-6">
+                    <p>
+                        <strong>Created On:</strong> @(Model.Shop.CreatedAt?.ToString("dd-MMM-yyyy") ?? "-")
+                    </p>
+                </div> *@
+
+                <div class="col-md-6">
+                    <p>
+                        <strong>Locations:</strong> @string.Join(" | ", Model.Locations)
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <a asp-action="Edit"
+                       class="text-warning fw-bold text-decoration-none">
+                        Edit Shop Data
+                    </a>
+                </div>
+
             </div>
+
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
 
             <hr />
 
@@ -199,3 +230,12 @@
         });
     }
 </script>
+<style>
+    .status-pill {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+    }
+</style>

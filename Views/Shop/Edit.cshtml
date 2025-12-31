@@ -25,8 +25,18 @@
 
         <div class="mb-3">
             <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" />
+            <a href="javascript:void(0)"
+               id="lnkEditPassword"
+               class="ms-2 text-warning fw-bold text-decoration-none">
+                Click Here
+            </a>
+
+            <input asp-for="Password"
+                   id="txtPassword"
+                   class="form-control mt-2"
+                   disabled />
         </div>
+
 
         <!-- User-friendly IsOpen toggle -->
         <div class="mb-3 form-check form-switch">
@@ -85,4 +95,34 @@
 
     // Run on page load to show correct status
     document.addEventListener('DOMContentLoaded', updateStatusText);
+
+    let isEditingPassword = false;
+    let oldPassword = "";
+
+    document.getElementById("lnkEditPassword").addEventListener("click", function () {
+        const passwordInput = document.getElementById("txtPassword");
+
+        if (!isEditingPassword) {
+            // Store old password
+            oldPassword = passwordInput.value;
+
+            // Enable editing
+            passwordInput.disabled = false;
+            passwordInput.removeAttribute("readonly");
+            passwordInput.focus();
+
+            // Update link text
+            this.innerText = "Use Old Password";
+        } else {
+            // Revert to old password
+            passwordInput.value = oldPassword;
+            passwordInput.disabled = true;
+
+            // Update link text back
+            this.innerText = "Click Here";
+        }
+
+        isEditingPassword = !isEditingPassword;
+    });
 </script>
+
