@@ -30,5 +30,9 @@ namespace localshopyNew.ViewModel
                 return (int)Math.Round(Price - discountAmount);
             }
         }
+
+        public string CategoryName { get; set; }
+
+        public string ProductMasterName { get; set; }
     }
 }

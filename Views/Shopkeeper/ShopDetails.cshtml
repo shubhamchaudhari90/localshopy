@@ -160,7 +160,7 @@
 
                                     <!-- Product Header -->
                                     <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="mb-0">Product #@product.SortOrder</h6>
+                                        <h6 class="mb-0">@product.ProductMasterName</h6>
                                         <div class="d-flex gap-1 flex-wrap">
                                             <span class="badge @(product.IsAvailable ? "bg-success" : "bg-secondary")">
                                                 @(product.IsAvailable ? "Available" : "Out")
@@ -183,9 +183,9 @@
                                     <!-- Image -->
                                     @if (!string.IsNullOrEmpty(product.ImageFileName))
                                     {
-                                        <img src="~/uploads/@product.ImageFileName"
+                                        <img src="~/images/products/@product.ImageFileName"
                                              class="img-fluid rounded mb-2"
-                                             style="max-height: 140px; object-fit: cover;" />
+                                             style="max-height:140px; object-fit:cover;" />
                                     }
 
                                     <!-- Details -->
@@ -202,10 +202,10 @@
 
                                     <!-- Actions -->
                                     <div class="mt-auto d-flex gap-2">
-                                        <a class="btn btn-sm btn-warning flex-fill" href="@Url.Action("Upsert", "Shopkeeper", new { id = product.Id })">
+                                        <a class="btn btn-sm btn-warning flex-fill" href="@Url.Action("EditProduct", "Shopkeeper", new { productId = product.Id })">
                                             Edit
                                         </a>
-                                        <a class="btn btn-sm btn-danger flex-fill" href="@Url.Action("Delete", "Shopkeeper", new { id = product.Id })">
+                                        <a class="btn btn-sm btn-danger flex-fill" href="@Url.Action("Delete", "Shopkeeper", new { productId = product.Id })">
                                             Delete
                                         </a>
                                     </div>

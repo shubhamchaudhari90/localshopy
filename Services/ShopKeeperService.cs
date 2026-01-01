@@ -38,13 +38,37 @@ namespace localshopyNew.Services
             var shop = await GetShopById(id);
             if (shop == null)
                 return null;
+            var products = await (
+                from p in _context.Products
+                join pm in _context.ProductMasters
+                on p.ProductMasterId equals pm.Id
+                join c in _context.Categoties
+                on pm.CategoryId equals c.Id into cat
+                from c in cat.DefaultIfEmpty() // LEFT JOIN
+                where p.ShopId == shop.Id
+                orderby p.SortOrder
+                select new ProductViewModel
+                {
+                    Id = p.Id,
+                    ProductMasterId = pm.Id,
+                    ShopId = p.ShopId,
+                    SortOrder = p.SortOrder,
+                    Description = p.Description,
+                    Price = p.Price,
+                    IsAvailable = p.IsAvailable,
+                    ImageFileName = p.ImageFileName,
+                    Discount = p.Discount,
+                    DiscountValidFrom = p.DiscountValidFrom,
+                    DiscountValidTill = p.DiscountValidTill,
+                    CreatedAt = p.CreatedAt,
+                    IsActive = p.IsActive,
+                    CategoryId = c.Id,
+                    ProductMasterName = pm.ProductName,
+                    CategoryName = c != null ? c.Name : "",
+                }).ToListAsync();
 
-            var products = await _context.Products
-                .Where(x => x.ShopId == shop.Id)
-                .OrderBy(x => x.SortOrder)
-                .ToListAsync();
 
-            var productViewModels = MapProducts(products);
+
 
             List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
 
@@ -52,7 +76,7 @@ namespace localshopyNew.Services
             {
                 Shop = shop,
                 Locations = locations,
-                Products = productViewModels
+                Products = products
             };
         }
 
@@ -105,6 +129,25 @@ namespace localshopyNew.Services
             return false;
         }
 
+        public async Task<bool> UpdateProductInShop(Product product)
+        {
+            Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.Id == product.Id);
+            if (existing != null)
+            {
+                existing.Description = product.Description;
+                existing.Price = product.Price;
+                existing.IsAvailable = product.IsAvailable;
+                existing.ImageFileName = product.ImageFileName;
+                existing.Discount = product.Discount;
+                existing.DiscountValidFrom = product.DiscountValidFrom;
+                existing.DiscountValidTill = product.DiscountValidTill;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
         public async Task<ProductViewModel?> GetProductById(Guid id)
         {
             Product? product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
@@ -126,35 +169,38 @@ namespace localshopyNew.Services
             };
             ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(x => x.Id == product.ProductMasterId);
             if (productMaster == null) return null;
+            model.ProductMasterName = productMaster.ProductName;
             model.CategoryId = productMaster.CategoryId;
-
+            Categoty? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == model.CategoryId);
+            if (category == null) return null;
+            model.CategoryName = category.Name;
             return model;
         }
 
-        private List<ProductViewModel> MapProducts(List<Product> products)
-        {
-            var productList = new List<ProductViewModel>();
+        //private List<ProductViewModel> MapProducts(List<Product> products)
+        //{
+        //    var productList = new List<ProductViewModel>();
 
-            foreach (var product in products)
-            {
-                var model = new ProductViewModel
-                {
-                    Id = product.Id,
-                    ProductMasterId = product.ProductMasterId,
-                    ShopId = product.ShopId,
-                    SortOrder = product.SortOrder,
-                    Description = product.Description,
-                    Price = product.Price,
-                    IsAvailable = product.IsAvailable,
-                    ImageFileName = product.ImageFileName,
-                    Discount = product.Discount,
-                    DiscountValidFrom = product.DiscountValidFrom,
-                    DiscountValidTill = product.DiscountValidTill,
-                    IsActive = product.IsActive
-                };
-                productList.Add(model);
-            }
-            return productList;
-        }
+        //    foreach (var product in products)
+        //    {
+        //        var model = new ProductViewModel
+        //        {
+        //            Id = product.Id,
+        //            ProductMasterId = product.ProductMasterId,
+        //            ShopId = product.ShopId,
+        //            SortOrder = product.SortOrder,
+        //            Description = product.Description,
+        //            Price = product.Price,
+        //            IsAvailable = product.IsAvailable,
+        //            ImageFileName = product.ImageFileName,
+        //            Discount = product.Discount,
+        //            DiscountValidFrom = product.DiscountValidFrom,
+        //            DiscountValidTill = product.DiscountValidTill,
+        //            IsActive = product.IsActive
+        //        };
+        //        productList.Add(model);
+        //    }
+        //    return productList;
+        //}
     }
 }

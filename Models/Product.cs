@@ -1,4 +1,6 @@
-﻿namespace localshopyNew.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace localshopyNew.Models
 {
     public class Product
     {
@@ -10,6 +12,10 @@
         public int Price { get; set; }
         public bool IsAvailable { get; set; }
         public string? ImageFileName { get; set; }
+
+        [NotMapped]
+        public IFormFile? ProductImage { get; set; }
+
         public double Discount { get; set; } // percentage (e.g. 10 = 10%)
         public DateTime? DiscountValidFrom { get; set; }
         public DateTime? DiscountValidTill { get; set; }

@@ -12,13 +12,15 @@ namespace localshopyNew.Controllers
         private readonly IEncodingService _encodingService;
         private readonly ILocationService _locationService;
         private readonly ICategoryService _categoryService;
+        private readonly IWebHostEnvironment _env;
 
-        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService, ICategoryService categoryService)
+        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService, ICategoryService categoryService, IWebHostEnvironment env)
         {
             _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
             _locationService = locationService;
             _categoryService = categoryService;
+            _env = env;
         }
 
         public IActionResult Login()
@@ -50,9 +52,13 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> ShopDetails()
         {
             Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction(nameof(Login));
+            }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null)
-                RedirectToAction(nameof(Login));
+                return RedirectToAction(nameof(Login));
             return View(model);
         }
 
@@ -71,7 +77,12 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Edit()
         {
+
             Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction(nameof(Login));
+            }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null || model.Shop == null)
                 RedirectToAction(nameof(Login));
@@ -91,19 +102,26 @@ namespace localshopyNew.Controllers
             }
 
             return View(model.Shop);
-
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(Shop shop)
         {
-            if (string.IsNullOrEmpty(shop.Password))
+            var locationList = await _locationService.GetActiveLocations();
+            if (locationList == null)
             {
-                ViewData["ErrorMessage"] = "Password is not empty";
-                return View(shop);
+                ViewData["ErrorMessage"] = "Locations are not active";
+                return RedirectToAction(nameof(ShopDetails));
             }
 
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+
+
             Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction(nameof(Login));
+            }
             shop.Id = shopId;
 
             ShopProductsViewModel? model = await _shopkeeperService.UpdateShopData(shop);
@@ -117,7 +135,8 @@ namespace localshopyNew.Controllers
             var categoryList = await _categoryService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
-                return RedirectToAction("Index", "Category");
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
             }
 
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
@@ -141,7 +160,27 @@ namespace localshopyNew.Controllers
                 ViewData["ErrorMessage"] = "Mandatory field missing";
             }
             Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction(nameof(Login));
+            }
             product.ShopId = shopId;
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0)
+            {
+                var uploads = Path.Combine(_env.WebRootPath, "images", "products");
+                Directory.CreateDirectory(uploads);
+
+                var extension = Path.GetExtension(product.ProductImage.FileName);
+                var fileName = Guid.NewGuid() + extension;
+                var filePath = Path.Combine(uploads, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await product.ProductImage.CopyToAsync(stream);
+
+                product.ImageFileName = fileName;
+            }
+
             bool isProductValid = await _shopkeeperService.IsProductValid(product);
             if (isProductValid)
             {
@@ -155,12 +194,93 @@ namespace localshopyNew.Controllers
             var categoryList = await _categoryService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
-                return RedirectToAction("Index", "Category");
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
             }
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
             ViewData["ErrorMessage"] = "Product already exist or any requied field is missing";
             return View(product);
         }
+
+        public async Task<IActionResult> EditProduct(Guid productId)
+        {
+            string productIdKey = _encodingService.Encode("ProductId");
+            string productIdValue = _encodingService.Encode(productId.ToString());
+
+            HttpContext.Session.SetString(productIdKey, productIdValue);
+
+            var categoryList = await _categoryService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
+            {
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            ProductViewModel? product = await _shopkeeperService.GetProductById(productId);
+            if (product == null)
+            {
+                return RedirectToAction(nameof(ShopDetails));
+            }
+            return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProduct(Product product)
+        {
+            var categoryList = await _categoryService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
+            {
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            Guid productId = GetProductIdFromSession();
+            if (productId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Product not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            product.Id = productId;
+
+            if (string.IsNullOrEmpty(product.Description) ||
+                product.Price <= 0)
+            {
+                ViewData["ErrorMessage"] = "Mandatory field missing";
+                return View(product);
+            }
+
+            Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction(nameof(Login));
+            }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0)
+            {
+                var uploads = Path.Combine(_env.WebRootPath, "images", "products");
+                Directory.CreateDirectory(uploads);
+
+                var extension = Path.GetExtension(product.ProductImage.FileName);
+                var fileName = Guid.NewGuid() + extension;
+                var filePath = Path.Combine(uploads, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await product.ProductImage.CopyToAsync(stream);
+
+                product.ImageFileName = fileName;
+            }
+
+            product.ShopId = shopId;
+
+            await _shopkeeperService.UpdateProductInShop(product);
+            return RedirectToAction(nameof(ShopDetails));
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetProductsByCategory(Guid categoryId)
@@ -186,11 +306,24 @@ namespace localshopyNew.Controllers
             string? encodedShopId = HttpContext.Session.GetString(shopIdKey);
             if (string.IsNullOrEmpty(encodedShopId))
             {
-                RedirectToAction(nameof(Login));
+                return Guid.Empty;
             }
             string shopIdValue = _encodingService.Decode(encodedShopId ?? string.Empty);
             Guid shopId = Guid.Parse(shopIdValue);
             return shopId;
+        }
+
+        private Guid GetProductIdFromSession()
+        {
+            string productIdKey = _encodingService.Encode("ProductId");
+            string? encodedProductId = HttpContext.Session.GetString(productIdKey);
+            if (string.IsNullOrEmpty(encodedProductId))
+            {
+                return Guid.Empty;
+            }
+            string productIdValue = _encodingService.Decode(encodedProductId ?? string.Empty);
+            Guid productId = Guid.Parse(productIdValue);
+            return productId;
         }
     }
 }

@@ -28,7 +28,7 @@
 
         <!-- Product Master Dropdown -->
         <div class="mb-3">
-            <label asp-for="ProductMasterId" class="form-label">Product Master <span class="text-danger">*</span></label>
+            <label asp-for="ProductMasterId" class="form-label">Product Name <span class="text-danger">*</span></label>
             <select id="ddlProductMaster" asp-for="ProductMasterId" class="form-select">
                 <option value="">-- Select Product Master --</option>
             </select>
@@ -58,9 +58,10 @@
 
         <!-- Image -->
         <div class="mb-3">
-            <label asp-for="ImageFileName" class="form-label">Product Image</label>
-            <input asp-for="ImageFileName" type="file" class="form-control" id="fileImage" />
+            <label asp-for="ProductImage" class="form-label">Product Image</label>
+            <input asp-for="ProductImage" type="file" class="form-control" />
         </div>
+
 
         <!-- Discount -->
         <div class="mb-3">

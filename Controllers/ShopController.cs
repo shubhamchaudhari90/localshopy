@@ -135,6 +135,12 @@ namespace localshopyNew.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var locationList = await _locationService.GetActiveLocations();
+            if (locationList == null || locationList.Count <= 0)
+            {
+                return RedirectToAction("Index", "Location");
+            }
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
             var shop = await _shopService.GetShopById(id);
             if (shop == null) return View(shop);
             shop.IsActive = false;
