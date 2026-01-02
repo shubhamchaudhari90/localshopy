@@ -11,6 +11,7 @@ namespace localshopyNew.Services.Interfaces
         Task<ShopProductsViewModel?> UpdateShopData(Shop shop);
         Task<bool> IsProductValid(Product product);
         Task<bool> AddProductInShop(Product product);
-        Task<bool> UpdateProductInShop(Product product);
+        Task<string?> UpdateProductInShop(Product product);
+        Task<bool> DeleteProductFromShop(Guid shopId, Guid productId);
     }
 }

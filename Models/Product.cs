@@ -12,14 +12,14 @@ namespace localshopyNew.Models
         public int Price { get; set; }
         public bool IsAvailable { get; set; }
         public string? ImageFileName { get; set; }
-
-        [NotMapped]
-        public IFormFile? ProductImage { get; set; }
-
         public double Discount { get; set; } // percentage (e.g. 10 = 10%)
         public DateTime? DiscountValidFrom { get; set; }
         public DateTime? DiscountValidTill { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public bool IsActive { get; set; }
+
+        [NotMapped]
+        public IFormFile? ProductImage { get; set; }
     }
 }

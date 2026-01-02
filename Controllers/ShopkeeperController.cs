@@ -81,6 +81,7 @@ namespace localshopyNew.Controllers
             Guid shopId = GetShopIdFromSession();
             if (shopId == Guid.Empty)
             {
+                ViewData["ErrorMessage"] = "Session Expired";
                 return RedirectToAction(nameof(Login));
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
@@ -120,6 +121,7 @@ namespace localshopyNew.Controllers
             Guid shopId = GetShopIdFromSession();
             if (shopId == Guid.Empty)
             {
+                ViewData["ErrorMessage"] = "Session Expired";
                 return RedirectToAction(nameof(Login));
             }
             shop.Id = shopId;
@@ -162,8 +164,16 @@ namespace localshopyNew.Controllers
             Guid shopId = GetShopIdFromSession();
             if (shopId == Guid.Empty)
             {
+                ViewData["ErrorMessage"] = "Session Expired";
                 return RedirectToAction(nameof(Login));
             }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
+            {
+                ViewData["ErrorMessage"] = "Image must be less than 1 MB";
+                return View(product);
+            }
+
             product.ShopId = shopId;
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
@@ -246,8 +256,7 @@ namespace localshopyNew.Controllers
 
             product.Id = productId;
 
-            if (string.IsNullOrEmpty(product.Description) ||
-                product.Price <= 0)
+            if (product.Price <= 0)
             {
                 ViewData["ErrorMessage"] = "Mandatory field missing";
                 return View(product);
@@ -259,6 +268,13 @@ namespace localshopyNew.Controllers
                 ViewData["ErrorMessage"] = "Session Expired";
                 return RedirectToAction(nameof(Login));
             }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
+            {
+                ViewData["ErrorMessage"] = "Image must be less than 1 MB";
+                return View(product);
+            }
+
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
@@ -277,10 +293,39 @@ namespace localshopyNew.Controllers
 
             product.ShopId = shopId;
 
-            await _shopkeeperService.UpdateProductInShop(product);
+            string? oldImageName = await _shopkeeperService.UpdateProductInShop(product);
+            if (oldImageName != null && product.ProductImage != null && product.ProductImage.Length > 0)
+            {
+                // Delete old image
+                if (!string.IsNullOrEmpty(oldImageName))
+                {
+                    var oldImagePath = Path.Combine(_env.WebRootPath, "images", "products", oldImageName);
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+            }
             return RedirectToAction(nameof(ShopDetails));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid productId)
+        {
+            Guid shopId = GetShopIdFromSession();
+            if (shopId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction(nameof(Login));
+            }
+            bool isDeleted = await _shopkeeperService.DeleteProductFromShop(shopId, productId);
+            if (!isDeleted)
+            {
+                ViewData["ErrorMessage"] = "Product Not Deleted.";
+            }
+            return RedirectToAction(nameof(ShopDetails));
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetProductsByCategory(Guid categoryId)

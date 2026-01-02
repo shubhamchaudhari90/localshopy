@@ -45,8 +45,8 @@ namespace localshopyNew.Services
                 join c in _context.Categoties
                 on pm.CategoryId equals c.Id into cat
                 from c in cat.DefaultIfEmpty() // LEFT JOIN
-                where p.ShopId == shop.Id
-                orderby p.SortOrder
+                where p.ShopId == shop.Id && p.IsActive
+                orderby p.UpdatedAt descending
                 select new ProductViewModel
                 {
                     Id = p.Id,
@@ -66,9 +66,6 @@ namespace localshopyNew.Services
                     ProductMasterName = pm.ProductName,
                     CategoryName = c != null ? c.Name : "",
                 }).ToListAsync();
-
-
-
 
             List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
 
@@ -107,7 +104,8 @@ namespace localshopyNew.Services
                 return false;
             }
 
-            bool productExists = await _context.Products.AnyAsync(x => x.ShopId == product.ShopId && x.ProductMasterId == product.ProductMasterId);
+            bool productExists = await _context.Products.AnyAsync(x => x.ShopId == product.ShopId
+            && x.ProductMasterId == product.ProductMasterId && x.IsActive);
             if (productExists)
                 return false;
             return true;
@@ -115,23 +113,8 @@ namespace localshopyNew.Services
 
         public async Task<bool> AddProductInShop(Product product)
         {
-            product.Id = Guid.NewGuid();
-            product.CreatedAt = DateTime.Now;
-            product.IsActive = true;
-            int count = _context.Products.Any(x => x.ShopId == product.ShopId) ? _context.Products.Where(x => x.ShopId == product.ShopId).Max(x => x.SortOrder) : 0;
-            product.SortOrder = count + 1;
-            await _context.AddAsync(product);
-            int rowsInserted = await _context.SaveChangesAsync();
-            if (rowsInserted > 0)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public async Task<bool> UpdateProductInShop(Product product)
-        {
-            Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.Id == product.Id);
+            Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == product.ShopId
+            && x.ProductMasterId == product.ProductMasterId);
             if (existing != null)
             {
                 existing.Description = product.Description;
@@ -141,13 +124,59 @@ namespace localshopyNew.Services
                 existing.Discount = product.Discount;
                 existing.DiscountValidFrom = product.DiscountValidFrom;
                 existing.DiscountValidTill = product.DiscountValidTill;
+                existing.UpdatedAt = DateTime.Now;
+                existing.IsActive = true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                product.Id = Guid.NewGuid();
+                product.CreatedAt = DateTime.Now;
+                product.UpdatedAt = DateTime.Now;
+                product.IsActive = true;
+                int count = _context.Products.Any(x => x.ShopId == product.ShopId) ? _context.Products.Where(x => x.ShopId == product.ShopId).Max(x => x.SortOrder) : 0;
+                product.SortOrder = count + 1;
+                await _context.AddAsync(product);
+                int rowsInserted = await _context.SaveChangesAsync();
+                if (rowsInserted > 0)
+                    return true;
+            }
+            return false;
+        }
 
+        public async Task<string?> UpdateProductInShop(Product product)
+        {
+            Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.Id == product.Id);
+            if (existing != null)
+            {
+                string? oldImageFileName = existing.ImageFileName;
+                existing.Price = product.Price;
+                existing.IsAvailable = product.IsAvailable;
+                if (!string.IsNullOrEmpty(product.ImageFileName))
+                    existing.ImageFileName = product.ImageFileName;
+                existing.Discount = product.Discount;
+                existing.DiscountValidFrom = product.DiscountValidFrom;
+                existing.DiscountValidTill = product.DiscountValidTill;
+                existing.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+                return oldImageFileName;
+            }
+            return null;
+        }
+
+        public async Task<bool> DeleteProductFromShop(Guid shopId, Guid productId)
+        {
+            Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == shopId && x.Id == productId);
+            if (existing != null)
+            {
+                existing.IsActive = false;
+                existing.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
                 return true;
             }
             return false;
         }
-
         public async Task<ProductViewModel?> GetProductById(Guid id)
         {
             Product? product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
@@ -177,30 +206,6 @@ namespace localshopyNew.Services
             return model;
         }
 
-        //private List<ProductViewModel> MapProducts(List<Product> products)
-        //{
-        //    var productList = new List<ProductViewModel>();
 
-        //    foreach (var product in products)
-        //    {
-        //        var model = new ProductViewModel
-        //        {
-        //            Id = product.Id,
-        //            ProductMasterId = product.ProductMasterId,
-        //            ShopId = product.ShopId,
-        //            SortOrder = product.SortOrder,
-        //            Description = product.Description,
-        //            Price = product.Price,
-        //            IsAvailable = product.IsAvailable,
-        //            ImageFileName = product.ImageFileName,
-        //            Discount = product.Discount,
-        //            DiscountValidFrom = product.DiscountValidFrom,
-        //            DiscountValidTill = product.DiscountValidTill,
-        //            IsActive = product.IsActive
-        //        };
-        //        productList.Add(model);
-        //    }
-        //    return productList;
-        //}
     }
 }
