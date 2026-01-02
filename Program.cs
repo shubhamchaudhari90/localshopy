@@ -28,6 +28,7 @@ builder.Services.AddScoped<IShopkeeperService, ShopkeeperService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 //// Authentication
 //builder.Services.AddAuthentication(options =>

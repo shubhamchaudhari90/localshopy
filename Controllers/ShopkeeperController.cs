@@ -12,15 +12,17 @@ namespace localshopyNew.Controllers
         private readonly IEncodingService _encodingService;
         private readonly ILocationService _locationService;
         private readonly ICategoryService _categoryService;
+        private readonly IAdminService _adminService;
         private readonly IWebHostEnvironment _env;
 
-        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService, ICategoryService categoryService, IWebHostEnvironment env)
+        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService, ICategoryService categoryService, IWebHostEnvironment env, IAdminService adminService)
         {
             _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
             _locationService = locationService;
             _categoryService = categoryService;
             _env = env;
+            _adminService = adminService;
         }
 
         public IActionResult Login()
@@ -35,6 +37,13 @@ namespace localshopyNew.Controllers
             {
                 return View();
             }
+            string admin = _adminService.AdminLoggedIn(model.Email, model.Password);
+
+            if (!string.IsNullOrEmpty(admin))
+            {
+                HttpContext.Session.SetString("admin", admin);
+                return RedirectToAction("Index", "Location");
+            }
 
             Shop? shop = await _shopkeeperService.GetShopByLoginModel(model);
             if (shop == null)
@@ -46,6 +55,10 @@ namespace localshopyNew.Controllers
             string shopIdValue = _encodingService.Encode(shop.Id.ToString());
 
             HttpContext.Session.SetString(shopIdKey, shopIdValue);
+
+            if (model.Email != "")
+                HttpContext.Session.SetString("IsShopkeeper", "TRUE");
+
             return RedirectToAction(nameof(ShopDetails));
         }
 
@@ -65,9 +78,11 @@ namespace localshopyNew.Controllers
         public IActionResult Logout()
         {
 
+            string shopIdKey = _encodingService.Encode("ShopId");
 
             // Remove a specific key
-            HttpContext.Session.Remove("UserName");
+            HttpContext.Session.Remove("shopIdKey");
+            HttpContext.Session.Remove("IsShopkeeper");
 
             // Or remove all session data
             HttpContext.Session.Clear();

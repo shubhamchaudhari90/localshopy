@@ -4,17 +4,19 @@ namespace localshopyNew.Services
 {
     public class EncodingService : IEncodingService
     {
-        private readonly string _key;
+        private readonly IConfiguration _configuration;
 
         public EncodingService(IConfiguration configuration)
         {
-            _key = configuration["EncodingKey"]!;
+            _configuration = configuration;
         }
 
         public string Encode(string value)
         {
+            string key = _configuration["EncodingKey"] ?? "ComplexKey";
+
             var valueBytes = System.Text.Encoding.UTF8.GetBytes(value);
-            var keyBytes = System.Text.Encoding.UTF8.GetBytes(_key);
+            var keyBytes = System.Text.Encoding.UTF8.GetBytes(key);
 
             for (int i = 0; i < valueBytes.Length; i++)
             {
@@ -25,8 +27,9 @@ namespace localshopyNew.Services
 
         public string Decode(string value)
         {
+            string key = _configuration["EncodingKey"] ?? "ComplexKey";
             var valueBytes = Convert.FromBase64String(value);
-            var keyBytes = System.Text.Encoding.UTF8.GetBytes(_key);
+            var keyBytes = System.Text.Encoding.UTF8.GetBytes(key);
 
             for (int i = 0; i < valueBytes.Length; i++)
             {
@@ -34,5 +37,7 @@ namespace localshopyNew.Services
             }
             return System.Text.Encoding.UTF8.GetString(valueBytes);
         }
+
+
     }
 }
