@@ -64,7 +64,7 @@ namespace localshopyNew.Services
                     IsActive = p.IsActive,
                     CategoryId = c.Id,
                     ProductMasterName = pm.ProductName,
-                    CategoryName = c != null ? c.Name : "",
+                    CategoryName = c != null ? c.Name : "Other",
                 }).ToListAsync();
 
             List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
