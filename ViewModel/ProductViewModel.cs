@@ -18,7 +18,7 @@ namespace localshopyNew.ViewModel
         {
             get
             {
-                var now = DateTime.UtcNow;
+                var now = DateTime.Today;
 
                 if (Discount <= 0 || DiscountValidFrom == null || DiscountValidFrom == null ||
                     now < DiscountValidFrom || now > DiscountValidTill)

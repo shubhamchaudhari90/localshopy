@@ -144,6 +144,7 @@ namespace localshopyNew.Controllers
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
             Product product = new Product()
             {
+                IsAvailable = true,
                 Price = 100,
                 DiscountValidFrom = DateTime.Today,
                 DiscountValidTill = DateTime.Today

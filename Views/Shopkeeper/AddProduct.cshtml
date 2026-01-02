@@ -51,7 +51,7 @@
         <!-- User-friendly IsAvailable toggle -->
         <div class="mb-3 form-check form-switch">
             <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="isAvailableSwitch" onchange="updateStatusText()" />
-            <label class="form-check-label" id="isAvailableLabel" for="isAvailableSwitch">
+            <label class="form-check-label fw-semibold" id="isAvailableLabel" for="isAvailableSwitch">
                 @(Model.IsAvailable ? "Available" : "Out of stock")
             </label>
         </div>
@@ -63,26 +63,38 @@
         </div>
 
 
-        <!-- Discount -->
-        <div class="mb-3">
-            <label asp-for="Discount" class="form-label">Discount (%)</label>
-            <input asp-for="Discount" class="form-control" id="txtDiscount" />
+        <!-- Apply Discount Toggle -->
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="applyDiscountToggle" />
+            <label class="form-check-label fw-semibold" for="applyDiscountToggle">Apply Discount</label>
         </div>
 
-        <!-- Discount Validity -->
-        <div class="mb-3">
-            <label asp-for="DiscountValidFrom" class="form-label">Discount Valid From</label>
-            <input asp-for="DiscountValidFrom" type="date" class="form-control" id="txtDiscountFrom" />
-        </div>
+        <!-- Discount Fields Container -->
+        <div id="discountFields" style="display: none;">
+            <!-- Discount (%) -->
+            <div class="mb-3">
+                <label asp-for="Discount" class="form-label">Discount (%)</label>
+                <input asp-for="Discount" class="form-control" id="txtDiscount" min="0" max="99" type="number" />
+                <span class="text-danger" id="discountError"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="DiscountValidTill" class="form-label">Discount Valid Till</label>
-            <input asp-for="DiscountValidTill" type="date" class="form-control" id="txtDiscountTill" />
-        </div>
+            <!-- Discount Valid From -->
+            <div class="mb-3">
+                <label asp-for="DiscountValidFrom" class="form-label">Discount Valid From</label>
+                <input asp-for="DiscountValidFrom" type="date" class="form-control" id="txtDiscountFrom" />
+                <span class="text-danger" id="fromError"></span>
+            </div>
 
+            <!-- Discount Valid Till -->
+            <div class="mb-3">
+                <label asp-for="DiscountValidTill" class="form-label">Discount Valid Till</label>
+                <input asp-for="DiscountValidTill" type="date" class="form-control" id="txtDiscountTill" />
+                <span class="text-danger" id="tillError"></span>
+            </div>
+        </div>
         <!-- Buttons -->
         <button type="submit" class="btn btn-warning">Save</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <a asp-action="ShopDetails" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 
@@ -125,5 +137,57 @@
             });
         });
 
+        // Show/hide discount fields
+        $('#applyDiscountToggle').change(function () {
+            if ($(this).is(':checked')) {
+                $('#discountFields').slideDown();
+            } else {
+                $('#discountFields').slideUp();
+                // Reset values
+                $('#txtDiscount').val(0);
+                $('#txtDiscountFrom').val('');
+                $('#txtDiscountTill').val('');
+                $('.text-danger').text('');
+            }
+        });
+
+        // Form submit validation
+        $('form').submit(function (e) {
+            if ($('#applyDiscountToggle').is(':checked')) {
+                let isValid = true;
+                const discount = parseInt($('#txtDiscount').val());
+                const fromDate = $('#txtDiscountFrom').val();
+                const tillDate = $('#txtDiscountTill').val();
+                const today = new Date().toISOString().split('T')[0];
+
+                // Discount validation
+                if (isNaN(discount) || discount < 0 || discount > 99) {
+                    $('#discountError').text('Discount must be between 0 and 99.');
+                    isValid = false;
+                } else {
+                    $('#discountError').text('');
+                }
+
+                // From date validation
+                if (!fromDate || fromDate < today) {
+                    $('#fromError').text('From date must be today or later.');
+                    isValid = false;
+                } else {
+                    $('#fromError').text('');
+                }
+
+                // Till date validation
+                if (!tillDate || tillDate < fromDate) {
+                    $('#tillError').text('Till date must be same or after From date.');
+                    isValid = false;
+                } else {
+                    $('#tillError').text('');
+                }
+
+                if (!isValid) {
+                    e.preventDefault(); // stop form submit
+                }
+            }
+        });
     });
 </script>
