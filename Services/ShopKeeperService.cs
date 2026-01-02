@@ -46,7 +46,7 @@ namespace localshopyNew.Services
                 on pm.CategoryId equals c.Id into cat
                 from c in cat.DefaultIfEmpty() // LEFT JOIN
                 where p.ShopId == shop.Id && p.IsActive
-                orderby p.UpdatedAt descending
+                orderby p.SortOrder
                 select new ProductViewModel
                 {
                     Id = p.Id,
@@ -117,6 +117,8 @@ namespace localshopyNew.Services
             && x.ProductMasterId == product.ProductMasterId);
             if (existing != null)
             {
+                int count = _context.Products.Where(x => x.ShopId == product.ShopId).Max(x => x.SortOrder);
+                existing.SortOrder = count + 1;
                 existing.Description = product.Description;
                 existing.Price = product.Price;
                 existing.IsAvailable = product.IsAvailable;
