@@ -225,6 +225,7 @@ namespace localshopyNew.Controllers
             }
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
             ViewData["ErrorMessage"] = "Product already exist or any requied field is missing";
+            RemoveUnusedImages();
             return View(product);
         }
 
@@ -386,5 +387,32 @@ namespace localshopyNew.Controllers
             Guid productId = Guid.Parse(productIdValue);
             return productId;
         }
+
+        private async Task RemoveUnusedImages()
+        {
+            // Get all image names in DB
+            List<string?> imagesInDB = await _shopkeeperService.GetAllImageNames();
+
+            // Path to the product images folder
+            string imageFolder = Path.Combine(_env.WebRootPath, "images", "products");
+
+            if (Directory.Exists(imageFolder))
+            {
+                // Get all files in folder
+                var allFiles = Directory.GetFiles(imageFolder);
+
+                foreach (var filePath in allFiles)
+                {
+                    string fileName = Path.GetFileName(filePath);
+
+                    // If file is not in DB, delete it
+                    if (!imagesInDB.Contains(fileName))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+        }
+
     }
 }

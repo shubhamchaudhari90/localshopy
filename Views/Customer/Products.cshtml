@@ -64,7 +64,7 @@ else
                      class="accordion-collapse collapse"
                      aria-labelledby="@headingId">
 
-                    <div class="accordion-body">
+                    <div class="accordion-body alert alert-warning">
                         <div class="row g-3">
 
                             @foreach (var product in group)
@@ -80,41 +80,64 @@ else
                                 ? ""
                                 : "border-secondary bg-secondary bg-opacity-10";
 
-                                <div class="col-12 col-md-6 col-lg-4 product-card"
+                                <div class="col-6 col-md-4 col-lg-3 product-card"
                                      data-product="@product.ProductMasterName.ToLower()">
 
                                     <div class="card h-100 shadow-sm @cardClass">
                                         <div class="row g-0 h-100">
 
-                                            <div class="col-auto p-2">
+                                            <div class="col-5 p-2">
                                                 @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                 {
                                                     <img src="~/images/products/@product.ImageFileName"
                                                          class="rounded"
-                                                         style="width:100px;height:100px;object-fit:cover;" />
+                                                         style="width:80px;height:80px;object-fit:cover;" />
                                                 }
                                                 else
                                                 {
                                                     <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded"
-                                                         style="width:100px;height:100px;">
+                                                         style="width:80px;height:80px;">
                                                         <i class="bi bi-image fs-3"></i>
                                                     </div>
                                                 }
                                             </div>
 
-                                            <div class="col d-flex flex-column p-2">
+                                            <div class="col-7 d-flex flex-column p-2">
                                                 <div class="d-flex justify-content-between">
-                                                    <h6 class="small fw-semibold mb-0">
-                                                        @product.ProductMasterName
-                                                    </h6>
-                                                    <span class="small fw-semibold @(product.IsAvailable ? "text-success" : "text-danger")">
-                                                        @(product.IsAvailable ? "Available" : "Out of stock")
+                                                    <span class="fs-6 fw-medium text-secondary">
+                                                        @product.ShopName
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fs-6 fw-medium text-secondary">
+                                                        @product.Type
                                                     </span>
                                                 </div>
 
-                                                <p class="small text-muted mb-1">
-                                                    @product.Description
-                                                </p>
+                                                <!-- Type Icon -->
+                                                <div class="d-inline-flex align-items-center justify-content-center"
+                                                     style="
+                                width:18px;
+                                height:18px;
+                                border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : "var(--bs-danger)");
+                                border-radius:6px;
+                                background-color:white;">
+
+                                                    <!-- Inner Circle -->
+                                                    <div style="
+                                width:10px;
+                                height:10px;
+                                border-radius:50%;
+                                background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : "var(--bs-danger)");">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <span class="fw-bold text-body">
+                                                        @product.ProductMasterName
+                                                    </span>
+                                                </div>
 
                                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                                     <div>
@@ -127,24 +150,6 @@ else
                                                         <span class="fw-bold text-success ms-1">
                                                             ₹@product.FinalPrice
                                                         </span>
-                                                    </div>
-
-                                                    <div class="d-flex gap-1">
-                                                        <a class="btn btn-sm btn-warning p-1"
-                                                           href="@Url.Action("EditProduct", "Shopkeeper", new { productId = product.Id })">
-                                                            <i class="bi bi-pencil"></i>
-                                                        </a>
-
-                                                        <form asp-action="Delete"
-                                                              asp-controller="Shopkeeper"
-                                                              method="post"
-                                                              class="m-0"
-                                                              onsubmit="return confirm('Delete this product?');">
-                                                            <input type="hidden" name="productId" value="@product.Id" />
-                                                            <button class="btn btn-sm btn-danger p-1">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>

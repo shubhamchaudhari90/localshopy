@@ -20,26 +20,38 @@
         <!-- Category Dropdown -->
         <div class="mb-3">
             <label class="form-label">Category <span class="text-danger">*</span></label>
-            <select id="ddlCategory" class="form-select" asp-items="ViewBag.Categories">
+            <select id="ddlCategory" class="form-select" asp-items="ViewBag.Categories" required>
                 <option value="">-- Select Category --</option>
             </select>
         </div>
 
-
         <!-- Product Master Dropdown -->
         <div class="mb-3">
             <label asp-for="ProductMasterId" class="form-label">Product Name <span class="text-danger">*</span></label>
-            <select id="ddlProductMaster" asp-for="ProductMasterId" class="form-select">
+            <select id="ddlProductMaster" asp-for="ProductMasterId" class="form-select" required>
                 <option value="">-- Select Product Master --</option>
             </select>
 
+        </div>
+
+        <!-- Type Dropdown -->
+        <div class="mb-3">
+            <label asp-for="Type" class="form-label">
+                Type <span class="text-danger">*</span>
+            </label>
+            <select id="ddlType" asp-for="Type" class="form-select" required>
+                <option value="">-- Select Type --</option>
+                <option value="Veg">Veg</option>
+                <option value="Egg">Egg</option>
+                <option value="Non-Veg">Non-Veg</option>
+            </select>
+            <span asp-validation-for="Type" class="text-danger"></span>
         </div>
 
         <!-- Description -->
         <div class="mb-3">
             <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
             <input asp-for="Description" type="text" class="form-control" id="txtDescription" maxlength="150" required />
-
         </div>
 
         <!-- Price -->

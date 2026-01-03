@@ -28,8 +28,11 @@ namespace localshopyNew.Services
                 on pm.CategoryId equals c.Id into cat
                 from c in cat.DefaultIfEmpty() // LEFT JOIN
 
-                where p.IsActive
-                && shop.ServedLocations.Contains(id)
+                where p.IsActive    // NOT DELETED
+                && p.IsAvailable    // AVAILABLE ONLY (NO OUT OF STOCK)
+                && shop.IsOpen      // SHOP SHOULD BE OPEN
+                && shop.AccountValidTill.Date >= DateTime.Today // SHOP ACCOUNT SHOULD BE VALID
+                && shop.ServedLocations.Contains(id) // SERVED LOCATION BY SHOP
 
                 orderby p.SortOrder
                 select new ProductViewModel
@@ -49,7 +52,8 @@ namespace localshopyNew.Services
                     IsActive = p.IsActive,
                     CategoryId = c != null ? c.Id : Guid.Empty,
                     ProductMasterName = pm.ProductName,
-                    CategoryName = c != null ? c.Name : "Other"
+                    CategoryName = c != null ? c.Name : "Other",
+                    ShopName = shop.Name
                 }).ToListAsync();
 
             return products;

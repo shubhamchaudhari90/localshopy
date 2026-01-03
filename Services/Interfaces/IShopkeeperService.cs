@@ -13,5 +13,6 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> AddProductInShop(Product product);
         Task<string?> UpdateProductInShop(Product product);
         Task<bool> DeleteProductFromShop(Guid shopId, Guid productId);
+        Task<List<string?>> GetAllImageNames();
     }
 }

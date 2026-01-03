@@ -32,6 +32,7 @@ namespace localshopyNew.ViewModel
         }
 
         public string CategoryName { get; set; }
+        public string ShopName { get; set; }
 
         public string ProductMasterName { get; set; }
     }

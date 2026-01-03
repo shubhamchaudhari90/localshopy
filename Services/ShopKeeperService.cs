@@ -65,6 +65,7 @@ namespace localshopyNew.Services
                     CategoryId = c.Id,
                     ProductMasterName = pm.ProductName,
                     CategoryName = c != null ? c.Name : "Other",
+                    Type = string.IsNullOrEmpty(p.Type) ? "VEG" : p.Type,
                 }).ToListAsync();
 
             List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
@@ -121,6 +122,7 @@ namespace localshopyNew.Services
                 existing.SortOrder = count + 1;
                 existing.Description = product.Description;
                 existing.Price = product.Price;
+                existing.Type = product.Type;
                 existing.IsAvailable = product.IsAvailable;
                 existing.ImageFileName = product.ImageFileName;
                 existing.Discount = product.Discount;
@@ -196,7 +198,8 @@ namespace localshopyNew.Services
                 Discount = product.Discount,
                 DiscountValidFrom = product.DiscountValidFrom,
                 DiscountValidTill = product.DiscountValidTill,
-                IsActive = product.IsActive
+                IsActive = product.IsActive,
+                Type = product.Type
             };
             ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(x => x.Id == product.ProductMasterId);
             if (productMaster == null) return null;
@@ -208,6 +211,10 @@ namespace localshopyNew.Services
             return model;
         }
 
-
+        public async Task<List<string?>> GetAllImageNames()
+        {
+            List<string?> names = await _context.Products.Select(x => x.ImageFileName).ToListAsync();
+            return names;
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace localshopyNew.Models
         public Guid ShopId { get; set; }
         public int SortOrder { get; set; }
         public string Description { get; set; } = string.Empty;
+        public string Type { get; set; }
         public int Price { get; set; }
         public bool IsAvailable { get; set; }
         public string? ImageFileName { get; set; }
