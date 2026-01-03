@@ -2,6 +2,7 @@
 using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.RegularExpressions;
 
 namespace localshopyNew.Controllers
 {
@@ -41,6 +42,18 @@ namespace localshopyNew.Controllers
             var locationList = await _locationService.GetActiveLocations();
             if (string.IsNullOrEmpty(shop.Name))
             {
+                if (locationList == null || locationList.Count <= 0)
+                {
+                    return RedirectToAction("Index", "Location");
+                }
+                ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+                return View(shop);
+            }
+
+            if (!Regex.IsMatch(shop.Name, "^[a-zA-Z0-9 -]+$"))
+            {
+                ViewBag.ErrorMessage = "Shop name contains a to z, A to Z and - (hyphen) only";
+
                 if (locationList == null || locationList.Count <= 0)
                 {
                     return RedirectToAction("Index", "Location");

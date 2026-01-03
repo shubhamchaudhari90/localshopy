@@ -16,12 +16,12 @@ namespace localshopyNew.Services
 
         public async Task<bool> IsShopNameExists(string name)
         {
-            return await _context.Shops.AnyAsync(x => x.Name == name);
+            return await _context.Shops.AnyAsync(x => x.Name.ToLower() == name.ToLower());
         }
 
         public async Task<bool> IsShopOwnerEmailExists(string ownerEmailId)
         {
-            return await _context.Shops.AnyAsync(x => x.OwnerEmailId == ownerEmailId);
+            return await _context.Shops.AnyAsync(x => x.OwnerEmailId.ToLower() == ownerEmailId.ToLower());
         }
 
         public async Task<Shop?> GetShopById(Guid id)
@@ -43,7 +43,7 @@ namespace localshopyNew.Services
 
         public async Task<bool> AddShop(Shop shop)
         {
-            var existingShop = _context.Shops.FirstOrDefaultAsync(x => x.Name == shop.Name || x.OwnerEmailId == shop.OwnerEmailId);
+            var existingShop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shop.Name.ToLower() || x.OwnerEmailId.ToLower() == shop.OwnerEmailId.ToLower());
             if (existingShop != null)
             {
                 return false;
@@ -67,7 +67,7 @@ namespace localshopyNew.Services
             if (existingShop == null)
                 return false;
 
-            if (existingShop.Name != shop.Name)
+            if (existingShop.Name.ToLower() != shop.Name.ToLower())
             {
                 bool isNameExists = await IsShopNameExists(shop.Name);
                 if (isNameExists)
@@ -76,7 +76,7 @@ namespace localshopyNew.Services
                 }
             }
 
-            if (existingShop.OwnerEmailId != shop.OwnerEmailId)
+            if (existingShop.OwnerEmailId.ToLower() != shop.OwnerEmailId.ToLower())
             {
                 bool isShopExists = await IsShopOwnerEmailExists(shop.OwnerEmailId);
                 if (isShopExists)

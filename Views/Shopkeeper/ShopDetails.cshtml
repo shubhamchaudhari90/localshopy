@@ -213,18 +213,18 @@
                                                             <!-- Type Icon -->
                                                             <div class="d-inline-flex align-items-center justify-content-center"
                                                                  style="
-                    width:18px;
-                    height:18px;
-                    border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : "var(--bs-danger)");
-                    border-radius:6px;
-                    background-color:white;">
+                                            width:18px;
+                                            height:18px;
+                                                        border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
+                                            border-radius:6px;
+                                            background-color:white;">
 
                                                                 <!-- Inner Circle -->
                                                                 <div style="
-                    width:10px;
-                    height:10px;
-                    border-radius:50%;
-                    background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : "var(--bs-danger)");">
+                                            width:10px;
+                                            height:10px;
+                                            border-radius:50%;
+                                                        background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
                                                                 </div>
                                                             </div>
 

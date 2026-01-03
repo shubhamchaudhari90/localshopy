@@ -62,6 +62,18 @@ namespace localshopyNew.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> ShopDetails(string shopName)
+        {
+            string decodedName = shopName.Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
+
+            var shopDetails = await _customerService.GetShopDetailsByName(decodedName);
+            if (shopDetails == null || shopDetails.Shop == null)
+            {
+                RedirectToAction(nameof(Location));
+            }
+            return View(shopDetails);
+        }
+
         private Guid GetLocationFromSession()
         {
             string locationKey = _encodingService.Encode("Location");
