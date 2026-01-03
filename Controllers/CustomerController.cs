@@ -74,6 +74,16 @@ namespace localshopyNew.Controllers
             return View(shopDetails);
         }
 
+        public async Task<IActionResult> ChangeLocation()
+        {
+            List<Location> locations = await _locationService.GetActiveLocations();
+            string locationKey = _encodingService.Encode("Location");
+
+            // Remove a specific key
+            HttpContext.Session.Remove(locationKey);
+            return RedirectToAction(nameof(Location));
+        }
+
         private Guid GetLocationFromSession()
         {
             string locationKey = _encodingService.Encode("Location");

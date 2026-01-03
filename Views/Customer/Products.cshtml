@@ -16,20 +16,20 @@
                placeholder="Search by product or category..."
                autocomplete="off" />
     </div>
-
-    
-
 </div>
 
-<button id="toggleAccordionBtn"
-        class="btn btn-outline-secondary btn-sm">
-    Change Location
-</button>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left Button: Change Location -->
+    <a asp-controller="Customer" asp-action="ChangeLocation" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-geo-alt"></i> Change Location
+    </a>
 
-<button id="toggleAccordionBtn"
-        class="btn btn-outline-secondary btn-sm">
-    Expand All
-</button>
+    <!-- Right Button: Expand / Collapse All -->
+    <button id="toggleAccordionBtn" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrows-expand"></i> Expand All
+    </button>
+</div>
+
 
 @if (!groupedProducts.Any())
 {
