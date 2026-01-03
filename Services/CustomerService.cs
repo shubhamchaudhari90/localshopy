@@ -1,124 +1,58 @@
-﻿namespace localshopyNew.Services
+﻿using localshopyNew.Data;
+using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
+using Microsoft.EntityFrameworkCore;
+
+namespace localshopyNew.Services
 {
-    public class CustomerService
+    public class CustomerService : ICustomerService
     {
-        //private readonly string _locationsPath;
-        //private readonly string _shopFolder;
-        //private readonly string _productsPath;
+        private readonly AppDBContext _context;
 
-        //public CustomerService(IWebHostEnvironment env)
-        //{
-        //    _shopFolder = Path.Combine(env.ContentRootPath, "App_Data", "Shops");
-        //    _locationsPath = Path.Combine(env.ContentRootPath, "App_Data", "Locations.json");
-        //    _productsPath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
-        //    Directory.CreateDirectory(_shopFolder);
-        //}
+        public CustomerService(AppDBContext context)
+        {
+            _context = context;
+        }
 
-        //public List<CustomerProductViewModel> GetAllProducts(string? location)
-        //{
-        //    var allProducts = new List<CustomerProductViewModel>();
-        //    if (string.IsNullOrEmpty(location))
-        //    {
-        //        return allProducts;
-        //    }
-        //    var files = Directory.GetFiles(_shopFolder, "*.json");
-        //    var categories = ReadCategoryJson();
+        public async Task<List<ProductViewModel>> GetProductsByLocation(Guid id)
+        {
+            var products = await (
+                from p in _context.Products
+                join pm in _context.ProductMasters
+                on p.ProductMasterId equals pm.Id
 
-        //    foreach (var file in files)
-        //    {
-        //        var json = File.ReadAllText(file);
-        //        var shop = JsonSerializer.Deserialize<Shop>(json);
+                join shop in _context.Shops
+                on p.ShopId equals shop.Id
 
-        //        if (shop == null || !shop.IsOpen || shop.AccountValidTill < DateTime.Now)
-        //            continue;
+                join c in _context.Categoties
+                on pm.CategoryId equals c.Id into cat
+                from c in cat.DefaultIfEmpty() // LEFT JOIN
 
-        //        if (shop.ServedLocations.Contains(location, StringComparer.OrdinalIgnoreCase))
-        //        {
-        //            foreach (var product in shop.Products.Where(p => p.IsAvailable))
-        //            {
-        //                allProducts.Add(new CustomerProductViewModel
-        //                {
-        //                    ShopName = shop.Name,
-        //                    ShopPhoneNo = shop.PhoneNo,
-        //                    Product = product,
-        //                    CategotyName = GetCategoryByProduct(categories, product.Name),
-        //                });
-        //            }
-        //        }
-        //    }
-        //    return [.. allProducts.OrderBy(x => x.CategotyName)];
-        //}
+                where p.IsActive
+                && shop.ServedLocations.Contains(id)
 
-        //public List<CustomerProductViewModel> GetProductsByShop(string shopName)
-        //{
-        //    var allProducts = new List<CustomerProductViewModel>();
-        //    var files = Directory.GetFiles(_shopFolder, $"{shopName}.json");
-        //    var categories = ReadCategoryJson();
+                orderby p.SortOrder
+                select new ProductViewModel
+                {
+                    Id = p.Id,
+                    ProductMasterId = pm.Id,
+                    ShopId = p.ShopId,
+                    SortOrder = p.SortOrder,
+                    Description = p.Description,
+                    Price = p.Price,
+                    IsAvailable = p.IsAvailable,
+                    ImageFileName = p.ImageFileName,
+                    Discount = p.Discount,
+                    DiscountValidFrom = p.DiscountValidFrom,
+                    DiscountValidTill = p.DiscountValidTill,
+                    CreatedAt = p.CreatedAt,
+                    IsActive = p.IsActive,
+                    CategoryId = c != null ? c.Id : Guid.Empty,
+                    ProductMasterName = pm.ProductName,
+                    CategoryName = c != null ? c.Name : "Other"
+                }).ToListAsync();
 
-        //    foreach (var file in files)
-        //    {
-        //        var json = File.ReadAllText(file);
-        //        var shop = JsonSerializer.Deserialize<Shop>(json);
-
-        //        if (shop == null)
-        //            return allProducts;
-
-        //        foreach (var product in shop.Products.Where(p => p.IsAvailable))
-        //        {
-        //            allProducts.Add(new CustomerProductViewModel
-        //            {
-        //                ShopName = shop.Name,
-        //                ShopPhoneNo = shop.PhoneNo,
-        //                Product = product,
-        //                CategotyName = GetCategoryByProduct(categories, product.Name),
-        //            });
-        //        }
-        //    }
-        //    return [.. allProducts.OrderBy(x => x.CategotyName)];
-        //}
-
-        //public List<string> GetAllLocations()
-        //{
-        //    var locations = ReadLocationsJson().Locations;
-        //    return locations;
-        //}
-
-        //public bool IsLocationValid(string location)
-        //{
-        //    var locations = ReadLocationsJson().Locations;
-        //    if (locations.Contains(location, StringComparer.OrdinalIgnoreCase))
-        //        return true;
-        //    return false;
-        //}
-
-        //private Location ReadLocationsJson()
-        //{
-        //    if (!File.Exists(_locationsPath))
-        //        return new Location();
-
-        //    var json = File.ReadAllText(_locationsPath);
-        //    return JsonSerializer.Deserialize<Location>(json) ?? new Location();
-
-        //}
-
-        //private List<ProductMaster> ReadCategoryJson()
-        //{
-        //    if (!File.Exists(_productsPath))
-        //        return [];
-
-        //    var json = File.ReadAllText(_productsPath);
-
-        //    return JsonSerializer.Deserialize<List<ProductMaster>>(json) ?? [];
-        //}
-
-        //public string GetCategoryByProduct(List<ProductMaster> categories, string productName)
-        //{
-        //    string? category = categories.FirstOrDefault(c => c.ProductName.Any(p => p.Equals(productName, StringComparison.OrdinalIgnoreCase)))?.CategoryName;
-        //    if (string.IsNullOrEmpty(category))
-        //    {
-        //        return "Other";
-        //    }
-        //    return category;
-        //}
+            return products;
+        }
     }
 }

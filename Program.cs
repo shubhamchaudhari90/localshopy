@@ -29,6 +29,7 @@ builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 //// Authentication
 //builder.Services.AddAuthentication(options =>
@@ -68,6 +69,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Category}/{action=Index}/{id?}");
+    pattern: "{controller=Customer}/{action=Location}/{id?}");
 
 app.Run();

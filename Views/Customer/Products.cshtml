@@ -1,85 +1,247 @@
-﻿@* @using localshopyNew.ViewModel
-@using localshopyNew.ViewModels
-del>
+﻿@using localshopyNew.ViewModel
+@model IEnumerable<ProductViewModel>
 
 @{
-    ViewData["Title"] = "Product List";
+    var groupedProducts = Model
+        .GroupBy(p => p.CategoryName ?? "Other")
+        .OrderBy(g => g.Key);
 }
 
-<h2>Available Products at @ViewBag.SelectedLocation</h2>
+<!-- 🔍 Search + Toggle -->
+<div class="pt-4 pb-3 d-flex gap-2 align-items-center">
+    <div class="position-relative flex-grow-1">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        <input id="productSearch"
+               class="form-control form-control-lg ps-5 shadow-sm border-0"
+               placeholder="Search by product or category..."
+               autocomplete="off" />
+    </div>
 
-@if (!Model.Any())
+    <button id="toggleAccordionBtn"
+            class="btn btn-outline-secondary btn-sm">
+        Expand All
+    </button>
+
+</div>
+
+@if (!groupedProducts.Any())
 {
-    <p>No products available.</p>
+    <div class="alert alert-info text-center">
+        No products available.
+    </div>
 }
 else
 {
-    var groupedProducts = Model
-        .GroupBy(p => p.CategotyName)
-        .OrderBy(g => g.Key); // sort categories
+    <div class="accordion" id="categoryAccordion">
 
-    int categoryIndex = 0; // unique IDs for collapse
+        @foreach (var item in groupedProducts.Select((group, index) => new { group, index }))
+        {
+            var group = item.group;
+            var index = item.index;
 
-    foreach (var categoryGroup in groupedProducts)
-    {
-        string collapseId = "collapseCategory" + categoryIndex;
+            var categoryId = $"category-{index}";
+            var headingId = $"heading-{index}";
+            var itemCount = group.Count();
 
-        <div class="mb-3">
-            <h3>
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
-                    @categoryGroup.Key
-                </button>
-            </h3>
+            <div class="accordion-item mb-3"
+                 data-category="@group.Key.ToLower()">
 
-            <div class="collapse show" id="@collapseId">
-                <div class="row">
-                    @foreach (var item in categoryGroup)
-                    {
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100">
-                                @if (!string.IsNullOrEmpty(item.Product.ImageFileName))
-                                {
-                                    <img src="~/images/products/@item.Product.ImageFileName"
-                                         class="card-img-top"
-                                         style="height:200px; object-fit:cover;" />
-                                }
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button collapsed fw-semibold text-dark"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@categoryId"
+                            aria-expanded="false"
+                            style="background-color:#ffc107;">
+                        <span>@group.Key</span>
+                        <span class="ms-1">
+                            (<span class="category-count">@itemCount</span>)
+                        </span>
+                    </button>
+                </h2>
 
-                                <div class="card-body">
-                                    <h5 class="card-title">@item.Product.Name</h5>
-                                    <p class="card-text">@item.Product.Description</p>
+                <div id="@categoryId"
+                     class="accordion-collapse collapse"
+                     aria-labelledby="@headingId">
 
-                                    <!-- Shop name clickable -->
-                                    <p class="card-text">
-                                        <a asp-controller="Customer" asp-action="ShopDetails" asp-route-shopName="@item.ShopName">
-                                            @item.ShopName
-                                        </a>
-                                    </p>
-                                    <p class="card-text">@item.ShopPhoneNo</p>
+                    <div class="accordion-body">
+                        <div class="row g-3">
 
-                                    @if (item.Product.Discount > 0 &&
-                                                            item.Product.DiscountValidFrom <= DateTime.UtcNow &&
-                                                            item.Product.DiscountValidTill >= DateTime.UtcNow)
-                                    {
-                                        <p>
-                                            <del>₹@item.Product.Price</del>
-                                            <strong class="text-success">
-                                                ₹@item.Product.FinalPrice
-                                            </strong>
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        <p><strong>₹@item.Product.Price</strong></p>
-                                    }
+                            @foreach (var product in group)
+                            {
+                                bool discountActive =
+                                product.Discount > 0 &&
+                                product.DiscountValidFrom.HasValue &&
+                                product.DiscountValidTill.HasValue &&
+                                DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                                DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                                string cardClass = product.IsAvailable
+                                ? ""
+                                : "border-secondary bg-secondary bg-opacity-10";
+
+                                <div class="col-12 col-md-6 col-lg-4 product-card"
+                                     data-product="@product.ProductMasterName.ToLower()">
+
+                                    <div class="card h-100 shadow-sm @cardClass">
+                                        <div class="row g-0 h-100">
+
+                                            <div class="col-auto p-2">
+                                                @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                {
+                                                    <img src="~/images/products/@product.ImageFileName"
+                                                         class="rounded"
+                                                         style="width:100px;height:100px;object-fit:cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded"
+                                                         style="width:100px;height:100px;">
+                                                        <i class="bi bi-image fs-3"></i>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div class="col d-flex flex-column p-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <h6 class="small fw-semibold mb-0">
+                                                        @product.ProductMasterName
+                                                    </h6>
+                                                    <span class="small fw-semibold @(product.IsAvailable ? "text-success" : "text-danger")">
+                                                        @(product.IsAvailable ? "Available" : "Out of stock")
+                                                    </span>
+                                                </div>
+
+                                                <p class="small text-muted mb-1">
+                                                    @product.Description
+                                                </p>
+
+                                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        @if (discountActive)
+                                                        {
+                                                            <span class="small text-muted text-decoration-line-through">
+                                                                ₹@product.Price
+                                                            </span>
+                                                        }
+                                                        <span class="fw-bold text-success ms-1">
+                                                            ₹@product.FinalPrice
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="d-flex gap-1">
+                                                        <a class="btn btn-sm btn-warning p-1"
+                                                           href="@Url.Action("EditProduct", "Shopkeeper", new { productId = product.Id })">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+
+                                                        <form asp-action="Delete"
+                                                              asp-controller="Shopkeeper"
+                                                              method="post"
+                                                              class="m-0"
+                                                              onsubmit="return confirm('Delete this product?');">
+                                                            <input type="hidden" name="productId" value="@product.Id" />
+                                                            <button class="btn btn-sm btn-danger p-1">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
                                 </div>
-                            </div>
+                            }
                         </div>
-                    }
+                    </div>
                 </div>
             </div>
-        </div>
-
-        categoryIndex++; // increment for unique collapse ID
-    }
+        }
+    </div>
 }
- *@
+
+<!-- 🧠 SCRIPT -->
+<script>
+    const searchInput = document.getElementById("productSearch");
+    const accordionItems = document.querySelectorAll(".accordion-item");
+    const toggleBtn = document.getElementById("toggleAccordionBtn");
+
+    function expandAll() {
+        accordionItems.forEach(item => {
+            if (item.style.display === "none") return;
+            const c = item.querySelector(".accordion-collapse");
+            const b = item.querySelector(".accordion-button");
+            c.classList.add("show");
+            b.classList.remove("collapsed");
+            b.setAttribute("aria-expanded", "true");
+        });
+        toggleBtn.textContent = "Collapse All";
+        toggleBtn.dataset.state = "expanded";
+    }
+
+    function collapseAll() {
+        accordionItems.forEach(item => {
+            const c = item.querySelector(".accordion-collapse");
+            const b = item.querySelector(".accordion-button");
+            c.classList.remove("show");
+            b.classList.add("collapsed");
+            b.setAttribute("aria-expanded", "false");
+        });
+        toggleBtn.textContent = "Expand All";
+        toggleBtn.dataset.state = "collapsed";
+    }
+
+    function updateButtonState() {
+        const anyOpen = [...accordionItems]
+            .some(i => i.querySelector(".accordion-collapse").classList.contains("show"));
+
+        toggleBtn.textContent = anyOpen ? "Collapse All" : "Expand All";
+        toggleBtn.dataset.state = anyOpen ? "expanded" : "collapsed";
+    }
+
+    toggleBtn.onclick = () =>
+        toggleBtn.dataset.state === "expanded" ? collapseAll() : expandAll();
+
+    accordionItems.forEach(item => {
+        const c = item.querySelector(".accordion-collapse");
+        c.addEventListener("shown.bs.collapse", updateButtonState);
+        c.addEventListener("hidden.bs.collapse", updateButtonState);
+    });
+
+    searchInput.addEventListener("input", function () {
+        const text = this.value.toLowerCase().trim();
+
+        accordionItems.forEach(item => {
+            const category = item.dataset.category;
+            const products = item.querySelectorAll(".product-card");
+            const count = item.querySelector(".category-count");
+
+            let matched = 0;
+            let catMatch = category.includes(text);
+
+            products.forEach(p => {
+                const match = p.dataset.product.includes(text);
+                p.style.display = (text === "" || match || catMatch) ? "" : "none";
+                if (match || (catMatch && text !== "")) matched++;
+            });
+
+            item.style.display = (text === "" || catMatch || matched > 0) ? "" : "none";
+            count.textContent = text === "" ? products.length : matched;
+
+            if (text !== "" && item.style.display !== "none") {
+                item.querySelector(".accordion-collapse").classList.add("show");
+            }
+        });
+
+        if (text === "") collapseAll();
+        updateButtonState();
+    });
+
+    // 🔹 Initial state: expand everything
+    document.addEventListener("DOMContentLoaded", () => {
+        expandAll();
+    });
+</script>
+

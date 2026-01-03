@@ -1,24 +1,43 @@
-﻿@model List<string>
+﻿@using localshopyNew.ViewModel
+@model LocationViewModel
 
-@{
-    ViewData["Title"] = "Select Location";
-}
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-sm" style="max-width: 420px; width: 100%;">
+        <div class="card-body p-4">
 
-<h3>Select Your Location</h3>
+            <h5 class="card-title text-center mb-3">
+                Choose Your Location
+            </h5>
 
-<form method="post">
-    <div>
-        <label for="location">Location</label><br />
-        <select id="location" name="location" required>
-            <option value="">-- Select Location --</option>
-            @foreach (var loc in Model)
-            {
-                <option value="@loc">@loc</option>
-            }
-        </select>
+            <p class="text-muted text-center mb-4">
+                Choose a location to see which products are available there.
+            </p>
+
+            <form asp-action="Location" method="post">
+
+                <div class="mb-4">
+                    <label asp-for="SelectedLocationId" class="form-label fw-semibold">
+                        Location
+                    </label>
+
+                    <select asp-for="SelectedLocationId"
+                            asp-items="@(new SelectList(Model.Locations, "Id", "Name"))"
+                            class="form-select"
+                            required>
+                        <option value="">-- Select Location --</option>
+                    </select>
+
+                    <span asp-validation-for="SelectedLocationId"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
-
-    <br />
-
-    <button type="submit" class="btn btn-primary mt-2">Submit</button>
-</form>
+</div>
