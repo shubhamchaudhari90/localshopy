@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+   
 
     <!-- Zoomed-out viewport for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=1">
@@ -103,24 +106,25 @@
                         <!-- Brand -->
                         <a class="navbar-brand mb-0" asp-area="" asp-controller="Customer" asp-action="Products">LocalShopy</a>
                     </div>
-
-                    <!-- Menu: collapsible on mobile, inline on lg+ -->
-                    <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3" id="mobileMenu">
-                        <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0">
-                            @if (string.IsNullOrEmpty(isShopkeeper))
-                            {
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a></li>
-                            }
-                            @if (!string.IsNullOrEmpty(admin) && (admin.Contains("GmRQ3xcRqDQhfmfL") || (admin.Contains("3Yq0fQiu3oBrqZlPi6oCTijDtbWin2"))))
-                            {
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Location" asp-action="Index">Location</a></li>
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Category" asp-action="Index">Category</a></li>
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shop" asp-action="Index">All Shops</a></li>
-                            }
-                        </ul>
-                    </div>
-
+                    @if (User.IsInRole("Admin") || User.IsInRole("Shopkeeper"))
+                    {
+                        <!-- Menu: collapsible on mobile, inline on lg+ -->
+                        <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3" id="mobileMenu">
+                            <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0">
+                                @if (User.IsInRole("Admin") || User.IsInRole("Shopkeeper"))
+                                {
+                                    <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a></li>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Location" asp-action="Index">Location</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Category" asp-action="Index">Category</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shop" asp-action="Index">All Shops</a></li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
 
                 <!-- Right: Login/Logout always top-aligned -->
@@ -128,10 +132,10 @@
 
 
                     <div class="d-flex align-items-start">
-                        @if (!string.IsNullOrEmpty(isShopkeeper) || !string.IsNullOrEmpty(admin))
+                        @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             <!-- Logout button -->
-                            <form asp-area="" asp-controller="Shopkeeper" asp-action="Logout" method="post" class="d-inline">
+                            <form asp-controller="Account" asp-action="Logout" class="d-inline">
                                 <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
                                     Logout
                                 </button>
@@ -140,11 +144,11 @@
                         else
                         {
                             <!-- Login button -->
-                            @* <form asp-area="" asp-controller="Shopkeeper" asp-action="Login" method="post" class="d-inline">
+                            <form asp-controller="Account" asp-action="Login" method="get" class="d-inline">
                                 <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
-                                    Logout
+                                    Login
                                 </button>
-                            </form> *@
+                            </form>
                             @* <a class="btn btn-warning btn-sm" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Login</a> *@
                         }
                     </div>

@@ -1,10 +1,13 @@
 ﻿using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class ProductMasterController : Controller
     {
         private readonly IProductMasterService _service;

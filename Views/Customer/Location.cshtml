@@ -1,43 +1,54 @@
 ﻿@using localshopyNew.ViewModel
 @model LocationViewModel
 
-<div class="d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card shadow-sm alert alert-warning " style="max-width: 420px; width: 100%;">
-        <div class="card-body p-4">
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
 
-            <h5 class="card-title text-center mb-3">
-                Choose Your Location
-            </h5>
+            <div class="card shadow-sm alert alert-warning animate__animated animate__fadeInDown">
+                <div class="card-body p-4">
 
-            <p class="text-muted text-center mb-4">
-                Choose a location to see which products are available there.
-            </p>
+                    <h5 class="card-title text-center mb-3">
+                        Choose Your Location
+                    </h5>
 
-            <form asp-action="Location" method="post">
+                    <p class="text-muted text-center mb-4">
+                        Choose a location to see which products are available there.
+                    </p>
 
-                <div class="mb-4">
-                    <label asp-for="SelectedLocationId" class="form-label fw-semibold">
-                        Location
-                    </label>
+                    <form asp-action="Location" method="post">
 
-                    <select asp-for="SelectedLocationId"
-                            asp-items="@(new SelectList(Model.Locations, "Id", "Name"))"
-                            class="form-select"
-                            required>
-                        <option value="">-- Select Location --</option>
-                    </select>
+                        <div class="mb-4">
+                            <label asp-for="SelectedLocationId" class="form-label fw-semibold">
+                                Location
+                            </label>
 
-                    <span asp-validation-for="SelectedLocationId"
-                          class="text-danger small"></span>
+                            <select asp-for="SelectedLocationId"
+                                    asp-items="@(new SelectList(Model.Locations, "Id", "Name"))"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Select Location --</option>
+                            </select>
+
+                            <span asp-validation-for="SelectedLocationId"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                                Continue
+                            </button>
+                        </div>
+
+                    </form>
+
                 </div>
+            </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-warning btn-lg">
-                        Continue
-                    </button>
-                </div>
-
-            </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

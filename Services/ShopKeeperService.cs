@@ -30,35 +30,46 @@ namespace localshopyNew.Services
 
         public async Task<Shop?> GetShopByLoginModel(LoginViewModel model)
         {
-            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId.ToLower() == model.Email.ToLower());
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+                return null;
+
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId.ToLower() == model.Email.ToLower() && x.IsActive);
             if (shop == null)
                 return null;
+
             if (shop.Password == model.Password)
                 return shop;
+
             return null;
         }
 
         private async Task<Shop?> GetShopById(Guid shopId)
         {
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+
             if (shop == null)
                 return null;
+
             return shop;
         }
 
         private async Task<Shop?> GetShopByEmailId(string emailId)
         {
-            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId.ToLower() == emailId.ToLower());
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.IsActive && x.OwnerEmailId.ToLower() == emailId.ToLower());
+
             if (shop == null)
                 return null;
+
             return shop;
         }
 
         public async Task<ShopProductsViewModel?> GetShopDetailsById(Guid id)
         {
             var shop = await GetShopById(id);
+
             if (shop == null)
                 return null;
+
             var products = await (
                 from p in _context.Products
                 join pm in _context.ProductMasters

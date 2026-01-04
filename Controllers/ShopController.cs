@@ -1,11 +1,14 @@
 ﻿using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Text.RegularExpressions;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class ShopController : Controller
     {
         private readonly IShopService _shopService;

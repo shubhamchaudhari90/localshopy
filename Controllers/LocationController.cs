@@ -1,9 +1,12 @@
 ﻿using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class LocationController : Controller
     {
         private readonly ILocationService _service;

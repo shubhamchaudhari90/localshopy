@@ -1,6 +1,7 @@
 ﻿using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace localshopyNew.Controllers
 {
+
+    [Authorize(Roles = "Shopkeeper")]
     public class ShopkeeperController : Controller
     {
         private readonly IShopkeeperService _shopkeeperService;
@@ -40,72 +43,21 @@ namespace localshopyNew.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
-            {
-                return View();
-            }
-            string admin = _adminService.AdminLoggedIn(model.Email, model.Password);
-
-            if (!string.IsNullOrEmpty(admin))
-            {
-                HttpContext.Session.SetString("admin", admin);
-                return RedirectToAction("Index", "Location");
-            }
-
-            Shop? shop = await _shopkeeperService.GetShopByLoginModel(model);
-            if (shop == null)
-            {
-                ViewData["ErrorMessage"] = "Email Id OR Password not match";
-                return View();
-            }
-            string shopIdKey = _encodingService.Encode("ShopId");
-            string shopIdValue = _encodingService.Encode(shop.Id.ToString());
-
-            HttpContext.Session.SetString(shopIdKey, shopIdValue);
-
-            if (model.Email != "")
-                HttpContext.Session.SetString("IsShopkeeper", "TRUE");
-
-            return RedirectToAction(nameof(ShopDetails));
-        }
 
         public async Task<IActionResult> ShopDetails()
         {
             Guid shopId = GetShopIdFromSession();
             if (shopId == Guid.Empty)
             {
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null)
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             return View(model);
         }
 
-        public async Task<IActionResult> Logout()
-        {
 
-            string shopIdKey = _encodingService.Encode("ShopId");
-
-            await _signInManager.SignOutAsync();
-
-            // Remove a specific key
-            HttpContext.Session.Remove("shopIdKey");
-            HttpContext.Session.Remove("IsShopkeeper");
-
-            // Or remove all session data
-            HttpContext.Session.Clear();
-
-            return RedirectToAction("Login");
-        }
 
         public async Task<IActionResult> Edit()
         {
@@ -114,11 +66,11 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null || model.Shop == null)
-                RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
 
             var locationList = await _locationService.GetActiveLocations();
             if (locationList == null)
@@ -154,13 +106,13 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
             shop.Id = shopId;
 
             ShopProductsViewModel? model = await _shopkeeperService.UpdateShopData(shop);
             if (model == null || model.Shop == null)
-                RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             return RedirectToAction(nameof(ShopDetails), model);
         }
 
@@ -198,7 +150,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -242,7 +194,7 @@ namespace localshopyNew.Controllers
             }
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
             ViewData["ErrorMessage"] = "Product already exist or any requied field is missing";
-            RemoveUnusedImages();
+            await RemoveUnusedImages();
             return View(product);
         }
 
@@ -300,7 +252,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -351,7 +303,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", "Account");
             }
             bool isDeleted = await _shopkeeperService.DeleteProductFromShop(shopId, productId);
             if (!isDeleted)

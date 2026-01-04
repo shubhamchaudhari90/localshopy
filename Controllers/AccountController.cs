@@ -1,4 +1,7 @@
-﻿using localshopyNew.Services.Interfaces;
+﻿using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -27,6 +30,7 @@ namespace localshopyNew.Controllers
             _userManager = userManager;
             _adminService = adminService;
         }
+
         public IActionResult GoogleLogin()
         {
             var redirectUrl = Url.Action("GoogleResponse", "Account");
@@ -71,10 +75,10 @@ namespace localshopyNew.Controllers
             if (!string.IsNullOrEmpty(admin))
             {
                 HttpContext.Session.SetString("admin", admin);
+                await SetRole(email, "Admin");
                 return RedirectToAction("Index", "Location");
             }
 
-            // 🔍 CHECK EMAIL IN TABLE1
             var shopDetails = await _shopkeeperService.GetShopDetailsByEmailId(email);
 
             if (shopDetails == null)
@@ -89,10 +93,90 @@ namespace localshopyNew.Controllers
                 HttpContext.Session.SetString(shopIdKey, shopIdValue);
 
                 if (shopDetails.Shop.OwnerEmailId != "")
+                {
                     HttpContext.Session.SetString("IsShopkeeper", "TRUE");
-
+                    await SetRole(email, "Shopkeeper");
+                }
                 return RedirectToAction("ShopDetails", "Shopkeeper");
             }
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+            {
+                return View();
+            }
+            string admin = _adminService.AdminLoggedIn(model.Email, model.Password);
+
+            if (!string.IsNullOrEmpty(admin))
+            {
+                HttpContext.Session.SetString("admin", admin);
+
+                await SetRole(model.Email, "Admin");
+
+                return RedirectToAction("Index", "Location");
+            }
+
+            Shop? shop = await _shopkeeperService.GetShopByLoginModel(model);
+            if (shop == null || shop.Id == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Email Id OR Password not match";
+                return View();
+            }
+            string shopIdKey = _encodingService.Encode("ShopId");
+            string shopIdValue = _encodingService.Encode(shop.Id.ToString());
+
+            HttpContext.Session.SetString(shopIdKey, shopIdValue);
+
+            if (model.Email != "")
+            {
+                HttpContext.Session.SetString("IsShopkeeper", "TRUE");
+                await SetRole(model.Email, "Shopkeeper");
+            }
+            return RedirectToAction("ShopDetails", "Shopkeeper");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+
+            string shopIdKey = _encodingService.Encode("ShopId");
+
+            await _signInManager.SignOutAsync();
+
+            // Remove a specific key
+            HttpContext.Session.Remove("shopIdKey");
+            HttpContext.Session.Remove("IsShopkeeper");
+
+            // Or remove all session data
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login");
+        }
+
+
+        private async Task SetRole(string email, string role)
+        {
+            // Create claims
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            // Sign in using ASP.NET Core Identity cookie scheme
+            await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal);
         }
     }
 }
