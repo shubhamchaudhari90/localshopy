@@ -15,9 +15,22 @@ namespace localshopyNew.Services
             _context = context;
         }
 
+        public async Task<ShopProductsViewModel?> GetShopDetailsByEmailId(string emailId)
+        {
+            Shop? shop = await GetShopByEmailId(emailId);
+
+            if (shop == null || shop.Id == Guid.Empty)
+            {
+                return null;
+            }
+
+            ShopProductsViewModel? shopDetails = await GetShopDetailsById(shop.Id);
+            return shopDetails;
+        }
+
         public async Task<Shop?> GetShopByLoginModel(LoginViewModel model)
         {
-            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId == model.Email);
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId.ToLower() == model.Email.ToLower());
             if (shop == null)
                 return null;
             if (shop.Password == model.Password)
@@ -25,9 +38,17 @@ namespace localshopyNew.Services
             return null;
         }
 
-        public async Task<Shop?> GetShopById(Guid shopId)
+        private async Task<Shop?> GetShopById(Guid shopId)
         {
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+            if (shop == null)
+                return null;
+            return shop;
+        }
+
+        private async Task<Shop?> GetShopByEmailId(string emailId)
+        {
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.OwnerEmailId.ToLower() == emailId.ToLower());
             if (shop == null)
                 return null;
             return shop;
@@ -42,10 +63,14 @@ namespace localshopyNew.Services
                 from p in _context.Products
                 join pm in _context.ProductMasters
                 on p.ProductMasterId equals pm.Id
+
                 join c in _context.Categoties
                 on pm.CategoryId equals c.Id into cat
                 from c in cat.DefaultIfEmpty() // LEFT JOIN
-                where p.ShopId == shop.Id && p.IsActive
+
+                where p.ShopId == shop.Id
+                && p.IsActive
+                && shop.IsActive
                 orderby p.SortOrder
                 select new ProductViewModel
                 {

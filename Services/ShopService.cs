@@ -52,6 +52,7 @@ namespace localshopyNew.Services
             shop.CreatedAt = DateTime.Now;
             shop.IsActive = true;
             shop.AccountValidTill = DateTime.Today.AddMonths(1);
+            shop.OwnerEmailId = shop.OwnerEmailId.ToLower();
             await _context.AddAsync(shop);
             int rowsInserted = await _context.SaveChangesAsync();
             if (rowsInserted > 0)
@@ -78,7 +79,7 @@ namespace localshopyNew.Services
 
             if (existingShop.OwnerEmailId.ToLower() != shop.OwnerEmailId.ToLower())
             {
-                bool isShopExists = await IsShopOwnerEmailExists(shop.OwnerEmailId);
+                bool isShopExists = await IsShopOwnerEmailExists(shop.OwnerEmailId.ToLower());
                 if (isShopExists)
                 {
                     return false;
@@ -87,7 +88,7 @@ namespace localshopyNew.Services
 
             existingShop.Name = shop.Name;
             existingShop.PhoneNo = shop.PhoneNo;
-            existingShop.OwnerEmailId = shop.OwnerEmailId;
+            existingShop.OwnerEmailId = shop.OwnerEmailId.ToLower();
             if (!string.IsNullOrEmpty(shop.Password))
                 existingShop.Password = shop.Password;
             existingShop.IsOpen = shop.IsOpen;

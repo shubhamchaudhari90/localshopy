@@ -5,6 +5,7 @@ namespace localshopyNew.Services.Interfaces
 {
     public interface IShopkeeperService
     {
+        Task<ShopProductsViewModel?> GetShopDetailsByEmailId(string emailId);
         Task<Shop?> GetShopByLoginModel(LoginViewModel model);
         Task<ShopProductsViewModel?> GetShopDetailsById(Guid id);
         Task<ProductViewModel?> GetProductById(Guid id);

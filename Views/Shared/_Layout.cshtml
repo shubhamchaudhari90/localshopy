@@ -77,9 +77,6 @@
         }
 
     </style>
-
-
-
 </head>
 
 <body>
@@ -112,14 +109,14 @@
                         <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0">
                             @if (string.IsNullOrEmpty(isShopkeeper))
                             {
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shopkeeper" asp-action="ShopDetails">Shop</a></li>
+                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a></li>
                             }
                             @if (!string.IsNullOrEmpty(admin) && (admin.Contains("GmRQ3xcRqDQhfmfL") || (admin.Contains("3Yq0fQiu3oBrqZlPi6oCTijDtbWin2"))))
-                                            {
+                            {
                                 <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Location" asp-action="Index">Location</a></li>
                                 <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Category" asp-action="Index">Category</a></li>
                                 <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
-                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shop" asp-action="Index">Shops</a></li>
+                                <li class="nav-item"><a class="nav-link text-light" asp-area="" asp-controller="Shop" asp-action="Index">All Shops</a></li>
                             }
                         </ul>
                     </div>
@@ -135,13 +132,20 @@
                         {
                             <!-- Logout button -->
                             <form asp-area="" asp-controller="Shopkeeper" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-warning btn-sm">Logout</button>
+                                <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
+                                    Logout
+                                </button>
                             </form>
                         }
                         else
                         {
                             <!-- Login button -->
-                            <a class="btn btn-warning btn-sm" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Login</a>
+                            @* <form asp-area="" asp-controller="Shopkeeper" asp-action="Login" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
+                                    Logout
+                                </button>
+                            </form> *@
+                            @* <a class="btn btn-warning btn-sm" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Login</a> *@
                         }
                     </div>
 

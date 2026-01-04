@@ -59,6 +59,12 @@ namespace localshopyNew.Controllers
                 return RedirectToAction(nameof(Location));
             }
             var model = await _customerService.GetProductsByLocation(location);
+
+            if (model == null || model.Count <= 0)
+            {
+                return RedirectToAction(nameof(Location));
+            }
+
             return View(model);
         }
 

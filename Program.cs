@@ -1,16 +1,39 @@
 using localshopyNew.Data;
 using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register SQLite DB 
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDBContext>()
+    .AddDefaultTokenProviders();
+
+// Google Authentication
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:client_id"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:client_secret"];
+    });
+
+// Redirect unauthorized users to Login
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Shopkeeper/Login";
+});
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Register the DbContext
-builder.Services.AddDbContext<AppDBContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // Add session services
 builder.Services.AddDistributedMemoryCache(); // required for session storage

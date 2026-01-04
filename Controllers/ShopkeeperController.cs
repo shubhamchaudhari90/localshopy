@@ -1,8 +1,10 @@
 ﻿using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace localshopyNew.Controllers
 {
@@ -15,7 +17,18 @@ namespace localshopyNew.Controllers
         private readonly IAdminService _adminService;
         private readonly IWebHostEnvironment _env;
 
-        public ShopkeeperController(IShopkeeperService shopkeeperService, IEncodingService encodingService, ILocationService locationService, ICategoryService categoryService, IWebHostEnvironment env, IAdminService adminService)
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public ShopkeeperController(
+            IShopkeeperService shopkeeperService,
+            IEncodingService encodingService,
+            ILocationService locationService,
+            ICategoryService categoryService,
+            IWebHostEnvironment env,
+            IAdminService adminService,
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager)
         {
             _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
@@ -23,6 +36,8 @@ namespace localshopyNew.Controllers
             _categoryService = categoryService;
             _env = env;
             _adminService = adminService;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         public IActionResult Login()
@@ -75,10 +90,12 @@ namespace localshopyNew.Controllers
             return View(model);
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
 
             string shopIdKey = _encodingService.Encode("ShopId");
+
+            await _signInManager.SignOutAsync();
 
             // Remove a specific key
             HttpContext.Session.Remove("shopIdKey");
@@ -362,6 +379,10 @@ namespace localshopyNew.Controllers
         }
 
 
+        //
+
+
+
         private Guid GetShopIdFromSession()
         {
             string shopIdKey = _encodingService.Encode("ShopId");
@@ -413,6 +434,8 @@ namespace localshopyNew.Controllers
                 }
             }
         }
+
+
 
     }
 }
