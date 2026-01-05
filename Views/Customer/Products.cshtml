@@ -13,36 +13,60 @@
             </a>
         </div>
 
-        <!-- Right: Category dropdown -->
+
+        <!-- Open Popup Button -->
         <div class="text-end">
-            <div class="dropdown">
-                <button class="btn btn-warning dropdown-toggle" type="button" id="categoryMultiSelect"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                    Select Categories
-                </button>
-                <ul class="dropdown-menu p-3" aria-labelledby="categoryMultiSelect"
-                    style="max-height: 300px; overflow-y: auto;">
-                    @foreach (var cat in Model)
-                    {
-                        <li class="form-check">
-                            <input class="form-check-input category-checkbox" type="checkbox"
-                                   value="@cat.Name" id="cat_@cat.Name" />
-                            <label class="form-check-label" for="cat_@cat.Name">
-                                @cat.Name
-                            </label>
-                        </li>
-                    }
-                </ul>
-            </div>
+            <button type="button" class="btn btn-warning" id="openCategoryModal">
+                Select Categories
+            </button>
         </div>
 
-    </div>
+        <!-- Hidden input -->
+        <input type="hidden" id="selectedCategories" />
 
-    <!-- Line below: selected categories centered -->
-    <div id="selectedCategoriesText" class="text-center fw-semibold mt-2">
-        No categories selected
-    </div>
+        <!-- Selected categories text -->
+        <div class="mt-2 text-end fw-semibold">
+            <span id="selectedCategoriesText">No categories selected</span>
+        </div>
 
+        <!-- Modal -->
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select Categories</h5>
+                        <button type="button" class="btn-close"
+                                data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="categoryModalForm">
+                            @foreach (var cat in Model)
+                            {
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input category-checkbox"
+                                           type="checkbox"
+                                           value="@cat.Name"
+                                           id="modal_cat_@cat.Name" />
+                                    <label class="form-check-label"
+                                           for="modal_cat_@cat.Name">
+                                        @cat.Name
+                                    </label>
+                                </div>
+                            }
+
+                            <div class="mt-3 text-end">
+                                <button id="btnApply" type="submit" class="btn btn-success btn-sm">
+                                    Apply
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -50,7 +74,68 @@
     <!-- Products will be loaded here -->
 </div>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modalElement = document.getElementById("categoryModal");
+        const categoryModal = new bootstrap.Modal(modalElement);
+
+        // Open modal
+        document.getElementById("openCategoryModal")
+            .addEventListener("click", function () {
+
+                // Pre-select previously chosen categories
+                const selected = document.getElementById("selectedCategories").value;
+                if (selected) {
+                    selected.split(",").forEach(val => {
+                        const checkbox = document.querySelector(
+                            `.category-checkbox[value="${val}"]`
+                        );
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+
+                categoryModal.show();
+            });
+
+        // Handle Apply
+        document.getElementById("categoryModalForm")
+            .addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const selected = [];
+                document
+                    .querySelectorAll(".category-checkbox:checked")
+                    .forEach(cb => selected.push(cb.value));
+
+                document.getElementById("selectedCategories").value = selected.join(",");
+                document.getElementById("selectedCategoriesText").innerText =
+                    selected.length ? selected.join(", ") : "No categories selected";
+
+                categoryModal.hide();
+            });
+    });
+
     $(function () {
+
+        // Pre-select previously selected categories
+    let selected = $("#selectedCategories").val();
+    if (selected) {
+        selected.split(",").forEach(function (val) {
+            $(".category-checkbox[value='" + val + "']").prop("checked", true);
+        });
+    }
+
+    $("#categoryModalForm").submit(function (e) {
+        e.preventDefault();
+
+        let selectedValues = [];
+        $(".category-checkbox:checked").each(function () {
+            selectedValues.push($(this).val());
+        });
+
+        updateSelectedCategories(selectedValues);
+    });
+
 
         function updateSelectedText() {
             let selected = [];
@@ -69,7 +154,7 @@
         function loadProducts(selectedCategories) {
             $.ajax({
                 url: '@Url.Action("ProductsByCategories", "Customer")',
-                data: { categories: selectedCategories.join(",") },
+                data: { categories: selectedCategories },
                 traditional: true, // allows sending array in query
                 type: "GET",
                 success: function (partialResult) {
@@ -96,8 +181,28 @@
             }
 
             // Load products
-            loadProducts(selected);
+            //loadProducts(selected);
+        });
+
+        $("#openCategoryModal").click(function () {
+        $.get("/Customer/GetCategotiesByLocation", function (data) {
+            $("#categoryModalBody").html(data);
+            $("#categoryModal").modal("show");
         });
     });
+
+    function updateSelectedCategories(categories) {
+        $("#selectedCategories").val(categories.join(","));
+
+        $("#selectedCategoriesText").text(
+            categories.length > 0
+                ? categories.join(", ")
+                : "No categories selected"
+        );
+        loadProducts(document.getElementById("selectedCategoriesText").innerText);
+        $("#categoryModal").modal("hide");
+    }
+    });
 </script>
+
 

@@ -45,7 +45,7 @@ namespace localshopyNew.Controllers
                 string locationValue = _encodingService.Encode(model.SelectedLocationId.ToString() ?? "");
                 HttpContext.Session.SetString(locationKey, locationValue);
 
-                return RedirectToAction("Products");
+                return RedirectToAction(nameof(Products));
             }
 
             return View(locations);
@@ -53,6 +53,7 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> ProductsByCategories(string categories)
         {
+
             var products = await _customerService.GetProductsByCategories(categories);
 
             return PartialView("_ProductListPartial", products);
@@ -67,9 +68,22 @@ namespace localshopyNew.Controllers
                 return RedirectToAction(nameof(Location));
             }
 
-            var model = await _customerService.GetCategoriesByLocation(location);
+            var model = await GetCategotiesByLocation();
 
             return View(model);
+        }
+
+        public async Task<List<Categoty>> GetCategotiesByLocation()
+        {
+            List<Categoty> categoties = new List<Categoty>();
+            Guid location = GetLocationFromSession();
+            if (location == Guid.Empty)
+            {
+                return categoties;
+            }
+
+            categoties = await _customerService.GetCategoriesByLocation(location);
+            return categoties;
         }
 
         public async Task<IActionResult> ShopDetails(string shopName)
