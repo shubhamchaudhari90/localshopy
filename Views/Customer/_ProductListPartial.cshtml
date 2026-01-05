@@ -30,7 +30,9 @@ else
             var index = group.idx;
             var collapseId = $"collapse-{index}";
             var headingId = $"heading-{index}";
-            var products = group.g;
+            var products = group.g
+            .OrderBy(x => Guid.NewGuid())
+            .ToList();
 
             <div class="accordion-item mb-2">
                 <h2 class="accordion-header" id="@headingId">
@@ -67,6 +69,7 @@ else
                                     <div class="card h-100 shadow-sm @cardClass">
                                         <div class="row g-0 h-100">
 
+                                            <!-- Image -->
                                             <div class="col-5 p-2">
                                                 @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                 {
@@ -83,14 +86,38 @@ else
                                                 }
                                             </div>
 
+                                            <!-- Details -->
                                             <div class="col-7 d-flex flex-column p-2">
+
+                                                <a asp-controller="Customer"
+                                                   asp-action="ShopDetails"
+                                                   asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
+                                                   class="fs-6 fw-medium text-secondary text-decoration-none">
+                                                    @product.ShopName
+                                                </a>
+
+                                                <!-- Veg / Non-Veg -->
+                                                <div class="my-1">
+                                                    <span style="
+                                                                                                display:inline-block;
+                                                                                                width:14px;height:14px;
+                                                                                                border-radius:50%;
+                                                                                                background-color:@(product.Type == "Veg"
+                                                                                                                                                                                                                                                                                            ? "var(--bs-success)"
+                                                                                                                                                                                                                                                                                            : product.Type == "Egg"
+                                                                                                                                                                                                                                                                                            ? "var(--bs-warning)"
+                                                                                                                                                                                                                                                                                            : "var(--bs-danger)")">
+                                        
+                                                                                                                                                                                                                                                                                        </span>
+                                    
+                                                                                                                                                                                                                                                                                    </div>
 
                                                 <span class="fw-bold text-body">
                                                     @product.ProductMasterName
                                                 </span>
 
                                                 <div class="mt-auto">
-                                                    @if (discountActive)
+                                        @if (discountActive)
                                                     {
                                                         <span class="text-muted text-decoration-line-through small">
                                                             ₹@product.Price
@@ -102,6 +129,7 @@ else
                                                 </div>
 
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
