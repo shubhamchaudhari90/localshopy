@@ -37,7 +37,7 @@ namespace localshopyNew.Controllers
             bool isNameExists = await _service.IsCategoryNameExists(category.Name);
             if (isNameExists)
             {
-                ViewBag.ErrorMessage = "Category Name already exists";
+                ViewData["ErrorMessage"] = "Category Name already exists";
                 return View(category);
             }
             bool isAdded = await _service.AddCategory(category);
@@ -45,7 +45,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.ErrorMessage = "Category Not Added";
+            ViewData["ErrorMessage"] = "Category Not Added";
             return View(category);
         }
 
@@ -69,7 +69,7 @@ namespace localshopyNew.Controllers
                     bool isNameExists = await _service.IsCategoryNameExists(model.Name);
                     if (isNameExists)
                     {
-                        ViewBag.ErrorMessage = "Category Name already exists";
+                        ViewData["ErrorMessage"] = "Category Name already exists";
                         return View(model);
                     }
                 }
@@ -135,7 +135,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Deleted));
             }
-            ViewBag.ErrorMessage = "Category Not Deleted";
+            ViewData["ErrorMessage"] = "Category Not Deleted";
             return RedirectToAction(nameof(Deleted));
         }
     }

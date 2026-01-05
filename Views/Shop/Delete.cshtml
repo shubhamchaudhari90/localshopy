@@ -9,7 +9,12 @@
     <div class="alert alert-danger animate__animated animate__fadeInUp">
         <strong>Warning:</strong> This action will permanently delete the shop.
     </div>
-
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
     <form asp-action="DeleteConfirmed" method="post" class="animate__animated animate__fadeInUp">
 
         <input type="hidden" asp-for="Id" />

@@ -1,0 +1,165 @@
+﻿@using localshopyNew.ViewModel
+@model IEnumerable<ProductViewModel>
+
+@{
+    var groupedProducts = Model
+        .GroupBy(p => p.CategoryName ?? "Other")
+        .ToList();
+}
+
+@if (!groupedProducts.Any())
+{
+    <div class="alert alert-warning text-center">
+        No products found for selected categories.
+    </div>
+    return;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <button id="toggleAccordionBtn" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrows-collapse"></i> Collapse All
+    </button>
+</div>
+
+<div class="accordion" id="productCategoryAccordion">
+
+    @foreach (var group in groupedProducts.Select((g, idx) => new { g, idx }))
+    {
+        var category = group.g.Key;
+        var index = group.idx;
+        var collapseId = $"collapse-{index}";
+        var headingId = $"heading-{index}";
+        var products = group.g;
+
+        <div class="accordion-item mb-2">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button bg-warning text-dark fw-semibold"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#@collapseId"
+                        aria-expanded="true"
+                        aria-controls="@collapseId">
+                    @category (@products.Count())
+                </button>
+            </h2>
+
+            <div id="@collapseId"
+                 class="accordion-collapse collapse show"
+                 aria-labelledby="@headingId">
+                <div class="accordion-body alert alert-warning">
+
+                    <div class="row g-3">
+                        @foreach (var product in products)
+                        {
+                            bool discountActive =
+                            product.Discount > 0 &&
+                            product.DiscountValidFrom.HasValue &&
+                            product.DiscountValidTill.HasValue &&
+                            DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                            DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                            string cardClass = product.IsAvailable
+                            ? ""
+                            : "border-secondary bg-secondary bg-opacity-10";
+
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card h-100 shadow-sm @cardClass">
+                                    <div class="row g-0 h-100">
+
+                                        <!-- Image -->
+                                        <div class="col-5 p-2">
+                                            @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                            {
+                                                <img src="~/images/products/@product.ImageFileName"
+                                                     class="rounded"
+                                                     style="width:80px;height:80px;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded"
+                                                     style="width:80px;height:80px;">
+                                                    <i class="bi bi-image fs-3"></i>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <!-- Details -->
+                                        <div class="col-7 d-flex flex-column p-2">
+
+                                            <a asp-controller="Customer"
+                                               asp-action="ShopDetails"
+                                               asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
+                                               class="fs-6 fw-medium text-secondary text-decoration-none">
+                                                @product.ShopName
+                                            </a>
+
+                                            <!-- Veg / Non-Veg -->
+                                            <div class="my-1">
+                                                <span style="
+                                                            display:inline-block;
+                                                            width:14px;height:14px;
+                                                            border-radius:50%;
+                                                            background-color:@(product.Type == "Veg"
+                                                                                                              ? "var(--bs-success)"
+                                                                                                              : product.Type == "Egg"
+                                                                                                              ? "var(--bs-warning)"
+                                                                                                              : "var(--bs-danger)")">
+                                        </span>
+                                    </div>
+
+                                            <span class="fw-bold text-body">
+                                                @product.ProductMasterName
+                                            </span>
+
+                                            <div class="mt-auto">
+                                        @if (discountActive)
+                                                {
+                                                    <span class="text-muted text-decoration-line-through small">
+                                                        ₹@product.Price
+                                                    </span>
+                                                }
+                                                <span class="fw-bold text-success ms-1">
+                                                    ₹@product.FinalPrice
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const toggleBtn = document.getElementById("toggleAccordionBtn");
+
+        toggleBtn.addEventListener("click", function () {
+
+            const allAccordions = document.querySelectorAll(".accordion-collapse");
+            const opened = document.querySelectorAll(".accordion-collapse.show");
+
+            const expand = opened.length !== allAccordions.length;
+
+            allAccordions.forEach(acc => {
+                if (expand) {
+                    acc.classList.add("show");
+                } else {
+                    acc.classList.remove("show");
+                }
+            });
+
+            toggleBtn.innerHTML = expand
+                ? '<i class="bi bi-arrows-collapse"></i> Collapse All'
+                : '<i class="bi bi-arrows-expand"></i> Expand All';
+        });
+    });
+</script>

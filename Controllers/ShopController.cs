@@ -55,7 +55,7 @@ namespace localshopyNew.Controllers
 
             if (!Regex.IsMatch(shop.Name, "^[a-zA-Z0-9 -]+$"))
             {
-                ViewBag.ErrorMessage = "Shop name contains a to z, A to Z and - (hyphen) only";
+                ViewData["ErrorMessage"] = "Shop name contains a to z, A to Z and - (hyphen) only";
 
                 if (locationList == null || locationList.Count <= 0)
                 {
@@ -68,7 +68,7 @@ namespace localshopyNew.Controllers
             bool isNameExists = await _shopService.IsShopNameExists(shop.Name);
             if (isNameExists)
             {
-                ViewBag.ErrorMessage = "Shop Name already exists";
+                ViewData["ErrorMessage"] = "Shop Name already exists";
 
                 if (locationList == null || locationList.Count <= 0)
                 {
@@ -82,7 +82,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.ErrorMessage = "Shop Not Added";
+            ViewData["ErrorMessage"] = "Shop Not Added";
             if (locationList == null || locationList.Count <= 0)
             {
                 return RedirectToAction("Index", "Location");
@@ -197,7 +197,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Deleted));
             }
-            ViewBag.ErrorMessage = "Shop Not Deleted";
+            ViewData["ErrorMessage"] = "Shop Not Deleted";
             return RedirectToAction(nameof(Deleted));
         }
     }

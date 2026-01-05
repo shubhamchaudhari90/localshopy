@@ -51,6 +51,14 @@ namespace localshopyNew.Controllers
             return View(locations);
         }
 
+        public async Task<IActionResult> ProductsByCategories(string categories)
+        {
+            var products = await _customerService.GetProductsByCategories(categories);
+
+            return PartialView("_ProductListPartial", products);
+        }
+
+
         public async Task<IActionResult> Products()
         {
             Guid location = GetLocationFromSession();
@@ -58,12 +66,8 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Location));
             }
-            var model = await _customerService.GetProductsByLocation(location);
 
-            if (model == null || model.Count <= 0)
-            {
-                return RedirectToAction(nameof(Location));
-            }
+            var model = await _customerService.GetCategoriesByLocation(location);
 
             return View(model);
         }

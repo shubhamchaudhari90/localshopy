@@ -37,7 +37,7 @@ namespace localshopyNew.Controllers
             bool isNameExists = await _service.IsLocationNameExists(location.Name);
             if (isNameExists)
             {
-                ViewBag.ErrorMessage = "Location Name already exists";
+                ViewData["ErrorMessage"] = "Location Name already exists";
                 return View(location);
             }
             bool isAdded = await _service.AddLocation(location);
@@ -45,7 +45,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.ErrorMessage = "Location Not Added";
+            ViewData["ErrorMessage"] = "Location Not Added";
             return View(location);
         }
 
@@ -71,7 +71,7 @@ namespace localshopyNew.Controllers
                     bool isNameExists = await _service.IsLocationNameExists(model.Name);
                     if (isNameExists)
                     {
-                        ViewBag.ErrorMessage = "Location Name already exists";
+                        ViewData["ErrorMessage"] = "Location Name already exists";
                         return View(model);
                     }
                 }
@@ -137,7 +137,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Deleted));
             }
-            ViewBag.ErrorMessage = "Location Not Deleted";
+            ViewData["ErrorMessage"] = "Location Not Deleted";
             return RedirectToAction(nameof(Deleted));
         }
     }

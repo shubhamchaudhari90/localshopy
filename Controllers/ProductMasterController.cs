@@ -41,13 +41,20 @@ namespace localshopyNew.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductMaster product)
         {
+            var categoryList = await _categoryService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
+            {
+                return RedirectToAction("Index", "Category");
+            }
+
+            ViewBag.CategoryList = new SelectList(categoryList, "Id", "Name");
             if (string.IsNullOrEmpty(product.ProductName))
                 return View(product);
 
             bool isNameExists = await _service.IsProductNameExists(product.ProductName);
             if (isNameExists)
             {
-                ViewBag.ErrorMessage = "Product Name already exists";
+                ViewData["ErrorMessage"] = "Product Name already exists";
                 return View(product);
             }
             bool isAdded = await _service.AddProduct(product);
@@ -55,7 +62,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.ErrorMessage = "Product Not Added";
+            ViewData["ErrorMessage"] = "Product Not Added";
             return View(product);
         }
 
@@ -93,7 +100,7 @@ namespace localshopyNew.Controllers
                             return RedirectToAction(nameof(Index));
                         }
                         ViewBag.CategoryName = category.Name;
-                        ViewBag.ErrorMessage = "Product Name already exists";
+                        ViewData["ErrorMessage"] = "Product Name already exists";
                         return View(model);
                     }
                 }
@@ -166,7 +173,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction(nameof(Deleted));
             }
-            ViewBag.ErrorMessage = "Product Not Deleted";
+            ViewData["ErrorMessage"] = "Product Not Deleted";
             return RedirectToAction(nameof(Deleted));
         }
     }

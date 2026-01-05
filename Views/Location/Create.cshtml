@@ -5,7 +5,12 @@
 
 <div class="container mt-5">
     <h2 class="animate__animated animate__fadeInDown">Add Location</h2>
-
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
     <form asp-action="Create" class="animate__animated animate__fadeInUp">
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>

@@ -37,7 +37,12 @@
             Show All (@Model.Count())
         </button>
     </div>
-
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
     @if (!Model.Any())
     {
         <div class="alert alert-info">
