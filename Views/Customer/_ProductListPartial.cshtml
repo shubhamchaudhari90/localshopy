@@ -7,17 +7,11 @@
         .ToList();
 }
 
-@if (!groupedProducts.Any())
-{
-    <div class="alert alert-warning text-center">
-        No products found for selected categories.
-    </div>
-}
-else
+@if (groupedProducts.Any())
 {
     <!-- Toggle Button -->
     <div class="d-flex justify-content-end mb-3">
-        <button id="toggleAllBtn" class="btn btn-outline-secondary btn-sm">
+        <button id="toggleAllBtn" class="btn btn-outline-warning btn-sm">
             <i class="bi bi-arrows-collapse"></i> Collapse All
         </button>
     </div>
@@ -65,59 +59,69 @@ else
                                 ? ""
                                 : "border-secondary bg-secondary bg-opacity-10";
 
-                                <div class="col-6 col-md-4 col-lg-3">
+                                <div class="col-12 col-md-6 col-lg-4">
                                     <div class="card h-100 shadow-sm @cardClass">
                                         <div class="row g-0 h-100">
 
                                             <!-- Image -->
-                                            <div class="col-5 p-2">
-                                                @if (!string.IsNullOrEmpty(product.ImageFileName))
-                                                {
-                                                    <img src="~/images/products/@product.ImageFileName"
-                                                         class="rounded"
-                                                         style="width:80px;height:80px;object-fit:cover;" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded"
-                                                         style="width:80px;height:80px;">
-                                                        <i class="bi bi-image fs-3"></i>
-                                                    </div>
-                                                }
+                                            <div class="col-4 p-2">
+                                                <div class="ratio ratio-1x1">
+                                                    @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                    {
+                                                        <img src="~/images/products/@product.ImageFileName"
+                                                             class="img-fluid rounded object-fit-cover" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded">
+                                                            <i class="bi bi-image fs-3"></i>
+                                                        </div>
+                                                    }
+                                                </div>
                                             </div>
 
-                                            <!-- Details -->
-                                            <div class="col-7 d-flex flex-column p-2">
 
-                                                <a asp-controller="Customer"
+                                            <!-- Product Data -->
+                                            <div class="col-8 d-flex flex-column p-2">
+
+                                                <!-- Shop Name -->
+                                                <a title="Load Shop Details" asp-controller="Customer"
                                                    asp-action="ShopDetails"
                                                    asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
-                                                   class="fs-6 fw-medium text-secondary text-decoration-none">
-                                                    @product.ShopName
+                                                   class="fw-semibold text-secondary text-decoration-underline">
+                                                    <i class="bi bi-shop me-1"></i>@product.ShopName
                                                 </a>
 
-                                                <!-- Veg / Non-Veg -->
-                                                <div class="my-1">
-                                                    <span style="
-                                                                                                display:inline-block;
-                                                                                                width:14px;height:14px;
-                                                                                                border-radius:50%;
-                                                                                                background-color:@(product.Type == "Veg"
-                                                                                                                                                                                                                                                                                            ? "var(--bs-success)"
-                                                                                                                                                                                                                                                                                            : product.Type == "Egg"
-                                                                                                                                                                                                                                                                                            ? "var(--bs-warning)"
-                                                                                                                                                                                                                                                                                            : "var(--bs-danger)")">
-                                        
-                                                                                                                                                                                                                                                                                        </span>
-                                    
-                                                                                                                                                                                                                                                                                    </div>
+                                                <!-- Type Icon -->
+                                                <div class="d-inline-flex align-items-center justify-content-center"
+                                                     style="
+                                                        width:18px;
+                                                        height:18px;
+                                                                    border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
+                                                        border-radius:6px;
+                                                        background-color:white;">
+
+                                                    <!-- Inner Circle -->
+                                                    <div style="
+                                                        width:10px;
+                                                        height:10px;
+                                                        border-radius:50%;
+                                                                    background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                                                    </div>
+                                                </div>
 
                                                 <span class="fw-bold text-body">
                                                     @product.ProductMasterName
                                                 </span>
 
+                                                <span class="fw-semibold text-secondary text-secondary">
+                                                    @product.Description
+                                                </span>
+
+
+
                                                 <div class="mt-auto">
-                                        @if (discountActive)
+                                                    @if (discountActive)
                                                     {
                                                         <span class="text-muted text-decoration-line-through small">
                                                             ₹@product.Price
@@ -129,7 +133,6 @@ else
                                                 </div>
 
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -182,4 +185,8 @@ else
         // Call the function immediately if elements already exist
         initializeAccordionPartial();
     </script>
+}
+else
+{
+    <div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">No Products Found</h5><p class="text-muted mb-0">Please select categories to see available products.</p></div></div>
 }

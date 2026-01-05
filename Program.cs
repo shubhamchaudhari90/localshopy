@@ -81,9 +81,19 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+//if (!app.Environment.IsDevelopment())
+//{
+app.UseExceptionHandler("/Error/500");
+//}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+//if (!app.Environment.IsDevelopment())
+//{
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+//}
+
 
 app.UseRouting();
 app.UseSession();
