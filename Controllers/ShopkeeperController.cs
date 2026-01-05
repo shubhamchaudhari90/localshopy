@@ -1,4 +1,5 @@
-﻿using localshopyNew.Models;
+﻿using localshopyNew.Constants;
+using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace localshopyNew.Controllers
 {
 
-    [Authorize(Roles = "Shopkeeper")]
+    [Authorize(Roles = RoleConstants.Shopkeeper)]
     public class ShopkeeperController : Controller
     {
         private readonly IShopkeeperService _shopkeeperService;

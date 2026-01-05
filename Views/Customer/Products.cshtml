@@ -10,7 +10,7 @@
             <button type="button" class="btn btn-warning" id="openCategoryModal">
                 Select Categories
             </button>
-            
+
         </div>
 
 
@@ -50,15 +50,19 @@
                         <form id="categoryModalForm">
 
                             <div class="mb-3">
-                                <small class="text-muted fw-semibold">
+                                <span class="fw-semibold d-block">
                                     Choose one or more categories
+                                </span>
+                                <small class="text-muted">
+                                    Up to 7 categories allowed
                                 </small>
                             </div>
+
 
                             <div class="row g-2 mb-3">
                                 @foreach (var cat in Model)
                                 {
-                                    <div class="col-6">
+                                    <div class="col-6 col-lg-12">
                                         <label class="list-group-item bg-transparent border-0 px-0 d-flex align-items-center">
                                             <input class="form-check-input me-2 category-checkbox"
                                                    type="checkbox"
@@ -75,7 +79,7 @@
                                 <button id="btnApply"
                                         type="submit"
                                         class="btn btn-warning btn-lg fw-bold rounded-pill">
-                                     Apply & Close
+                                    Apply & Close
                                 </button>
                             </div>
 
@@ -94,143 +98,154 @@
     <div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">Please select categories to see available products.</h5></div></div>
 </div>
 
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    $(document).ready(function () {
 
-        const modalElement = document.getElementById("categoryModal");
-        const categoryModal = new bootstrap.Modal(modalElement);
+        const maxSelection = 7;
 
-        // Open modal
-        document.getElementById("openCategoryModal")
-            .addEventListener("click", function () {
+        // Open category modal
+        $("#openCategoryModal").click(function () {
+            $.get("/Customer/GetCategotiesByLocation", function (data) {
+                $("#categoryModalBody").html(data);
 
                 // Pre-select previously chosen categories
-                const selected = document.getElementById("selectedCategories").value;
-                if (selected) {
-                    selected.split(",").forEach(val => {
-                        const checkbox = document.querySelector(
-                            `.category-checkbox[value="${val}"]`
-                        );
-                        if (checkbox) checkbox.checked = true;
-                    });
-                }
+                preselectCategories();
 
-                categoryModal.show();
+                // Enforce selection limit
+                updateCheckboxLimit();
+
+                // Bind change event
+                bindCheckboxChange();
+
+                // Show modal
+                $("#categoryModal").modal("show");
             });
-
-        // Handle Apply
-        document.getElementById("categoryModalForm")
-            .addEventListener("submit", function (e) {
-                e.preventDefault();
-
-                const selected = [];
-                document
-                    .querySelectorAll(".category-checkbox:checked")
-                    .forEach(cb => selected.push(cb.value));
-
-                document.getElementById("selectedCategories").value = selected.join(",");
-
-                document.getElementById("selectedCategoriesText").innerText =
-                    selected.length ? selected.join(", ") : "";
-
-                categoryModal.hide();
-            });
-    });
-
-    $(function () {
-
-        // Pre-select previously selected categories
-    let selected = $("#selectedCategories").val();
-    if (selected) {
-        selected.split(",").forEach(function (val) {
-            $(".category-checkbox[value='" + val + "']").prop("checked", true);
-        });
-    }
-
-    $("#categoryModalForm").submit(function (e) {
-        e.preventDefault();
-
-        let selectedValues = [];
-        $(".category-checkbox:checked").each(function () {
-            selectedValues.push($(this).val());
         });
 
-        updateSelectedCategories(selectedValues);
-    });
+        // Apply selected categories
+        $("#categoryModalForm").on("submit", function (e) {
+            e.preventDefault();
+            updateSelectedCategories();
+        });
 
+        // -------------------------------
+        // Functions
+        // -------------------------------
 
-        function updateSelectedText() {
-            let selected = [];
-
-            $('.category-checkbox:checked').each(function () {
-                selected.push($(this).val());
-            });
-
-            $('#selectedCategoriesText').text(
-                selected.length > 0
-                    ? selected.join(", ")
-                    : ""
-            );
-            return selected;
+        // Pre-select previously chosen categories
+        function preselectCategories() {
+            const selected = $("#selectedCategories").val();
+            if (selected) {
+                selected.split(",").forEach(function (val) {
+                    $(".category-checkbox[value='" + val + "']").prop("checked", true);
+                });
+            }
         }
 
+        // Enforce max selection limit
+        function updateCheckboxLimit() {
+            const checkedCount = $(".category-checkbox:checked").length;
+            const allCheckboxes = $(".category-checkbox");
+
+            if (checkedCount >= maxSelection) {
+                allCheckboxes.not(":checked").prop("disabled", true);
+                $("#categoryLimitWarning").removeClass("d-none");
+            } else {
+                allCheckboxes.prop("disabled", false);
+                $("#categoryLimitWarning").addClass("d-none");
+            }
+        }
+
+        // Update selected categories (hidden input + text + load products)
+        function updateSelectedCategories() {
+            const selectedValues = $(".category-checkbox:checked")
+                .map(function () { return $(this).val(); })
+                .get(); // array of selected values
+
+            // Update hidden input
+            $("#selectedCategories").val(selectedValues.join(","));
+
+            // Update text display
+            $("#selectedCategoriesText").text(
+                selectedValues.length > 0 ? selectedValues.join(", ") : ""
+            );
+
+            // Load products
+            loadProducts(selectedValues);
+
+            // Hide modal
+            $("#categoryModal").modal("hide");
+        }
+
+        // Load products via AJAX
         function loadProducts(selectedCategories) {
-            console.log(selectedCategories);
-            if(selectedCategories!=""){
+            if (!selectedCategories || selectedCategories.length === 0) {
+                $('#productContainer').html(
+                    '<div class="card border-warning shadow-sm text-center">' +
+                    '<div class="card-body alert alert-warning mb-0 rounded">' +
+                    '<div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div>' +
+                    '<h5 class="fw-bold text-dark">No Products Found</h5>' +
+                    '<p class="text-muted mb-0">Please select categories to see available products.</p>' +
+                    '</div></div>'
+                );
+                return;
+            }
+            console.log(document.getElementById("selectedCategoriesText").innerText);
             $.ajax({
                 url: '@Url.Action("ProductsByCategories", "Customer")',
-                data: { categories: selectedCategories },
-                traditional: true, // allows sending array in query
                 type: "GET",
+                data: { categories: document.getElementById("selectedCategoriesText").innerText },
+                traditional: true, // important for sending arrays
                 success: function (partialResult) {
-                    $('#productContainer').html(partialResult);
+                    $("#productContainer").html(partialResult);
                 },
                 error: function () {
                     $('#productContainer').html(
-                        '<div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">No Products Found</h5><p class="text-muted mb-0">Please select categories to see available products.</p></div></div>'
+                        '<div class="card border-warning shadow-sm text-center">' +
+                        '<div class="card-body alert alert-warning mb-0 rounded">' +
+                        '<div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div>' +
+                        '<h5 class="fw-bold text-dark">No Products Found</h5>' +
+                        '<p class="text-muted mb-0">Please select categories to see available products.</p>' +
+                        '</div></div>'
                     );
                 }
             });
-            }
-
         }
 
-        $('.category-checkbox').change(function () {
-            const selected = updateSelectedText();
+        // Bind checkbox change event
+           function bindCheckboxChange() {
+        $(".category-checkbox").off("change").on("change", function () {
+            // Get all selected checkbox values as an array
+            const selected = $(".category-checkbox:checked")
+                .map(function () { return $(this).val(); })
+                .get();
 
-            // If nothing selected → clear product area
-            if (selected.length === 0) {
-                $('#selectedCategoriesText').text();
-                console.log("XYZ");
-                $('#productContainer').html(
-                        '<div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">No Products Found</h5><p class="text-muted mb-0">Please select categories to see available products.</p></div></div>'
-                    );
-                return;
-            }
+                console.log("ABC");
+                console.log(selected);
+            // Convert array to a readable string (comma + space)
+            const selectedText = selected.length > 0 ? selected.join(", ") : "None";
+            console.log("DEF");
+            console.log(selected);
+            // Update UI display
+            $("#selectedCategoriesText").text(selectedText);
 
-            // Load products
-            loadProducts(document.getElementById("selectedCategoriesText").innerText);
+            // Update hidden input for form submission or ajax
+            $("#selectedCategories").val(selected.join(","));
+
+            // Enforce selection limit (disable extra checkboxes if max reached)
+            updateCheckboxLimit();
+
+            // Dynamically load products based on selected categories
+            loadProducts(selected);
         });
-
-        $("#openCategoryModal").click(function () {
-        $.get("/Customer/GetCategotiesByLocation", function (data) {
-            $("#categoryModalBody").html(data);
-            $("#categoryModal").modal("show");
-        });
-    });
-
-    function updateSelectedCategories(categories) {
-        $("#selectedCategories").val(categories.join(","));
-
-        $("#selectedCategoriesText").text(
-            categories.length > 0
-                ? categories.join(", ")
-                : ""
-        );
-        loadProducts(document.getElementById("selectedCategoriesText").innerText);
-        $("#categoryModal").modal("hide");
     }
+
+
+        // Initial page load: preselect & enforce limit if hidden input has values
+        preselectCategories();
+        updateCheckboxLimit();
+        bindCheckboxChange();
+
     });
 </script>
 

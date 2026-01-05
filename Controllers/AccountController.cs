@@ -1,4 +1,5 @@
-﻿using localshopyNew.Models;
+﻿using localshopyNew.Constants;
+using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Authentication;
@@ -74,8 +75,8 @@ namespace localshopyNew.Controllers
 
             if (!string.IsNullOrEmpty(admin))
             {
-                HttpContext.Session.SetString("admin", admin);
-                await SetRole(email, "Admin");
+                HttpContext.Session.SetString(RoleConstants.Admin, admin);
+                await SetRole(email, RoleConstants.Admin);
                 return RedirectToAction("Index", "Location");
             }
 
@@ -94,8 +95,8 @@ namespace localshopyNew.Controllers
 
                 if (shopDetails.Shop.OwnerEmailId != "")
                 {
-                    HttpContext.Session.SetString("IsShopkeeper", "TRUE");
-                    await SetRole(email, "Shopkeeper");
+                    HttpContext.Session.SetString(RoleConstants.IsShopkeeper, "TRUE");
+                    await SetRole(email, RoleConstants.Shopkeeper);
                 }
                 return RedirectToAction("ShopDetails", "Shopkeeper");
             }
@@ -118,9 +119,9 @@ namespace localshopyNew.Controllers
 
             if (!string.IsNullOrEmpty(admin))
             {
-                HttpContext.Session.SetString("admin", admin);
+                HttpContext.Session.SetString(RoleConstants.Admin, admin);
 
-                await SetRole(model.Email, "Admin");
+                await SetRole(model.Email, RoleConstants.Admin);
 
                 return RedirectToAction("Index", "Location");
             }
@@ -138,8 +139,8 @@ namespace localshopyNew.Controllers
 
             if (model.Email != "")
             {
-                HttpContext.Session.SetString("IsShopkeeper", "TRUE");
-                await SetRole(model.Email, "Shopkeeper");
+                HttpContext.Session.SetString(RoleConstants.IsShopkeeper, "TRUE");
+                await SetRole(model.Email, RoleConstants.Shopkeeper);
             }
             return RedirectToAction("ShopDetails", "Shopkeeper");
         }
@@ -153,7 +154,7 @@ namespace localshopyNew.Controllers
 
             // Remove a specific key
             HttpContext.Session.Remove("shopIdKey");
-            HttpContext.Session.Remove("IsShopkeeper");
+            HttpContext.Session.Remove(RoleConstants.IsShopkeeper);
 
             // Or remove all session data
             HttpContext.Session.Clear();

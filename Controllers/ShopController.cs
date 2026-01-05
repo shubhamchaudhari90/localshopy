@@ -1,4 +1,5 @@
-﻿using localshopyNew.Models;
+﻿using localshopyNew.Constants;
+using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = RoleConstants.Admin)]
 
     public class ShopController : Controller
     {
