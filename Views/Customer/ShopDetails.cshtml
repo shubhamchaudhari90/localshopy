@@ -2,7 +2,7 @@
 @model ShopProductsViewModel
 
 @{
-    ViewData["Title"] = Model.Shop.Name ?? "Shop Details";
+    ViewData["Title"] = Model?.Shop?.Name ?? "Shop Details";
 }
 
 <div class="container mt-5 d-flex justify-content-center">
@@ -14,7 +14,7 @@
                 <!-- Shop Name -->
                 <div class="animate__animated animate__fadeInDown fw-bold"
                      style="font-size: 2.2rem; line-height: 1.2;">
-                    @Model.Shop.Name
+                    @Model?.Shop?.Name
                 </div>
             </div>
 
@@ -22,7 +22,7 @@
             <div class="row mb-4">
 
                 <div class="col-md-6">
-                    <p><strong>Phone: </strong> @Model.Shop.PhoneNo</p>
+                    <p><strong>Phone: </strong> @Model?.Shop?.PhoneNo</p>
                 </div>
 
                 <div class="col-md-6">
@@ -128,8 +128,8 @@
                                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                                 <a title="View Product Details"
                                                                    asp-controller="Customer"
-                                                                   asp-action="ProductDetails"
-                                                                   asp-route-productName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
+                                                                   asp-action="ProductDetail"
+                                                                   asp-route-shopProductName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
                                                                    class="fw-bold text-body text-decoration-underline">
                                                                     <i class="bi bi-shop me-1"></i>@product.ProductMasterName
                                                                 </a>

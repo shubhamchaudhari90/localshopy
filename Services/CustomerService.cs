@@ -68,6 +68,9 @@ namespace localshopyNew.Services
                     Type = p.Type
                 }).ToListAsync();
 
+            if (products != null && products.Count > 0)
+                products = products.OrderBy(p => Guid.NewGuid()).ToList();
+
             return products;
         }
 
@@ -99,6 +102,9 @@ namespace localshopyNew.Services
                     Name = c.Name,
                     SortOrder = c.SortOrder
                 }).Distinct().ToListAsync();
+
+            if (categories != null && categories.Count > 0)
+                categories = categories.OrderBy(c => Guid.NewGuid()).ToList();
 
             return categories;
         }
@@ -150,6 +156,8 @@ namespace localshopyNew.Services
                     Type = string.IsNullOrEmpty(p.Type) ? "VEG" : p.Type
                 }).ToListAsync();
 
+            if (products != null && products.Any())
+                products = products.OrderBy(p => Guid.NewGuid()).ToList();
 
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shopName.ToLower());
 
@@ -202,6 +210,8 @@ namespace localshopyNew.Services
                 CategoryName = category.Name,
                 Description = product.Description,
                 Discount = product.Discount,
+                DiscountValidFrom = product.DiscountValidFrom,
+                DiscountValidTill = product.DiscountValidTill,
                 ImageFileName = product.ImageFileName,
                 IsActive = product.IsActive,
                 Price = product.Price,

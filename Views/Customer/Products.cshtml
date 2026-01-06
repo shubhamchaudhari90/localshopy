@@ -1,267 +1,217 @@
 ﻿@model IEnumerable<Category>
 
-<div class="pt-4 pb-3">
+<div class="container py-4">
 
-    <!-- Row: location left + category dropdown right -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <!-- FILTER CARD -->
+    <div class="card border-warning shadow-sm mb-4">
+        <div class="card-body alert alert-warning mb-0 rounded">
 
-        <!-- Left: Change Location -->
-        <div class="text-start">
-            <button type="button" class="btn btn-warning" id="openCategoryModal">
-                Select Categories
-            </button>
+            <!-- Top Actions -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <button type="button"
+                        class="btn btn-warning fw-semibold shadow-sm"
+                        id="openCategoryModal">
+                    <i class="bi bi-funnel-fill me-1"></i>
+                    Select Categories
+                </button>
+
+                <a asp-controller="Customer"
+                   asp-action="ChangeLocation"
+                   class="btn btn-warning btn-sm fw-semibold">
+                    <i class="bi bi-geo-alt-fill me-1"></i>
+                    Change Location
+                </a>
+            </div>
+
+            <!-- Selected Categories -->
+            <div id="selectedCategoryAlert"
+                 class="alert alert-warning py-2 px-3 mb-0 d-none">
+                <strong>Selected Categories:</strong>
+                <span id="selectedCategoriesText"></span>
+            </div>
+
+            <input type="hidden" id="selectedCategories" />
 
         </div>
+    </div>
 
-
-        <!-- Open Popup Button -->
-        <div class="text-end">
-            <a asp-controller="Customer" asp-action="ChangeLocation"
-               class="btn btn-outline-warning btn-sm">
-                <i class="bi bi-geo-alt"></i> Change Location
-            </a>
+    <!-- PRODUCTS CARD -->
+    <div class="card border-warning shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-box-seam me-1"></i>
+            Available Products
         </div>
 
-        <!-- Hidden input -->
-        <input type="hidden" id="selectedCategories" />
+        <div class="card-body p-3" id="productContainer">
 
-        <!-- Selected categories text -->
-        <div class="mt-2 text-end fw-semibold visually-hidden">
-            <span id="selectedCategoriesText">No categories selected</span>
+            <!-- Empty State -->
+            <div class="card border-warning shadow-sm text-center">
+                <div class="card-body alert alert-warning mb-0 rounded">
+                    <div class="mb-2">
+                        <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1">
+                        Please select categories to see available products.
+                    </h4>
+                    
+                </div>
+            </div>
+
         </div>
+    </div>
 
-        <!-- Modal -->
-        <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable modal-sm modal-dialog-centered">
-                <div class="modal-content border-0 shadow">
+    <!-- CATEGORY MODAL -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
+            <div class="modal-content border-0 shadow-lg">
 
-                    <!-- Header -->
-                    <div class="modal-header bg-warning text-dark">
-                        <h5 class="modal-title fw-bold">
-                            Select Categories
-                        </h5>
-                        <button type="button" class="btn-close"
-                                data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-funnel-fill me-1"></i>
+                        Select Categories
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body alert alert-warning mb-0 rounded-0">
+
+                    <p class="fw-semibold mb-1">Choose categories</p>
+                    <small class="text-muted d-block mb-3">
+                        Maximum <strong>7 categories</strong> allowed
+                    </small>
+
+                    <div id="categoryLimitWarning"
+                         class="alert alert-danger py-1 px-2 d-none">
+                        Maximum 7 categories allowed
                     </div>
 
-                    <!-- Body -->
-                    <div class="modal-body alert alert-warning mb-0 rounded-0">
+                    <form id="categoryModalForm">
+                        <div class="row g-3 mb-3">
 
-                        <form id="categoryModalForm">
-
-                            <div class="mb-3">
-                                <span class="fw-semibold d-block">
-                                    Choose one or more categories
-                                </span>
-                                <small class="text-muted">
-                                    Up to 7 categories allowed
-                                </small>
-                            </div>
-
-
-                            <div class="row g-2 mb-3">
-                                @foreach (var cat in Model)
-                                {
-                                    <div class="col-6 col-lg-12">
-                                        <label class="list-group-item bg-transparent border-0 px-0 d-flex align-items-center">
-                                            <input class="form-check-input me-2 category-checkbox"
+                            @foreach (var cat in Model)
+                            {
+                                <div class="col-12">
+                                    <div class="card border-warning shadow-sm hover-shadow" style="cursor:pointer;">
+                                        <div class="card-body py-2 px-3 d-flex align-items-center">
+                                            <input class="form-check-input category-checkbox me-2"
                                                    type="checkbox"
                                                    value="@cat.Name"
-                                                   id="modal_cat_@cat.Name" />
-                                            <span class="fw-semibold">@cat.Name</span>
-                                        </label>
+                                                   id="cat_@cat.Name" />
+                                            <label class="form-check-label fw-semibold mb-0" for="cat_@cat.Name">
+                                                @cat.Name
+                                            </label>
+                                        </div>
                                     </div>
-                                }
-                            </div>
+                                </div>
+                            }
 
+                        </div>
 
-                            <div class="d-grid">
-                                <button id="btnApply"
-                                        type="submit"
-                                        class="btn btn-warning btn-lg fw-bold rounded-pill">
-                                    Apply & Close
-                                </button>
-                            </div>
+                        <div class="d-grid">
+                            <button type="submit"
+                                    class="btn btn-warning fw-bold rounded-pill shadow-sm">
+                                Apply & Close
+                            </button>
+                        </div>
+                    </form>
 
-                        </form>
-                    </div>
+                    
+
 
                 </div>
             </div>
         </div>
-
     </div>
+
 </div>
 
-<div id="productContainer">
-    <!-- Products will be loaded here -->
-    <div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">Please select categories to see available products.</h5></div></div>
-</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
 
-<script>
-    $(document).ready(function () {
+            const maxSelection = 7;
 
-        const maxSelection = 7;
-
-        // Open category modal
-        $("#openCategoryModal").click(function () {
-            $.get("/Customer/GetCategotiesByLocation", function (data) {
-
-                if(data.length>0)
-                {
-
-                    $("#categoryModalBody").html(data);
-
-                    // Pre-select previously chosen categories
-                    preselectCategories();
-
-                    // Enforce selection limit
-                    updateCheckboxLimit();
-
-                    // Bind change event
-                    bindCheckboxChange();
-
-                    // Show modal
-                    $("#categoryModal").modal("show");
-                }else
-                {
-                    $('#productContainer').html(
-                    '<div class="card border-warning shadow-sm text-center">' +
-                    '<div class="card-body alert alert-warning mb-0 rounded">' +
-                    '<div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div>' +
-                    '<h5 class="fw-bold text-dark">No Shop serving at this location.</h5>' +
-                    '<p class="text-muted mb-0">Shops are close or product not available for this location.</p>' +
-                    '</div></div>'
-                );
-                }
+            $("#openCategoryModal").click(function () {
+                $("#categoryModal").modal("show");
+                preselectCategories();
+                updateCheckboxLimit();
             });
-        });
 
-        // Apply selected categories
-        $("#categoryModalForm").on("submit", function (e) {
-            e.preventDefault();
-            updateSelectedCategories();
-        });
+            $("#categoryModalForm").on("submit", function (e) {
+                e.preventDefault();
+                updateSelectedCategories();
+                $("#categoryModal").modal("hide");
+            });
 
-        // -------------------------------
-        // Functions
-        // -------------------------------
+            $(".category-checkbox").on("change", function () {
+                updateCheckboxLimit();
+                updateSelectedCategories();
+            });
 
-        // Pre-select previously chosen categories
-        function preselectCategories() {
-            const selected = $("#selectedCategories").val();
-            if (selected) {
-                selected.split(",").forEach(function (val) {
-                    $(".category-checkbox[value='" + val + "']").prop("checked", true);
-                });
+            function updateSelectedCategories() {
+                const selected = $(".category-checkbox:checked")
+                    .map(function () { return $(this).val(); })
+                    .get();
+
+                $("#selectedCategories").val(selected.join(","));
+
+                if (selected.length > 0) {
+                    $("#selectedCategoriesText").text(selected.join(", "));
+                    $("#selectedCategoryAlert").removeClass("d-none");
+                } else {
+                    $("#selectedCategoryAlert").addClass("d-none");
+                }
+
+                loadProducts(selected);
+                //$("#categoryModal").modal("hide");
             }
-        }
 
-        // Enforce max selection limit
-        function updateCheckboxLimit() {
-            const checkedCount = $(".category-checkbox:checked").length;
-            const allCheckboxes = $(".category-checkbox");
-
-            if (checkedCount >= maxSelection) {
-                allCheckboxes.not(":checked").prop("disabled", true);
-                $("#categoryLimitWarning").removeClass("d-none");
-            } else {
-                allCheckboxes.prop("disabled", false);
-                $("#categoryLimitWarning").addClass("d-none");
+            function updateCheckboxLimit() {
+                const checkedCount = $(".category-checkbox:checked").length;
+                $(".category-checkbox:not(:checked)").prop("disabled", checkedCount >= maxSelection);
+                $("#categoryLimitWarning").toggleClass("d-none", checkedCount < maxSelection);
             }
-        }
 
-        // Update selected categories (hidden input + text + load products)
-        function updateSelectedCategories() {
-            const selectedValues = $(".category-checkbox:checked")
-                .map(function () { return $(this).val(); })
-                .get(); // array of selected values
-
-            // Update hidden input
-            $("#selectedCategories").val(selectedValues.join(","));
-
-            // Update text display
-            $("#selectedCategoriesText").text(
-                selectedValues.length > 0 ? selectedValues.join(", ") : ""
-            );
-
-            // Load products
-            loadProducts(selectedValues);
-
-            // Hide modal
-            $("#categoryModal").modal("hide");
-        }
-
-        // Load products via AJAX
-        function loadProducts(selectedCategories) {
-            if (!selectedCategories || selectedCategories.length === 0) {
-                $('#productContainer').html(
-                    '<div class="card border-warning shadow-sm text-center">' +
-                    '<div class="card-body alert alert-warning mb-0 rounded">' +
-                    '<div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div>' +
-                    '<h5 class="fw-bold text-dark">No Products Found</h5>' +
-                    '<p class="text-muted mb-0">Please select categories to see available products.</p>' +
-                    '</div></div>'
-                );
-                return;
-            }
-            console.log(document.getElementById("selectedCategoriesText").innerText);
-            $.ajax({
-                url: '@Url.Action("ProductsByCategories", "Customer")',
-                type: "GET",
-                data: { categories: document.getElementById("selectedCategoriesText").innerText },
-                traditional: true, // important for sending arrays
-                success: function (partialResult) {
-                    $("#productContainer").html(partialResult);
-                },
-                error: function () {
-                    $('#productContainer').html(
-                        '<div class="card border-warning shadow-sm text-center">' +
-                        '<div class="card-body alert alert-warning mb-0 rounded">' +
-                        '<div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div>' +
-                        '<h5 class="fw-bold text-dark">No Products Found</h5>' +
-                        '<p class="text-muted mb-0">Please select categories to see available products.</p>' +
-                        '</div></div>'
+            function preselectCategories() {
+                const selected = $("#selectedCategories").val();
+                if (selected) {
+                    selected.split(",").forEach(v =>
+                        $(".category-checkbox[value='" + v + "']").prop("checked", true)
                     );
                 }
-            });
-        }
+            }
 
-        // Bind checkbox change event
-           function bindCheckboxChange() {
-        $(".category-checkbox").off("change").on("change", function () {
-            // Get all selected checkbox values as an array
-            const selected = $(".category-checkbox:checked")
-                .map(function () { return $(this).val(); })
-                .get();
-
-                console.log("ABC");
-                console.log(selected);
-            // Convert array to a readable string (comma + space)
-            const selectedText = selected.length > 0 ? selected.join(", ") : "None";
-            console.log("DEF");
-            console.log(selected);
-            // Update UI display
-            $("#selectedCategoriesText").text(selectedText);
-
-            // Update hidden input for form submission or ajax
-            $("#selectedCategories").val(selected.join(","));
-
-            // Enforce selection limit (disable extra checkboxes if max reached)
-            updateCheckboxLimit();
-
-            // Dynamically load products based on selected categories
-            loadProducts(selected);
+            function loadProducts(categories) {
+                if (!categories || categories.length === 0) $("#selectedCategoriesText").text('');
+                console.log($("#selectedCategoriesText").text());
+                $.ajax({
+                    url: '@Url.Action("ProductsByCategories", "Customer")',
+                    type: 'GET',
+                    data: { categories: $("#selectedCategoriesText").text() },
+                    success: function (result) {
+                        $("#productContainer").html(result);
+                    },
+                    error: function () {
+                        $("#productContainer").html(`
+                            <div class="card border-warning shadow-sm text-center">
+                                <div class="card-body alert alert-warning mb-0 rounded">
+                                    <i class="bi bi-exclamation-circle fs-1"></i>
+                                    <p class="fw-bold mt-2">No Products Found</p>
+                                </div>
+                            </div>
+                        `);
+                    }
+                });
+            }
+            $("#openCategoryModal").click();
         });
+    </script>
+}
+<style>
+    /* Optional hover effect for cards */
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        transition: box-shadow 0.3s ease-in-out;
     }
-
-
-        // Initial page load: preselect & enforce limit if hidden input has values
-        preselectCategories();
-        updateCheckboxLimit();
-        bindCheckboxChange();
-
-    });
-</script>
-
-
+</style>

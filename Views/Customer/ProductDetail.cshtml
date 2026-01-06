@@ -4,137 +4,175 @@
     ViewData["Title"] = "Product Details";
 }
 
-<div class="container mt-4">
+@{
+    bool discountActive = Model.Discount > 0 &&
+        Model.DiscountValidFrom.HasValue &&
+        Model.DiscountValidTill.HasValue &&
+        DateTime.Today >= Model.DiscountValidFrom.Value.Date &&
+        DateTime.Today <= Model.DiscountValidTill.Value.Date;
+}
 
-    <!-- Product Card -->
-    <div class="card shadow-sm mb-4">
-        <div class="row g-0">
-            <div class="col-md-2 text-center p-3">
-                <div class="ratio custom-ratio">
-                    @if (!string.IsNullOrEmpty(Model.ImageFileName))
+<div class="container mt-4">
+    <!-- Outer Product Card -->
+    <div class="card shadow-lg border-warning">
+        <div class="card-body p-4 alert alert-warning">
+
+            <!-- Product Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="row g-0">
+                    <div class="col-md-2 text-center p-3">
+                        <div class="ratio custom-ratio">
+                            @if (!string.IsNullOrEmpty(Model.ImageFileName))
+                            {
+                                <img src="~/images/products/@Model.ImageFileName"
+                                     class="img-fluid rounded object-fit-cover" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded">
+                                    <i class="bi bi-image fs-3"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h5 class="card-title">@Model.ProductMasterName</h5>
+
+                            <!-- Type Icon -->
+                            <div title="@Model.Type" class="d-inline-flex align-items-center justify-content-center"
+                                 style="
+                                            width:18px;
+                                            height:18px;
+                                                        border:2px solid @(Model.Type == "Veg" ? "var(--bs-success)" : Model.Type == "Egg" ? "var(--bs-warning)" : Model.Type == "Non-Veg" ? "var(--bs-danger)" : "");
+                                            border-radius:6px;
+                                            background-color:white;">
+
+                                <!-- Inner Circle -->
+                                <div title="@Model.Type" style="
+                                            width:10px;
+                                            height:10px;
+                                            border-radius:50%;
+                                                        background-color:@(Model.Type == "Veg" ? "var(--bs-success)" : Model.Type == "Egg" ? "var(--bs-warning)" : Model.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                                </div>
+                            </div>
+
+                            <p class="text-muted mb-1">@Model.Description</p>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (discountActive)
+                                    {
+                                        <span class="text-muted text-decoration-line-through small">
+                                            ₹@Model.Price
+                                        </span>
+                                        <span class="text-warning fw-semibold small">
+                                            (-@Model.Discount%)
+                                        </span>
+                                    }
+                                    <span class="fw-bold text-success">
+                                        ₹@Model.FinalPrice
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card shadow-sm mb-3" style="max-height: 400px; overflow-y: auto;">
+                <div class="card-body">
+                    @if (Model.Reviews != null && Model.Reviews.Any())
                     {
-                        <img src="~/images/products/@Model.ImageFileName"
-                             class="img-fluid rounded object-fit-cover" />
+                        <h6 class="fw-bold mb-3">
+                            Customer Reviews
+                            @if (Model.ReviewCount > 0)
+                            {
+                                <span>(@Model.ReviewCount)</span>
+                            }
+                        </h6>
+
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="border-bottom pb-2 mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@review.Reviewer</strong>
+                                    <div class="text-warning">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= review.Rating)
+                                            {
+                                                <i class="bi bi-star-fill"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-star"></i>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy")</small>
+                                <p class="mb-1">@review.Comment</p>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded">
-                            <i class="bi bi-image fs-3"></i>
-                        </div>
+                        <p class="text-muted mb-0">No reviews yet.</p>
                     }
                 </div>
             </div>
 
-            <div class="col-md-10">
+            <!-- Add Review Section -->
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">@Model.ProductMasterName</h5>
-                    <p class="text-muted mb-1">@Model.Description</p>
+                    <h6 class="fw-bold mb-3">Add Review</h6>
 
-                    <h6 class="fw-bold text-success">₹ @Model.Price</h6>
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <p class="text-muted mb-0">
+                            Please login with Google.
+                        </p>
+                    }
+                    else if (User.Identity.IsAuthenticated && !Model.IsReviewed)
+                    {
+                        <form asp-controller="Customer" asp-action="AddReview" method="post">
+                            <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                            <div id="ratingStars" class="text-warning">
+                                <i class="bi bi-star" data-value="1"></i>
+                                <i class="bi bi-star" data-value="2"></i>
+                                <i class="bi bi-star" data-value="3"></i>
+                                <i class="bi bi-star" data-value="4"></i>
+                                <i class="bi bi-star" data-value="5"></i>
+                            </div>
+
+                            <input type="hidden" name="Rating" id="ratingValue" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Comment</label>
+                                <textarea name="Comment"
+                                      class="form-control"
+                                      rows="2"
+                                      maxlength="200"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-warning">
+                                Submit Review
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">
+                            You have already submitted a review for this product.
+                        </p>
+                    }
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Reviews Section -->
-    @if (Model.Reviews != null && Model.Reviews.Any())
-    {
-        <div class="card shadow-sm mb-3" style="max-height: 400px; overflow-y: auto;">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3">
-                    Customer Reviews
-                    @if (Model.ReviewCount > 0)
-                    {
-                        <span>(@Model.ReviewCount)</span>
-                    }
-                </h6>
-
-                @if (Model.Reviews != null && Model.Reviews.Any())
-                {
-                    foreach (var review in Model.Reviews)
-                    {
-                        <div class="border-bottom pb-2 mb-2">
-                            <div class="d-flex justify-content-between">
-                                <strong>@review.Reviewer</strong>
-                                <div class="text-warning">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        if (i <= review.Rating)
-                                        {
-                                            <i class="bi bi-star-fill"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="bi bi-star"></i>
-                                        }
-                                    }
-                                </div>
-                            </div>
-                            <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy")</small>
-                            <p class="mb-1">@review.Comment</p>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted mb-0">No reviews yet.</p>
-                }
-            </div>
-        </div>
-
-    }
-    else
-    {
-        <p class="text-muted mb-0">No reviews yet.</p>
-    }
-
-
-
-    <!-- Add Review Section -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h6 class="fw-bold mb-3">Add Review</h6>
-
-            @if (User.Identity?.IsAuthenticated != true)
-            {
-                <p class="text-muted mb-0">
-                    Please login with Google.
-                </p>
-            }
-            else if (User.Identity.IsAuthenticated && !Model.IsReviewed)
-            {
-                <form asp-controller="Customer" asp-action="AddReview" method="post">
-                    <input type="hidden" name="ProductId" value="@Model.Id" />
-
-                    <div id="ratingStars" class="text-warning">
-                        <i class="bi bi-star" data-value="1"></i>
-                        <i class="bi bi-star" data-value="2"></i>
-                        <i class="bi bi-star" data-value="3"></i>
-                        <i class="bi bi-star" data-value="4"></i>
-                        <i class="bi bi-star" data-value="5"></i>
-                    </div>
-
-                    <input type="hidden" name="Rating" id="ratingValue" />
-
-                    <div class="mb-2">
-                        <label class="form-label">Comment</label>
-                        <textarea name="Comment"
-                              class="form-control"
-                              rows="2"
-                              maxlength="200"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-sm btn-warning">
-                        Submit Review
-                    </button>
-                </form>
-            }
-            else
-            {
-                <p class="text-muted mb-0">
-                    You have already submitted a review for this product.
-                </p>
-            }
         </div>
     </div>
 </div>

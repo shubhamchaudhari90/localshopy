@@ -1,25 +1,37 @@
 ﻿@using localshopyNew.ViewModel
 @model LocationViewModel
 
-<div class="container py-4">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
 
-            <div class="card shadow-sm alert alert-warning animate__animated animate__fadeInDown">
-                <div class="card-body p-4">
+            <div class="card border-0 shadow-lg animate__animated animate__fadeInDown">
+                <div class="card-body p-4 p-md-5 alert alert-warning">
 
-                    <h5 class="card-title text-center mb-3">
-                        Choose Your Location
-                    </h5>
+                    <!-- Icon -->
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center"
+                             style="width:70px;height:70px;">
+                            <i class="bi bi-geo-alt-fill fs-3 text-dark"></i>
+                        </div>
+                    </div>
 
+                    <!-- Title -->
+                    <h4 class="text-center fw-bold mb-2">
+                        Select Your Location
+                    </h4>
+
+                    <!-- Subtitle -->
                     <p class="text-muted text-center mb-4">
-                        Choose a location to see which products are available there.
+                        Choose a location to see products available near you
                     </p>
 
                     <form asp-action="Location" method="post">
 
+                        <!-- Location Dropdown -->
                         <div class="mb-4">
-                            <label asp-for="SelectedLocationId" class="form-label fw-semibold">
+                            <label asp-for="SelectedLocationId"
+                                   class="form-label fw-semibold">
                                 Location
                             </label>
 
@@ -34,14 +46,22 @@
                                   class="text-danger small"></span>
                         </div>
 
+                        <!-- Submit -->
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                            <button type="submit"
+                                    class="btn btn-warning btn-lg fw-bold shadow-sm">
+                                <i class="bi bi-arrow-right-circle me-1"></i>
                                 Continue
                             </button>
                         </div>
 
                     </form>
 
+                </div>
+
+                <!-- Footer Hint -->
+                <div class="card-footer bg-light text-center small text-muted">
+                    Your location helps us show relevant products
                 </div>
             </div>
 
