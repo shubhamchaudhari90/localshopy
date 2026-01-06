@@ -35,5 +35,11 @@ namespace localshopyNew.ViewModel
         public string ShopName { get; set; }
 
         public string ProductMasterName { get; set; }
+
+        public List<Review> Reviews { get; set; }
+
+        public bool IsReviewed { get; set; }
+
+        public int ReviewCount { get; set; }
     }
 }

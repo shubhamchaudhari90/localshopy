@@ -2,6 +2,7 @@
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
@@ -59,7 +60,6 @@ namespace localshopyNew.Controllers
             return PartialView("_ProductListPartial", products);
         }
 
-
         public async Task<IActionResult> Products()
         {
             Guid location = GetLocationFromSession();
@@ -96,6 +96,33 @@ namespace localshopyNew.Controllers
                 RedirectToAction(nameof(Location));
             }
             return View(shopDetails);
+        }
+
+        public async Task<IActionResult> ProductDetails(string shopProductName)
+        {
+            string email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email)) { email = string.Empty; }
+
+            if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains("_"))
+            {
+                RedirectToAction("NotFound404", "Error");
+            }
+
+            string[] names = shopProductName.Split("_");
+
+            if (names.Length <= 1) { RedirectToAction("NotFound404", "Error"); }
+
+            string decodedShopName = names[0].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
+            string decodedProductName = names[1].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
+
+            var productDetails = await _customerService.GetProductDetailsByName(decodedShopName, decodedProductName, email);
+
+            if (productDetails == null)
+            {
+                RedirectToAction("NotFound404", "Error");
+            }
+            return View(productDetails);
         }
 
         public async Task<IActionResult> ChangeLocation()

@@ -166,5 +166,53 @@ namespace localshopyNew.Services
                 Products = products
             };
         }
+
+        public async Task<ProductViewModel?> GetProductDetailsByName(string shopName, string productName, string emailId)
+        {
+            Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shopName.ToLower() && x.IsOpen && x.IsActive);
+            if (shop == null) { return null; }
+
+            ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(x => x.ProductName.ToLower() == productName.ToLower() && x.IsActive);
+            if (productMaster == null) { return null; }
+
+            Categoty? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == productMaster.CategoryId && x.IsActive);
+            if (category == null) { return null; }
+
+
+            Product? product = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == shop.Id && x.ProductMasterId == productMaster.Id && x.IsAvailable && x.IsActive);
+            if (product == null) { return null; }
+
+            int reviewCount = await _context.Reviews.Where(x => x.ProductId == product.Id).CountAsync();
+
+            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id).OrderByDescending(x => x.DateTime).Take(10).ToListAsync();
+
+
+            bool isReviewed = false;
+
+            if (!string.IsNullOrEmpty(emailId))
+            {
+                isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
+            }
+
+            ProductViewModel model = new ProductViewModel()
+            {
+                Id = product.Id,
+                CategoryName = category.Name,
+                Description = product.Description,
+                Discount = product.Discount,
+                ImageFileName = product.ImageFileName,
+                IsActive = product.IsActive,
+                Price = product.Price,
+                ProductImage = product.ProductImage,
+                ProductMasterName = productMaster.ProductName,
+                Reviews = reviews,
+                ShopName = shop.Name,
+                Type = product.Type,
+                IsReviewed = isReviewed,
+                ReviewCount = reviewCount
+            };
+
+            return model;
+        }
     }
 }

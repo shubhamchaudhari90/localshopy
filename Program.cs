@@ -1,8 +1,10 @@
 using localshopyNew.Data;
 using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,19 @@ builder.Services.AddAuthentication()
     {
         options.ClientId = builder.Configuration["Authentication:Google:client_id"];
         options.ClientSecret = builder.Configuration["Authentication:Google:client_secret"];
+
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+
+        // Map claims
+
+        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        options.ClaimActions.MapJsonKey("given_name", "given_name");
+        options.ClaimActions.MapJsonKey("family_name", "family_name");
+
+
+
     });
 
 // Redirect unauthorized users to Login

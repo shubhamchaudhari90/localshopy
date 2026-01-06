@@ -126,14 +126,20 @@
                                                         <div class="col d-flex flex-column p-2">
 
                                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                                <h6 class="mb-0 small">@product.ProductMasterName</h6>
+                                                                <a title="View Product Details"
+                                                                   asp-controller="Customer"
+                                                                   asp-action="ProductDetails"
+                                                                   asp-route-productName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
+                                                                   class="fw-bold text-body text-decoration-underline">
+                                                                    <i class="bi bi-shop me-1"></i>@product.ProductMasterName
+                                                                </a>
                                                                 <span class="fw-semibold @(product.IsAvailable ? "text-success" : "text-danger") small">
                                                                     @(product.IsAvailable ? "" : "Out of stock")
                                                                 </span>
                                                             </div>
 
                                                             <!-- Type Icon -->
-                                                            <div class="d-inline-flex align-items-center justify-content-center"
+                                                            <div title="@product.Type" class="d-inline-flex align-items-center justify-content-center"
                                                                  style="
                                             width:18px;
                                             height:18px;
@@ -142,7 +148,7 @@
                                             background-color:white;">
 
                                                                 <!-- Inner Circle -->
-                                                                <div style="
+                                                                <div title="@product.Type" style="
                                             width:10px;
                                             height:10px;
                                             border-radius:50%;
