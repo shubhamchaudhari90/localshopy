@@ -9,5 +9,6 @@
         public decimal Rating { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsApproved { get; set; } = false;
+        public bool IsRejected { get; set; } = false;
     }
 }

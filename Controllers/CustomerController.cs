@@ -6,18 +6,11 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
-    public class CustomerController : Controller
+    public class CustomerController(ILocationService locationService, IEncodingService encodingService, ICustomerService customerService) : Controller
     {
-        private readonly ILocationService _locationService;
-        private readonly IEncodingService _encodingService;
-        private readonly ICustomerService _customerService;
-
-        public CustomerController(ILocationService locationService, IEncodingService encodingService, ICustomerService customerService)
-        {
-            _locationService = locationService;
-            _encodingService = encodingService;
-            _customerService = customerService;
-        }
+        private readonly ILocationService _locationService = locationService;
+        private readonly IEncodingService _encodingService = encodingService;
+        private readonly ICustomerService _customerService = customerService;
 
         public IActionResult Index()
         {
@@ -28,7 +21,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Location()
         {
             List<Location> locations = await _locationService.GetActiveLocations();
-            LocationViewModel model = new LocationViewModel()
+            LocationViewModel model = new()
             {
                 Locations = locations,
             };
@@ -76,7 +69,7 @@ namespace localshopyNew.Controllers
 
         public async Task<List<Category>> GetCategotiesByLocation()
         {
-            List<Category> categoties = new List<Category>();
+            List<Category> categoties = [];
             Guid location = GetLocationFromSession();
             if (location == Guid.Empty)
             {
@@ -99,13 +92,13 @@ namespace localshopyNew.Controllers
             return View(shopDetails);
         }
 
-        public async Task<IActionResult> ProductDetails(string shopProductName)
+        public async Task<IActionResult> ProductDetail(string shopProductName)
         {
             string? email = User.FindFirstValue(ClaimTypes.Email);
 
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
 
-            if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains("_"))
+            if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains('_'))
             {
                 return RedirectToAction("NotFound404", "Error");
             }
@@ -123,6 +116,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction("NotFound404", "Error");
             }
+            TempData["shopProductName"] = shopProductName;
             return View(productDetails);
         }
 
@@ -139,10 +133,13 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public IActionResult AddReview(ReviewViewModel model)
         {
+
+            var data = TempData["shopProductName"];
+
             if (!ModelState.IsValid)
             {
                 // handle validation errors
-                return RedirectToAction("ProductDetails", new { id = model.ProductId });
+                return RedirectToAction("ProductDetail", new { shopProductName = data });
             }
 
             if (!User.Identity?.IsAuthenticated ?? true)
@@ -154,16 +151,18 @@ namespace localshopyNew.Controllers
             // Save review to database
             var review = new Review
             {
+                Id = Guid.NewGuid(),
                 ProductId = model.ProductId,
                 Rating = model.Rating,
                 Comment = model.Comment,
                 Reviewer = reviewer,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                IsApproved = false
             };
 
+            _customerService.AddReview(review);
 
-
-            return RedirectToAction("ProductDetails", new { id = model.ProductId });
+            return RedirectToAction("ProductDetail", new { shopProductName = data });
         }
 
         private Guid GetLocationFromSession()

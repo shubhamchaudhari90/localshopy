@@ -1,0 +1,242 @@
+﻿@using localshopyNew.ViewModel
+@model ProductViewModel
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="container mt-4">
+
+    <!-- Product Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0">
+            <div class="col-md-2 text-center p-3">
+                <div class="ratio custom-ratio">
+                    @if (!string.IsNullOrEmpty(Model.ImageFileName))
+                    {
+                        <img src="~/images/products/@Model.ImageFileName"
+                             class="img-fluid rounded object-fit-cover" />
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded">
+                            <i class="bi bi-image fs-3"></i>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-10">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.ProductMasterName</h5>
+                    <p class="text-muted mb-1">@Model.Description</p>
+
+                    <h6 class="fw-bold text-success">₹ @Model.Price</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    @if (Model.Reviews != null && Model.Reviews.Any())
+    {
+        <div class="card shadow-sm mb-3" style="max-height: 400px; overflow-y: auto;">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">
+                    Customer Reviews
+                    @if (Model.ReviewCount > 0)
+                    {
+                        <span>(@Model.ReviewCount)</span>
+                    }
+                </h6>
+
+                @if (Model.Reviews != null && Model.Reviews.Any())
+                {
+                    foreach (var review in Model.Reviews)
+                    {
+                        <div class="border-bottom pb-2 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <strong>@review.Reviewer</strong>
+                                <div class="text-warning">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating)
+                                        {
+                                            <i class="bi bi-star-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star"></i>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy")</small>
+                            <p class="mb-1">@review.Comment</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No reviews yet.</p>
+                }
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <p class="text-muted mb-0">No reviews yet.</p>
+    }
+
+
+
+    <!-- Add Review Section -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3">Add Review</h6>
+
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <p class="text-muted mb-0">
+                    Please login with Google.
+                </p>
+            }
+            else if (User.Identity.IsAuthenticated && !Model.IsReviewed)
+            {
+                <form asp-controller="Customer" asp-action="AddReview" method="post">
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                    <div id="ratingStars" class="text-warning">
+                        <i class="bi bi-star" data-value="1"></i>
+                        <i class="bi bi-star" data-value="2"></i>
+                        <i class="bi bi-star" data-value="3"></i>
+                        <i class="bi bi-star" data-value="4"></i>
+                        <i class="bi bi-star" data-value="5"></i>
+                    </div>
+
+                    <input type="hidden" name="Rating" id="ratingValue" />
+
+                    <div class="mb-2">
+                        <label class="form-label">Comment</label>
+                        <textarea name="Comment"
+                              class="form-control"
+                              rows="2"
+                              maxlength="200"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-sm btn-warning">
+                        Submit Review
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    You have already submitted a review for this product.
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('#ratingStars i').forEach(star => {
+        star.addEventListener('click', function () {
+            let rating = this.getAttribute('data-value');
+            document.getElementById('ratingValue').value = rating;
+
+            document.querySelectorAll('#ratingStars i').forEach((s, i) => {
+                s.classList.toggle('bi-star-fill', i < rating);
+                s.classList.toggle('bi-star', i >= rating);
+            });
+        });
+    });
+
+    // All reviews from server
+    const reviews = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+    const pageSize = 3; // Reviews per page
+    let currentPage = 1;
+    const totalPages = Math.ceil(reviews.length / pageSize);
+
+    // Render reviews for current page
+    function renderReviews() {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const paged = reviews.slice(start, end);
+
+        const container = document.getElementById('reviewsContainer');
+        container.innerHTML = '';
+
+        paged.forEach(r => {
+            const stars = Array.from({length:5}, (_,i) => i < r.Rating ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>').join('');
+            container.innerHTML += `
+                <div class="border-bottom pb-2 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>${r.Reviewer}</strong>
+                        <div class="text-warning">${stars}</div>
+                    </div>
+                    <small class="text-muted">${new Date(r.CreatedAt).toLocaleDateString()}</small>
+                    <p class="mb-1">${r.Comment}</p>
+                </div>
+            `;
+        });
+
+        renderPagination();
+    }
+
+    // Render pagination links
+    function renderPagination() {
+        const container = document.getElementById('paginationContainer');
+        container.innerHTML = '';
+
+        // Previous button
+        const prevDisabled = currentPage === 1 ? 'disabled' : '';
+        container.innerHTML += `<li class="page-item ${prevDisabled}">
+            <a class="page-link" href="#" onclick="goPage(${currentPage - 1}); return false;">Previous</a>
+        </li>`;
+
+        // Page numbers
+        for(let i=1; i<=totalPages; i++){
+            const active = i === currentPage ? 'active' : '';
+            container.innerHTML += `<li class="page-item ${active}">
+                <a class="page-link" href="#" onclick="goPage(${i}); return false;">${i}</a>
+            </li>`;
+        }
+
+        // Next button
+        const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+        container.innerHTML += `<li class="page-item ${nextDisabled}">
+            <a class="page-link" href="#" onclick="goPage(${currentPage + 1}); return false;">Next</a>
+        </li>`;
+    }
+
+    // Navigate to a page
+    function goPage(page){
+        if(page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderReviews();
+    }
+
+    // Initial render
+    renderReviews();
+</script>
+
+
+
+<style>
+    .custom-ratio {
+        position: relative;
+        width: 100%;
+        padding-top: 75%; /* 0.75 times the width */
+    }
+
+        .custom-ratio img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* keeps the image nicely scaled */
+        }
+
+</style>

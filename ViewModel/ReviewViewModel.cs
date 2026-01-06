@@ -2,9 +2,15 @@
 {
     public class ReviewViewModel
     {
-        public Guid ProductId { get; set; }   // Hidden input
-        public int Rating { get; set; }      // Hidden input set via JS
-        public string? Comment { get; set; }  // Textarea
-    }
+        public Guid Id { get; set; }
+        public Guid ProductId { get; set; }
+        public decimal Rating { get; set; }
+        public string? Comment { get; set; }
 
+        public string? ShopName { get; set; }
+        public string? ProductName { get; set; }
+
+        public bool IsApproved { get; set; } = false;
+        public bool IsRejected { get; set; } = false;
+    }
 }

@@ -1,0 +1,46 @@
+﻿@using localshopyNew.ViewModel
+@model List<ReviewViewModel>
+
+<h4>Rejected Reviews</h4>
+
+<div class="mb-3">
+    <a asp-controller="Review" asp-action="Approved"
+       class="btn btn-sm btn-primary">
+        Approved Reviews
+    </a>
+
+    <a asp-controller="Review" asp-action="Index"
+       class="btn btn-sm btn-danger">
+        Pending Reviews
+    </a>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Shop</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.ProductName</td>
+                <td>@r.ShopName</td>
+                <td>@r.Rating</td>
+                <td>@r.Comment</td>
+                <td>
+                    <form asp-action="Approve" method="post"
+                          onsubmit="return confirm('Approve this rejected review?');">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <button class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

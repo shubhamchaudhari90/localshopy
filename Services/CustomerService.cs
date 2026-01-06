@@ -129,6 +129,8 @@ namespace localshopyNew.Services
 
                 select new ProductViewModel
                 {
+                    ShopName = s.Name,
+
                     Id = p.Id,
                     ProductMasterId = pm.Id,
                     ShopId = p.ShopId,
@@ -182,9 +184,9 @@ namespace localshopyNew.Services
             Product? product = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == shop.Id && x.ProductMasterId == productMaster.Id && x.IsAvailable && x.IsActive);
             if (product == null) { return null; }
 
-            int reviewCount = await _context.Reviews.Where(x => x.ProductId == product.Id).CountAsync();
+            int reviewCount = await _context.Reviews.Where(x => x.ProductId == product.Id && x.IsApproved && !x.IsRejected).CountAsync();
 
-            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToListAsync();
+            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id && x.IsApproved && !x.IsRejected).OrderByDescending(x => x.CreatedAt).ToListAsync();
 
 
             bool isReviewed = false;
@@ -213,6 +215,25 @@ namespace localshopyNew.Services
             };
 
             return model;
+        }
+
+        public async Task AddReview(Review review)
+        {
+
+            Review entity = new Review()
+            {
+                Reviewer = review.Reviewer,
+                Comment = review.Comment,
+                CreatedAt = DateTime.Now,
+                Id = review.Id,
+                IsApproved = false,
+                IsRejected = false,
+                ProductId = review.ProductId,
+                Rating = review.Rating
+            };
+
+            _context.Reviews.Add(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }
