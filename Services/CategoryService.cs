@@ -19,7 +19,7 @@ namespace localshopyNew.Services
             return await _context.Categoties.AnyAsync(x => x.Name == name);
         }
 
-        public async Task<Categoty?> GetCategoryById(Guid id)
+        public async Task<Category?> GetCategoryById(Guid id)
         {
             return await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -29,19 +29,19 @@ namespace localshopyNew.Services
             return await _context.ProductMasters.Where(x => x.CategoryId == id && x.IsActive).ToListAsync();
         }
 
-        public async Task<List<Categoty>> GetActiveCategories()
+        public async Task<List<Category>> GetActiveCategories()
         {
             var categories = await _context.Categoties.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
             return categories;
         }
 
-        public async Task<List<Categoty>> GetInActiveCategories()
+        public async Task<List<Category>> GetInActiveCategories()
         {
             var categories = await _context.Categoties.Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
             return categories;
         }
 
-        public async Task<bool> AddCategory(Categoty category)
+        public async Task<bool> AddCategory(Category category)
         {
             category.Id = Guid.NewGuid();
             int count = _context.Categoties.Any() ? _context.Categoties.Max(x => x.SortOrder) : 0;
@@ -56,7 +56,7 @@ namespace localshopyNew.Services
             return false;
         }
 
-        public async Task<bool> UpdateCategory(Categoty model)
+        public async Task<bool> UpdateCategory(Category model)
         {
             var category = await _context.Categoties.FindAsync(model.Id);
             if (category == null)

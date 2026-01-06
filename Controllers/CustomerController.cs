@@ -18,6 +18,7 @@ namespace localshopyNew.Controllers
             _encodingService = encodingService;
             _customerService = customerService;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -73,9 +74,9 @@ namespace localshopyNew.Controllers
             return View(model);
         }
 
-        public async Task<List<Categoty>> GetCategotiesByLocation()
+        public async Task<List<Category>> GetCategotiesByLocation()
         {
-            List<Categoty> categoties = new List<Categoty>();
+            List<Category> categoties = new List<Category>();
             Guid location = GetLocationFromSession();
             if (location == Guid.Empty)
             {
@@ -93,25 +94,25 @@ namespace localshopyNew.Controllers
             var shopDetails = await _customerService.GetShopDetailsByName(decodedName);
             if (shopDetails == null || shopDetails.Shop == null)
             {
-                RedirectToAction(nameof(Location));
+                return RedirectToAction(nameof(Location));
             }
             return View(shopDetails);
         }
 
         public async Task<IActionResult> ProductDetails(string shopProductName)
         {
-            string email = User.FindFirstValue(ClaimTypes.Email);
+            string? email = User.FindFirstValue(ClaimTypes.Email);
 
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
 
             if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains("_"))
             {
-                RedirectToAction("NotFound404", "Error");
+                return RedirectToAction("NotFound404", "Error");
             }
 
             string[] names = shopProductName.Split("_");
 
-            if (names.Length <= 1) { RedirectToAction("NotFound404", "Error"); }
+            if (names.Length <= 1) { return RedirectToAction("NotFound404", "Error"); }
 
             string decodedShopName = names[0].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
             string decodedProductName = names[1].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
@@ -120,7 +121,7 @@ namespace localshopyNew.Controllers
 
             if (productDetails == null)
             {
-                RedirectToAction("NotFound404", "Error");
+                return RedirectToAction("NotFound404", "Error");
             }
             return View(productDetails);
         }
@@ -135,6 +136,36 @@ namespace localshopyNew.Controllers
             return RedirectToAction(nameof(Location));
         }
 
+        [HttpPost]
+        public IActionResult AddReview(ReviewViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // handle validation errors
+                return RedirectToAction("ProductDetails", new { id = model.ProductId });
+            }
+
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized();
+            }
+
+            string reviewer = User.Identity!.Name!;
+            // Save review to database
+            var review = new Review
+            {
+                ProductId = model.ProductId,
+                Rating = model.Rating,
+                Comment = model.Comment,
+                Reviewer = reviewer,
+                CreatedAt = DateTime.Now
+            };
+
+
+
+            return RedirectToAction("ProductDetails", new { id = model.ProductId });
+        }
+
         private Guid GetLocationFromSession()
         {
             string locationKey = _encodingService.Encode("Location");
@@ -147,6 +178,5 @@ namespace localshopyNew.Controllers
             Guid location = Guid.Parse(locationValue);
             return location;
         }
-
     }
 }

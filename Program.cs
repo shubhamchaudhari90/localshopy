@@ -69,24 +69,6 @@ builder.Services.AddScoped<IEncodingService, EncodingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
-//// Authentication
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-//})
-//.AddCookie()
-//.AddGoogle(options =>
-//{
-//    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
-//    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
-//    // Optional: Map additional claims
-//    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-
-//    options.Scope.Add("email");
-//    options.Scope.Add("profile");
-//});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -96,17 +78,17 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-//if (!app.Environment.IsDevelopment())
-//{
-app.UseExceptionHandler("/Error/500");
+if (!app.Environment.IsDevelopment())
+    //{
+    app.UseExceptionHandler("/Error/500");
 //}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-//if (!app.Environment.IsDevelopment())
-//{
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
+if (!app.Environment.IsDevelopment())
+    //{
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
 //}
 
 

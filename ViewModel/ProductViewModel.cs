@@ -8,11 +8,11 @@ namespace localshopyNew.ViewModel
     {
         [Display(Name = "Category")]
         [Required(ErrorMessage = "Please select a category")]
-        public Guid CategoryId { get; set; }  // nullable because "--Select--" has empty value
+        public Guid CategoryId { get; set; }
 
-        public IEnumerable<SelectListItem> Categories { get; set; }
+        public IEnumerable<SelectListItem>? Categories { get; set; }
 
-        public IEnumerable<SelectListItem> ProductMasters { get; set; }
+        public IEnumerable<SelectListItem>? ProductMasters { get; set; }
 
         public int FinalPrice
         {
@@ -31,12 +31,12 @@ namespace localshopyNew.ViewModel
             }
         }
 
-        public string CategoryName { get; set; }
-        public string ShopName { get; set; }
+        public string? CategoryName { get; set; }
+        public string? ShopName { get; set; }
 
-        public string ProductMasterName { get; set; }
+        public string? ProductMasterName { get; set; }
 
-        public List<Review> Reviews { get; set; }
+        public List<Review>? Reviews { get; set; }
 
         public bool IsReviewed { get; set; }
 

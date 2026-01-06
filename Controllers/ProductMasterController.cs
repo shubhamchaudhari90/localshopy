@@ -71,7 +71,7 @@ namespace localshopyNew.Controllers
         {
             var product = await _service.GetProductById(id);
             if (product == null) return RedirectToAction(nameof(Index));
-            Categoty? category = await _categoryService.GetCategoryById(product.CategoryId);
+            Category? category = await _categoryService.GetCategoryById(product.CategoryId);
             if (category == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -95,7 +95,7 @@ namespace localshopyNew.Controllers
                     bool isNameExists = await _service.IsProductNameExists(model.ProductName);
                     if (isNameExists)
                     {
-                        Categoty? category = await _categoryService.GetCategoryById(model.CategoryId);
+                        Category? category = await _categoryService.GetCategoryById(model.CategoryId);
                         if (category == null)
                         {
                             return RedirectToAction(nameof(Index));
@@ -115,7 +115,7 @@ namespace localshopyNew.Controllers
         {
             var product = await _service.GetProductById(id);
             if (product == null) return RedirectToAction(nameof(Index));
-            Categoty? category = await _categoryService.GetCategoryById(product.CategoryId);
+            Category? category = await _categoryService.GetCategoryById(product.CategoryId);
             if (category == null)
             {
                 return RedirectToAction(nameof(Index));

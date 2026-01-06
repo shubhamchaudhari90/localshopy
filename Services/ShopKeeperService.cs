@@ -241,7 +241,7 @@ namespace localshopyNew.Services
             if (productMaster == null) return null;
             model.ProductMasterName = productMaster.ProductName;
             model.CategoryId = productMaster.CategoryId;
-            Categoty? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == model.CategoryId);
+            Category? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == model.CategoryId);
             if (category == null) return null;
             model.CategoryName = category.Name;
             return model;

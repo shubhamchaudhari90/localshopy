@@ -4,7 +4,6 @@ using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text.RegularExpressions;
 
 namespace localshopyNew.Controllers
 {
@@ -14,16 +13,18 @@ namespace localshopyNew.Controllers
     {
         private readonly IShopService _shopService;
         private readonly ILocationService _locationService;
+        private readonly IEncodingService _encodingService;
 
-        public ShopController(IShopService shopService, ILocationService locationService)
+        public ShopController(IShopService shopService, ILocationService locationService, IEncodingService encodingService)
         {
             _locationService = locationService;
             _shopService = shopService;
+            _encodingService = encodingService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var shops = await _shopService.GetActiveShops();
+            List<Shop> shops = await _shopService.GetActiveShops();
             return View(shops);
         }
 
@@ -44,28 +45,17 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Create(Shop shop)
         {
             var locationList = await _locationService.GetActiveLocations();
-            if (string.IsNullOrEmpty(shop.Name))
+
+            if (locationList == null || locationList.Count <= 0)
             {
-                if (locationList == null || locationList.Count <= 0)
-                {
-                    return RedirectToAction("Index", "Location");
-                }
-                ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+                return RedirectToAction("Index", "Location");
+            }
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+
+            if (!ModelState.IsValid)
+            {
                 return View(shop);
             }
-
-            if (!Regex.IsMatch(shop.Name, "^[a-zA-Z0-9 -]+$"))
-            {
-                ViewData["ErrorMessage"] = "Shop name contains a to z, A to Z and - (hyphen) only";
-
-                if (locationList == null || locationList.Count <= 0)
-                {
-                    return RedirectToAction("Index", "Location");
-                }
-                ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
-                return View(shop);
-            }
-
             bool isNameExists = await _shopService.IsShopNameExists(shop.Name);
             if (isNameExists)
             {

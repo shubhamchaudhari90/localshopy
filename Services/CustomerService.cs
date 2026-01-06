@@ -71,7 +71,7 @@ namespace localshopyNew.Services
             return products;
         }
 
-        public async Task<List<Categoty>> GetCategoriesByLocation(Guid locationId)
+        public async Task<List<Category>> GetCategoriesByLocation(Guid locationId)
         {
             var categories = await (
                 from p in _context.Products
@@ -94,7 +94,7 @@ namespace localshopyNew.Services
 
                 //orderby c.Name
 
-                select new Categoty
+                select new Category
                 {
                     Name = c.Name,
                     SortOrder = c.SortOrder
@@ -175,7 +175,7 @@ namespace localshopyNew.Services
             ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(x => x.ProductName.ToLower() == productName.ToLower() && x.IsActive);
             if (productMaster == null) { return null; }
 
-            Categoty? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == productMaster.CategoryId && x.IsActive);
+            Category? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == productMaster.CategoryId && x.IsActive);
             if (category == null) { return null; }
 
 
@@ -184,7 +184,7 @@ namespace localshopyNew.Services
 
             int reviewCount = await _context.Reviews.Where(x => x.ProductId == product.Id).CountAsync();
 
-            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id).OrderByDescending(x => x.DateTime).Take(10).ToListAsync();
+            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToListAsync();
 
 
             bool isReviewed = false;

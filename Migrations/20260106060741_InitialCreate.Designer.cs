@@ -11,8 +11,8 @@ using localshopyNew.Data;
 namespace localshopyNew.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20260104080857_AddedIdentity")]
-    partial class AddedIdentity
+    [Migration("20260106060741_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -212,31 +212,7 @@ namespace localshopyNew.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("localshopyNew.Models.Cart", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Count")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ProductMasterId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("ProductPrice")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Carts");
-                });
-
-            modelBuilder.Entity("localshopyNew.Models.Categoty", b =>
+            modelBuilder.Entity("localshopyNew.Models.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -263,6 +239,9 @@ namespace localshopyNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -276,54 +255,6 @@ namespace localshopyNew.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Locations");
-                });
-
-            modelBuilder.Entity("localshopyNew.Models.Order", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ProductMasterId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("ProductPrice")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("localshopyNew.Models.OrderTracking", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrderTrackings");
                 });
 
             modelBuilder.Entity("localshopyNew.Models.Product", b =>
@@ -412,10 +343,9 @@ namespace localshopyNew.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DateTime")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsApproved")
@@ -477,24 +407,6 @@ namespace localshopyNew.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Shops");
-                });
-
-            modelBuilder.Entity("localshopyNew.Models.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EmailId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

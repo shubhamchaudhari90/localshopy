@@ -30,7 +30,7 @@ namespace localshopyNew.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Categoty category)
+        public async Task<IActionResult> Create(Category category)
         {
             if (string.IsNullOrEmpty(category.Name))
                 return View(category);
@@ -59,7 +59,7 @@ namespace localshopyNew.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Categoty model)
+        public async Task<IActionResult> Edit(Category model)
         {
             if (ModelState.IsValid)
             {

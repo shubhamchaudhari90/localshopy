@@ -10,7 +10,7 @@
     <div class="card shadow-sm mb-4">
         <div class="row g-0">
             <div class="col-md-2 text-center p-3">
-                <div class="ratio ratio-1x1">
+                <div class="ratio custom-ratio">
                     @if (!string.IsNullOrEmpty(Model.ImageFileName))
                     {
                         <img src="~/images/products/@Model.ImageFileName"
@@ -70,7 +70,7 @@
                             </div>
 
                         </div>
-                        <small class="text-muted">@review.DateTime.ToString("dd MMM yyyy")</small>
+                        <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy")</small>
                         <p class="mb-1">@review.Comment</p>
                     </div>
                 }
@@ -86,8 +86,8 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h6 class="fw-bold mb-3">Add Review</h6>
-            
-            @if (!User.Identity.IsAuthenticated)
+
+            @if (User.Identity?.IsAuthenticated != true)
             {
                 <p class="text-muted mb-0">
                     Please login with Google.
@@ -113,8 +113,7 @@
                         <textarea name="Comment"
                               class="form-control"
                               rows="2"
-                              maxlength="200"
-                              required></textarea>
+                              maxlength="200"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-warning">
@@ -130,10 +129,8 @@
             }
         </div>
     </div>
-
-    
-
 </div>
+
 <script>
     document.querySelectorAll('#ratingStars i').forEach(star => {
         star.addEventListener('click', function () {
@@ -147,3 +144,20 @@
         });
     });
 </script>
+<style>
+    .custom-ratio {
+        position: relative;
+        width: 100%;
+        padding-top: 75%; /* 0.75 times the width */
+    }
+
+        .custom-ratio img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* keeps the image nicely scaled */
+        }
+
+</style>
