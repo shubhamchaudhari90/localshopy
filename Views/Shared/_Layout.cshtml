@@ -85,6 +85,8 @@
 <body>
     @using Microsoft.AspNetCore.Http
     @using localshopyNew.Constants
+    @using System.Security.Claims
+
     <header>
         <nav class="navbar navbar-dark navbar-custom shadow-sm">
             <div class="container d-flex justify-content-between align-items-start">
@@ -102,6 +104,7 @@
                         <!-- Brand -->
                         <a class="navbar-brand mb-0" asp-area="" asp-controller="Customer" asp-action="Products">LocalShopy</a>
                     </div>
+
                     @if (User.IsInRole(RoleConstants.Admin) || User.IsInRole(RoleConstants.Shopkeeper))
                     {
                         <!-- Menu: collapsible on mobile, inline on lg+ -->
@@ -123,32 +126,31 @@
                     }
                 </div>
 
-                <!-- Right: Login/Logout always top-aligned -->
+                <!-- Right: Login/Logout with Email -->
                 <div class="d-flex align-items-start">
+                    @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
+                        <!-- Show email -->
+                        <span class="text-light me-2 fw-bold">Hello, @email</span>
 
-                    <div class="d-flex align-items-start">
-                        @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <!-- Logout button -->
-                            <form asp-controller="Account" asp-action="Logout" class="d-inline">
-                                <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
-                                    Logout
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <!-- Login button -->
-                            <form asp-controller="Account" asp-action="Login" method="get" class="d-inline">
-                                <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
-                                    Login
-                                </button>
-                            </form>
-                            @* <a class="btn btn-warning btn-sm" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Login</a> *@
-                        }
-                    </div>
-
+                        <!-- Logout button -->
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
+                                Logout
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- Login button -->
+                        <form asp-controller="Account" asp-action="Login" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
+                                Login
+                            </button>
+                        </form>
+                    }
                 </div>
 
             </div>
@@ -170,4 +172,5 @@
 
     @RenderSection("Scripts", required: false)
 </body>
+
 </html>
