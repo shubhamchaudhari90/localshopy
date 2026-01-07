@@ -18,10 +18,12 @@
         <div class="card-body p-4 alert alert-warning">
 
             <!-- Product Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="row g-0">
-                    <div class="col-md-2 text-center p-3">
-                        <div class="ratio custom-ratio">
+            <div class="card shadow-sm mb-3">
+                <div class="row g-0 align-items-start">
+
+                    <!-- IMAGE -->
+                    <div class="col-4 col-md-2 p-2">
+                        <div class="ratio ratio-1x1">
                             @if (!string.IsNullOrEmpty(Model.ImageFileName))
                             {
                                 <img src="~/images/products/@Model.ImageFileName"
@@ -30,56 +32,113 @@
                             else
                             {
                                 <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded">
-                                    <i class="bi bi-image fs-3"></i>
+                                    <i class="bi bi-image fs-4"></i>
                                 </div>
                             }
                         </div>
                     </div>
 
-                    <div class="col-md-10">
-                        <div class="card-body">
-                            <h5 class="card-title">@Model.ProductMasterName</h5>
+                    <!-- CONTENT -->
+                    <div class="col-8 col-md-10">
+                        <div class="card-body py-2 px-2 px-md-3">
 
-                            <!-- Type Icon -->
-                            <div title="@Model.Type" class="d-inline-flex align-items-center justify-content-center"
-                                 style="
-                                            width:18px;
-                                            height:18px;
-                                                        border:2px solid @(Model.Type == "Veg" ? "var(--bs-success)" : Model.Type == "Egg" ? "var(--bs-warning)" : Model.Type == "Non-Veg" ? "var(--bs-danger)" : "");
-                                            border-radius:6px;
-                                            background-color:white;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                            
+                                <h6 class="mb-0 fw-bold text-truncate"
+                                    style="max-width: calc(100% - 26px);">
+                                    @Model.ProductMasterName
+                                </h6>
+                            
+                            </div>
 
-                                <!-- Inner Circle -->
-                                <div title="@Model.Type" style="
-                                            width:10px;
-                                            height:10px;
-                                            border-radius:50%;
-                                                        background-color:@(Model.Type == "Veg" ? "var(--bs-success)" : Model.Type == "Egg" ? "var(--bs-warning)" : Model.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                            <!-- TITLE + TYPE -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                
+                                <a asp-controller="Customer"
+                                   asp-action="ShopDetails"
+                                   asp-route-shopName="@Model.ShopName.Replace("-", "--").Replace(" ", "-")"
+                                   class="fw-semibold text-secondary text-decoration-underline text-truncate d-block"
+                                   style="max-width: calc(100% - 26px); white-space: nowrap;"
+                                   title="@Model.ShopName">
+                                    By: @Model.ShopName
+                                </a>
+
+                                @{
+                                    string typeColor =
+                                    Model.Type == "Veg" ? "var(--bs-success)" :
+                                    Model.Type == "Egg" ? "var(--bs-warning)" :
+                                    Model.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                    "";
+                                }
+
+                                <div title="@Model.Type"
+                                     class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                     style="width:16px; height:16px; border:2px solid @typeColor; border-radius:5px; background:#fff;">
+                                    <div style="width:8px; height:8px; border-radius:50%; background-color:@typeColor;"></div>
                                 </div>
                             </div>
 
-                            <p class="text-muted mb-1">@Model.Description</p>
+                            <!-- RATING -->
+                            @if (Model.AverageRating > 0)
+                            {
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="text-warning me-1" style="font-size:12px;">
+                                        @{
+                                            int fullStars = (int)Math.Floor(Model.AverageRating);
+                                            bool halfStar = Model.AverageRating - fullStars >= 0.5;
 
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <div class="d-flex align-items-center gap-2">
-                                    @if (discountActive)
-                                    {
-                                        <span class="text-muted text-decoration-line-through small">
-                                            ₹@Model.Price
-                                        </span>
-                                        <span class="text-warning fw-semibold small">
-                                            (-@Model.Discount%)
-                                        </span>
-                                    }
-                                    <span class="fw-bold text-success">
-                                        ₹@Model.FinalPrice
+                                            for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= fullStars)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                                else if (i == fullStars + 1 && halfStar)
+                                                {
+                                                    <i class="bi bi-star-half"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star"></i>
+                                                }
+                                            }
+                                        }
                                     </span>
+
+                                    @if (Model.ReviewCount > 0)
+                                    {
+                                        <small class="text-muted">(@Model.ReviewCount)</small>
+                                    }
                                 </div>
+                            }
+
+                            <!-- DESCRIPTION (HIDDEN ON MOBILE) -->
+                            <p class="text-muted small d-none d-md-block mb-1">
+                                @Model.Description
+                            </p>
+
+                            <!-- PRICE -->
+                            <div class="d-flex align-items-center gap-2">
+                                @if (discountActive)
+                                {
+                                    <span class="text-muted text-decoration-line-through small">
+                                        ₹@Model.Price
+                                    </span>
+                                    <span class="text-warning fw-semibold small">
+                                        (-@Model.Discount%)
+                                    </span>
+                                }
+                                <span class="fw-bold text-success">
+                                    ₹@Model.FinalPrice
+                                </span>
                             </div>
+
                         </div>
                     </div>
+
                 </div>
             </div>
+
 
             <!-- Reviews Section -->
             <div class="card shadow-sm mb-3" style="max-height: 400px; overflow-y: auto;">

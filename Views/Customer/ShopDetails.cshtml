@@ -139,22 +139,63 @@
                                                             </div>
 
                                                             <!-- Type Icon -->
-                                                            <div title="@product.Type" class="d-inline-flex align-items-center justify-content-center"
-                                                                 style="
-                                            width:18px;
-                                            height:18px;
-                                                        border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
-                                            border-radius:6px;
-                                            background-color:white;">
+                                                            @{
+                                                                string typeColor =
+                                                                product.Type == "Veg" ? "var(--bs-success)" :
+                                                                product.Type == "Egg" ? "var(--bs-warning)" :
+                                                                product.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                                "";
+                                                            }
 
-                                                                <!-- Inner Circle -->
-                                                                <div title="@product.Type" style="
-                                            width:10px;
-                                            height:10px;
-                                            border-radius:50%;
-                                                        background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                                                            <!-- Type Icon -->
+                                                            <div title="@product.Type"
+                                                                 class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                                 style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+
+                                                                <div style="width:10px; height:10px; border-radius:50%; background-color:@typeColor;">
                                                                 </div>
+
                                                             </div>
+
+                                                            <!-- ⭐ Average Rating -->
+                                                            @if (product.AverageRating > 0)
+                                                            {
+                                                                <div class="d-flex align-items-center mt-1 mb-1">
+                                                                    <span class="text-warning me-1" style="font-size:14px;">
+                                                                        @{
+                                                                            int fullStars = (int)Math.Floor(product.AverageRating);
+                                                                            bool halfStar = product.AverageRating - fullStars >= 0.5;
+
+                                                                            for (int i = 1; i <= 5; i++)
+                                                                            {
+                                                                                if (i <= fullStars)
+                                                                                {
+                                                                                    <i class="bi bi-star-fill"></i>
+                                                                                }
+                                                                                else if (i == fullStars + 1 && halfStar)
+                                                                                {
+                                                                                    <i class="bi bi-star-half"></i>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <i class="bi bi-star"></i>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    </span>
+
+                                                                    <small class="text-muted">
+                                                                        @if (product.ReviewCount > 0)
+                                                                        {
+                                                                            <span>(@product.ReviewCount)</span>
+                                                                        }
+                                                                    </small>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-muted mb-0">No reviews yet.</p>
+                                                            }
 
                                                             <p class="mb-1 text-muted small">@product.Description</p>
 

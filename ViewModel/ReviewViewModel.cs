@@ -13,6 +13,8 @@
         public bool IsApproved { get; set; } = false;
         public bool IsRejected { get; set; } = false;
 
-        public double? AverageRatings { get; set; }
+        public double AverageRatings { get; set; }
+
+        public int ReviewCount { get; set; }
     }
 }

@@ -162,7 +162,6 @@ namespace localshopyNew.Controllers
             return RedirectToAction("Login");
         }
 
-
         private async Task SetRole(string email, string role)
         {
             // Create claims

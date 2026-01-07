@@ -70,22 +70,7 @@ namespace localshopyNew.Services
 
             if (products != null && products.Count > 0)
             {
-                products = products.OrderBy(p => Guid.NewGuid()).ToList();
-
-                var productIdsCsv = string.Join(",", products.Select(x => x.Id));
-                if (!string.IsNullOrEmpty(productIdsCsv))
-                {
-                    List<ReviewViewModel>? averageRatings = await AverageRatingsForProducts(productIdsCsv);
-                    if (averageRatings != null && averageRatings.Count > 0)
-                    {
-                        for (int index = 0; index < products.Count; index++)
-                        {
-                            var productAverageRating = averageRatings.FirstOrDefault(x => x.ProductId == products[index].Id);
-                            if (productAverageRating != null)
-                                products[index].AverageRating = (double)(productAverageRating?.AverageRatings == null ? 0 : productAverageRating.AverageRatings);
-                        }
-                    }
-                }
+                products = await MapReviewData(products);
             }
             return products;
         }
@@ -127,7 +112,7 @@ namespace localshopyNew.Services
 
         public async Task<ShopProductsViewModel?> GetShopDetailsByName(string shopName)
         {
-            var products = await (
+            List<ProductViewModel>? products = await (
                 from p in _context.Products
 
                 join pm in _context.ProductMasters
@@ -173,7 +158,7 @@ namespace localshopyNew.Services
                 }).ToListAsync();
 
             if (products != null && products.Any())
-                products = products.OrderBy(p => Guid.NewGuid()).ToList();
+                products = await MapReviewData(products);
 
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shopName.ToLower());
 
@@ -183,7 +168,6 @@ namespace localshopyNew.Services
             {
                 locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
             }
-
 
             return new ShopProductsViewModel
             {
@@ -224,7 +208,7 @@ namespace localshopyNew.Services
 
             if (!string.IsNullOrEmpty(emailId))
             {
-                //isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
+                isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
             }
 
             ProductViewModel model = new ProductViewModel()
@@ -247,6 +231,12 @@ namespace localshopyNew.Services
                 ReviewCount = reviewCount
             };
 
+            var reviewRatings = await AverageRatingsForProducts(product.Id.ToString());
+            if (reviewRatings != null && reviewRatings.Count > 0 && reviewRatings[0] != null && reviewRatings[0].AverageRatings != null)
+            {
+                model.AverageRating = reviewRatings[0].AverageRatings;
+                model.ReviewCount = reviews.Count;
+            }
             return model;
         }
 
@@ -292,6 +282,7 @@ namespace localshopyNew.Services
                 .Select(g => new ReviewViewModel
                 {
                     ProductId = g.Key,
+                    ReviewCount = g.Count(),
                     AverageRatings = g.Average(r => (double?)r.Rating) ?? 0
                 })
                 .ToListAsync();
@@ -319,6 +310,34 @@ namespace localshopyNew.Services
             var masked = new string('*', localPart.Length - 6);
 
             return $"{start}{masked}{end}@{domain}";
+        }
+
+        private async Task<List<ProductViewModel>> MapReviewData(List<ProductViewModel> products)
+        {
+            if (products != null && products.Count > 0)
+            {
+                products = products.OrderBy(p => Guid.NewGuid()).ToList();
+
+                var productIdsCsv = string.Join(",", products.Select(x => x.Id));
+                if (!string.IsNullOrEmpty(productIdsCsv))
+                {
+                    List<ReviewViewModel>? averageRatings = await AverageRatingsForProducts(productIdsCsv);
+                    if (averageRatings != null && averageRatings.Count > 0)
+                    {
+                        for (int index = 0; index < products.Count; index++)
+                        {
+                            var productAverageRating = averageRatings.FirstOrDefault(x => x.ProductId == products[index].Id);
+                            if (productAverageRating != null)
+                            {
+                                products[index].AverageRating = (double)(productAverageRating?.AverageRatings == null ? 0 : productAverageRating.AverageRatings);
+                                products[index].ReviewCount = productAverageRating?.ReviewCount == null ? 0 : productAverageRating.ReviewCount;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return products;
         }
     }
 }

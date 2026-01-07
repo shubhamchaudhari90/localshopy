@@ -32,8 +32,13 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> Location(LocationViewModel model)
         {
-
             List<Location> locations = await _locationService.GetActiveLocations();
+
+            if (model.SelectedLocationId == null || model.SelectedLocationId == Guid.Empty)
+            {
+                return View(locations);
+            }
+
             if (locations.Any(x => x.Id == model.SelectedLocationId))
             {
                 string locationKey = _encodingService.Encode("Location");

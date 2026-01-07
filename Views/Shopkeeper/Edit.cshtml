@@ -4,82 +4,105 @@
 }
 
 <div class="container mt-5">
-    <h2 class="animate__animated animate__fadeInDown">Edit Shop</h2>
 
-    <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
-        @if (ViewData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">
-                @ViewData["ErrorMessage"]
-            </div>
-        }
-        <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" readonly disabled />
+    <div class="card shadow-sm">
+        <!-- Card Header -->
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Edit Shop</h2>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="PhoneNo" class="form-label"></label>
-            <input asp-for="PhoneNo" class="form-control" readonly disabled />
-        </div>
+        <!-- Card Body -->
+        <div class="card-body animate__animated animate__fadeInUp">
 
-        <div class="mb-3">
-            <label asp-for="OwnerEmailId" class="form-label"></label>
-            <input asp-for="OwnerEmailId" class="form-control" readonly disabled />
-        </div>
+            <form asp-action="Edit" method="post">
 
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
-            <a href="javascript:void(0)"
-               id="lnkEditPassword"
-               class="ms-2 text-warning fw-bold text-decoration-none">
-                Click Here
-            </a>
-
-            <input asp-for="Password"
-                   id="txtPassword"
-                   class="form-control mt-2" required
-                   disabled />
-        </div>
-
-        <!-- User-friendly IsOpen toggle -->
-        <div class="mb-3 form-check form-switch">
-            <input asp-for="IsOpen"
-                   class="form-check-input"
-                   type="checkbox"
-                   id="isOpenSwitch"
-                   onchange="updateStatusText()" />
-
-            <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
-                @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
-            </label>
-        </div>
-
-        <!-- Locations Multi-select checkboxes -->
-        <div class="mb-3">
-            <label class="form-label">Locations</label>
-            <div class="border rounded p-3">
-                @foreach (var location in ViewBag.LocationList)
+                @* Error Message *@
+                @if (ViewData["ErrorMessage"] != null)
                 {
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="ServedLocations"
-                               value="@location.Value"
-                               id="loc_@location.Value"
-                               @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
-
-                        <label class="form-check-label" for="loc_@location.Value">
-                            @location.Text
-                        </label>
+                    <div class="alert alert-danger">
+                        @ViewData["ErrorMessage"]
                     </div>
                 }
-            </div>
-        </div>
 
-        <button type="submit" class="btn btn-warning">Save</button>
-        <a asp-action="ShopDetails" class="btn btn-secondary">Cancel</a>
-    </form>
+                <!-- Shop Name (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" readonly disabled />
+                </div>
+
+                <!-- Phone Number (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="PhoneNo" class="form-label"></label>
+                    <input asp-for="PhoneNo" class="form-control" readonly disabled />
+                </div>
+
+                <!-- Owner Email (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="OwnerEmailId" class="form-label"></label>
+                    <input asp-for="OwnerEmailId" class="form-control" readonly disabled />
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
+                    <a href="javascript:void(0)"
+                       id="lnkEditPassword"
+                       class="ms-2 text-warning fw-bold text-decoration-none">
+                        Click Here
+                    </a>
+
+                    <input asp-for="Password"
+                           id="txtPassword"
+                           class="form-control mt-2"
+                           required
+                           disabled />
+                </div>
+
+                <!-- Shop Open Toggle -->
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsOpen"
+                           class="form-check-input"
+                           type="checkbox"
+                           id="isOpenSwitch"
+                           onchange="updateStatusText()" />
+
+                    <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
+                        @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
+                    </label>
+                </div>
+
+                <!-- Locations Multi-select -->
+                <div class="mb-3">
+                    <label class="form-label">Locations</label>
+                    <div class="border rounded p-3">
+                        @foreach (var location in ViewBag.LocationList)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="ServedLocations"
+                                       value="@location.Value"
+                                       id="loc_@location.Value"
+                                       @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
+
+                                <label class="form-check-label" for="loc_@location.Value">
+                                    @location.Text
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-warning">Save</button>
+                    <a asp-action="ShopDetails" class="btn btn-secondary">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
 </div>
 
 <script>

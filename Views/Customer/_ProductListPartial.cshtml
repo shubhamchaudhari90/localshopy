@@ -59,7 +59,7 @@
                                         <div class="row g-0 h-100">
 
                                             <!-- Image -->
-                                            <div class="col-4 p-2">
+                                            <div class="col-3 p-2">
                                                 <div class="ratio ratio-1x1">
                                                     @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                     {
@@ -76,80 +76,107 @@
                                             </div>
 
                                             <!-- Product Data -->
-                                            <div class="col-8 d-flex flex-column p-2">
+                                            <div class="col-9 d-flex flex-column p-2">
 
-                                                <!-- Shop Name -->
-                                                <a asp-controller="Customer"
-                                                   asp-action="ShopDetails"
-                                                   asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
-                                                   class="fw-semibold text-secondary text-decoration-underline">
-                                                    <i class="bi bi-shop me-1"></i>@product.ShopName
-                                                </a>
-
-                                                <!-- Product Name -->
+                                                <!-- PRODUCT NAME (SINGLE LINE) -->
                                                 <a asp-controller="Customer"
                                                    asp-action="ProductDetail"
                                                    asp-route-shopProductName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
-                                                   class="fw-bold text-body text-decoration-underline">
+                                                   class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
+                                                   style="white-space: nowrap;">
                                                     @product.ProductMasterName
                                                 </a>
 
-                                                <!-- ⭐ Average Rating -->
-                                                @if (product.AverageRating > 0)
-                                                {
-                                                    <div class="d-flex align-items-center mt-1 mb-1">
-                                                        <span class="text-warning fw-semibold me-1" style="font-size:14px;">
-                                                            @{
-                                                                int fullStars = (int)Math.Floor(product.AverageRating);
-                                                                bool half = product.AverageRating - fullStars >= 0.5;
+                                                <!-- SHOP NAME + TYPE (SAME LINE) -->
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
 
-                                                                for (int i = 1; i <= 5; i++)
-                                                                {
-                                                                    if (i <= fullStars)
+                                                    <a asp-controller="Customer"
+                                                       asp-action="ShopDetails"
+                                                       asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
+                                                       class="fw-semibold text-secondary text-decoration-underline text-truncate d-block"
+                                                       style="max-width: calc(100% - 26px); white-space: nowrap;"
+                                                       title="@product.ShopName">
+                                                        By: @product.ShopName
+                                                    </a>
+
+                                                    @{
+                                                        string typeColor =
+                                                        product.Type == "Veg" ? "var(--bs-success)" :
+                                                        product.Type == "Egg" ? "var(--bs-warning)" :
+                                                        product.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                        "";
+                                                    }
+
+                                                    <!-- Type Icon -->
+                                                    <div title="@product.Type"
+                                                         class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                         style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+
+                                                        <div style="width:10px; height:10px; border-radius:50%; background-color:@typeColor;">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                
+
+
+                                                <!-- RATING (LEFT) + PRICE (RIGHT) -->
+                                                <div class="d-flex align-items-center justify-content-between">
+
+                                                    <!-- ⭐ Rating -->
+                                                    <div class="d-flex align-items-center">
+                                                        @if (product.AverageRating > 0)
+                                                        {
+                                                            <span class="text-warning me-1" style="font-size:13px;">
+                                                                @{
+                                                                    int fullStars = (int)Math.Floor(product.AverageRating);
+                                                                    bool halfStar = product.AverageRating - fullStars >= 0.5;
+
+                                                                    for (int i = 1; i <= 5; i++)
                                                                     {
-                                                                        @:★
-                                                                    }
-                                                                    else if (i == fullStars + 1 && half)
-                                                                    {
-                                                                        @:☆
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        @:☆
+                                                                        if (i <= fullStars)
+                                                                        {
+                                                                            <i class="bi bi-star-fill"></i>
+                                                                        }
+                                                                        else if (i == fullStars + 1 && halfStar)
+                                                                        {
+                                                                            <i class="bi bi-star-half"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="bi bi-star"></i>
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
-                                                        </span>
-                                                        <small class="text-muted">
-                                                            (@product.AverageRating.ToString("0.0"))
+                                                            </span>
+
                                                             @if (product.ReviewCount > 0)
                                                             {
-                                                                <span>• @product.ReviewCount reviews</span>
+                                                                <small class="text-muted">(@product.ReviewCount)</small>
                                                             }
-                                                        </small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="text-muted mb-0">No reviews yet.</p>
+                                                        }
                                                     </div>
-                                                }
-                                                else
-                                                {
-                                                    <small class="text-muted fst-italic">No ratings yet</small>
-                                                }
 
-                                                <span class="fw-semibold text-secondary">
-                                                    @product.Description
-                                                </span>
-
-                                                <!-- Price -->
-                                                <div class="mt-auto">
-                                                    @if (discountActive)
-                                                    {
-                                                        <span class="text-muted text-decoration-line-through small">
-                                                            ₹@product.Price
+                                                    <!-- 💰 Price -->
+                                                    <div class="text-end">
+                                                        @if (discountActive)
+                                                        {
+                                                            <span class="text-muted text-decoration-line-through small me-1">
+                                                                ₹@product.Price
+                                                            </span>
+                                                        }
+                                                        <span class="fw-bold text-success">
+                                                            ₹@product.FinalPrice
                                                         </span>
-                                                    }
-                                                    <span class="fw-bold text-success ms-1">
-                                                        ₹@product.FinalPrice
-                                                    </span>
+                                                    </div>
+
                                                 </div>
+
 
                                             </div>
                                         </div>
@@ -157,7 +184,6 @@
                                 </div>
                             }
                         </div>
-
                     </div>
                 </div>
             </div>

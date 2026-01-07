@@ -9,7 +9,7 @@
 
 
     <!-- Zoomed-out viewport for mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=1">
 
     <!-- Bootstrap CSS (first) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -109,10 +109,14 @@
                     {
                         <!-- Menu: collapsible on mobile, inline on lg+ -->
                         <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-center" id="mobileMenu">
+
+                            <!-- Left nav items -->
                             <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-center">
-                                @if ( User.IsInRole(RoleConstants.Shopkeeper))
+                                @if (User.IsInRole(RoleConstants.Shopkeeper))
                                 {
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
+                                    </li>
                                 }
                                 @if (User.IsInRole(RoleConstants.Admin))
                                 {
@@ -121,12 +125,6 @@
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Category" asp-action="Index">Category</a></li>
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Shop" asp-action="Index">All Shops</a></li>
-                                }
-
-                                @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
-                                {   
-                                    <!-- Logout -->
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a></li>
                                 }
                             </ul>
                         </div>
@@ -140,7 +138,9 @@
                         var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
                         <!-- Show email -->
-                        <span class="text-light me-2 fw-bold">Hello, @email</span>
+                        <span class="text-light me-2 fw-bold">Hello, @email | </span>
+
+                        <a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a>
                     }
                     else
                     {
@@ -158,7 +158,7 @@
     </header>
 
 
-    <main role="main" class="flex-shrink-0">
+    <main role="main" class="flex-shrink-0 alert alert-warning ">
         <div class="container">
             @RenderBody()
         </div>
