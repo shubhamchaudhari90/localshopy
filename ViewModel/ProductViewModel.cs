@@ -42,6 +42,6 @@ namespace localshopyNew.ViewModel
 
         public int ReviewCount { get; set; }
 
-        public decimal AverageRating { get; set; }
+        public double AverageRating { get; set; }
     }
 }

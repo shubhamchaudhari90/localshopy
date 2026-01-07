@@ -24,9 +24,7 @@
             var index = group.idx;
             var collapseId = $"collapse-{index}";
             var headingId = $"heading-{index}";
-            var products = group.g
-            .OrderBy(x => Guid.NewGuid())
-            .ToList();
+            var products = group.g.OrderBy(x => Guid.NewGuid()).ToList();
 
             <div class="accordion-item mb-2">
                 <h2 class="accordion-header" id="@headingId">
@@ -34,15 +32,12 @@
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#@collapseId"
-                            aria-expanded="true"
-                            aria-controls="@collapseId">
+                            aria-expanded="true">
                         @category (@products.Count())
                     </button>
                 </h2>
 
-                <div id="@collapseId"
-                     class="accordion-collapse collapse show"
-                     aria-labelledby="@headingId">
+                <div id="@collapseId" class="accordion-collapse collapse show">
                     <div class="accordion-body alert alert-warning">
 
                         <div class="row g-3">
@@ -80,53 +75,70 @@
                                                 </div>
                                             </div>
 
-
                                             <!-- Product Data -->
                                             <div class="col-8 d-flex flex-column p-2">
 
                                                 <!-- Shop Name -->
-                                                <a title="View Shop Details" asp-controller="Customer"
+                                                <a asp-controller="Customer"
                                                    asp-action="ShopDetails"
                                                    asp-route-shopName="@product.ShopName.Replace("-", "--").Replace(" ", "-")"
                                                    class="fw-semibold text-secondary text-decoration-underline">
                                                     <i class="bi bi-shop me-1"></i>@product.ShopName
                                                 </a>
 
-                                                <!-- Type Icon -->
-                                                <div class="d-inline-flex align-items-center justify-content-center" title="@product.Type"
-                                                     style="
-                                                                    width:18px;
-                                                                    height:18px;
-                                                                                border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
-                                                                    border-radius:6px;
-                                                                    background-color:white;">
-
-                                                    <!-- Inner Circle -->
-                                                    <div title="@product.Type" style="
-                                                                    width:10px;
-                                                                    height:10px;
-                                                                    border-radius:50%;
-                                                                                background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
-                                                    </div>
-                                                </div>
-
-                                                @* <span class="fw-bold text-body">
-                                                    @product.ProductMasterName
-                                                </span> *@
-                                                <a title="View Product Details"
-                                                   asp-controller="Customer"
+                                                <!-- Product Name -->
+                                                <a asp-controller="Customer"
                                                    asp-action="ProductDetail"
                                                    asp-route-shopProductName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
                                                    class="fw-bold text-body text-decoration-underline">
-                                                    <i class="bi bi-shop me-1"></i>@product.ProductMasterName
+                                                    @product.ProductMasterName
                                                 </a>
 
-                                                <span class="fw-semibold text-secondary text-secondary">
+                                                <!-- ⭐ Average Rating -->
+                                                @if (product.AverageRating > 0)
+                                                {
+                                                    <div class="d-flex align-items-center mt-1 mb-1">
+                                                        <span class="text-warning fw-semibold me-1" style="font-size:14px;">
+                                                            @{
+                                                                int fullStars = (int)Math.Floor(product.AverageRating);
+                                                                bool half = product.AverageRating - fullStars >= 0.5;
+
+                                                                for (int i = 1; i <= 5; i++)
+                                                                {
+                                                                    if (i <= fullStars)
+                                                                    {
+                                                                        @:★
+                                                                    }
+                                                                    else if (i == fullStars + 1 && half)
+                                                                    {
+                                                                        @:☆
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @:☆
+                                                                    }
+                                                                }
+                                                            }
+                                                        </span>
+                                                        <small class="text-muted">
+                                                            (@product.AverageRating.ToString("0.0"))
+                                                            @if (product.ReviewCount > 0)
+                                                            {
+                                                                <span>• @product.ReviewCount reviews</span>
+                                                            }
+                                                        </small>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted fst-italic">No ratings yet</small>
+                                                }
+
+                                                <span class="fw-semibold text-secondary">
                                                     @product.Description
                                                 </span>
 
-
-
+                                                <!-- Price -->
                                                 <div class="mt-auto">
                                                     @if (discountActive)
                                                     {
@@ -152,16 +164,14 @@
         }
     </div>
 
-    <!-- Inline Script for Partial View -->
+    <!-- Accordion Script -->
     <script>
-        // Function to initialize accordion behavior
         function initializeAccordionPartial() {
             const toggleBtn = document.getElementById("toggleAllBtn");
             const accordionEls = document.querySelectorAll(".accordion-collapse");
 
             if (!toggleBtn || accordionEls.length === 0) return;
 
-            // Bootstrap collapse instances
             const collapses = Array.from(accordionEls).map(el =>
                 new bootstrap.Collapse(el, { toggle: false })
             );
@@ -173,14 +183,12 @@
                     : '<i class="bi bi-arrows-expand"></i> Expand All';
             }
 
-            // Button click
             toggleBtn.addEventListener("click", function () {
                 const expand = document.querySelectorAll(".accordion-collapse.show").length === 0;
                 collapses.forEach(c => expand ? c.show() : c.hide());
                 setTimeout(updateButtonText, 200);
             });
 
-            // Sync button when user clicks individual accordions
             accordionEls.forEach(el => {
                 el.addEventListener("shown.bs.collapse", updateButtonText);
                 el.addEventListener("hidden.bs.collapse", updateButtonText);
@@ -189,11 +197,16 @@
             updateButtonText();
         }
 
-        // Call the function immediately if elements already exist
         initializeAccordionPartial();
     </script>
 }
 else
 {
-    <div class="card border-warning shadow-sm text-center"><div class="card-body alert alert-warning mb-0 rounded"><div class="mb-3"><i class="bi bi-exclamation-circle fs-1 text-warning"></i></div><h5 class="fw-bold text-dark">No Products Found</h5><p class="text-muted mb-0">Please select categories to see available products.</p></div></div>
+    <div class="card border-warning shadow-sm text-center">
+        <div class="card-body alert alert-warning mb-0 rounded">
+            <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
+            <h5 class="fw-bold text-dark mt-2">No Products Found</h5>
+            <p class="text-muted mb-0">Please select categories to see available products.</p>
+        </div>
+    </div>
 }

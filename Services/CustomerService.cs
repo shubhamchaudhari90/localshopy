@@ -15,7 +15,7 @@ namespace localshopyNew.Services
             _context = context;
         }
 
-        public async Task<List<ProductViewModel>> GetProductsByCategories(string categories)
+        public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
 
@@ -69,12 +69,28 @@ namespace localshopyNew.Services
                 }).ToListAsync();
 
             if (products != null && products.Count > 0)
+            {
                 products = products.OrderBy(p => Guid.NewGuid()).ToList();
 
+                var productIdsCsv = string.Join(",", products.Select(x => x.Id));
+                if (!string.IsNullOrEmpty(productIdsCsv))
+                {
+                    List<ReviewViewModel>? averageRatings = await AverageRatingsForProducts(productIdsCsv);
+                    if (averageRatings != null && averageRatings.Count > 0)
+                    {
+                        for (int index = 0; index < products.Count; index++)
+                        {
+                            var productAverageRating = averageRatings.FirstOrDefault(x => x.ProductId == products[index].Id);
+                            if (productAverageRating != null)
+                                products[index].AverageRating = (double)(productAverageRating?.AverageRatings == null ? 0 : productAverageRating.AverageRatings);
+                        }
+                    }
+                }
+            }
             return products;
         }
 
-        public async Task<List<Category>> GetCategoriesByLocation(Guid locationId)
+        public async Task<List<Category>?> GetCategoriesByLocation(Guid locationId)
         {
             var categories = await (
                 from p in _context.Products
@@ -194,14 +210,21 @@ namespace localshopyNew.Services
 
             int reviewCount = await _context.Reviews.Where(x => x.ProductId == product.Id && x.IsApproved && !x.IsRejected).CountAsync();
 
-            List<Review> reviews = await _context.Reviews.Where(x => x.ProductId == product.Id && x.IsApproved && !x.IsRejected).OrderByDescending(x => x.CreatedAt).ToListAsync();
+            var reviews = await _context.Reviews
+                .Where(x => x.ProductId == product.Id && x.IsApproved && !x.IsRejected)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
 
+            reviews.ForEach(r =>
+            {
+                r.Reviewer = MaskReviewerEmail(r.Reviewer);
+            });
 
             bool isReviewed = false;
 
             if (!string.IsNullOrEmpty(emailId))
             {
-                isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
+                //isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
             }
 
             ProductViewModel model = new ProductViewModel()
@@ -244,6 +267,58 @@ namespace localshopyNew.Services
 
             _context.Reviews.Add(entity);
             await _context.SaveChangesAsync();
+        }
+
+        private async Task<List<ReviewViewModel>> AverageRatingsForProducts(string productIds)
+        {
+            if (string.IsNullOrWhiteSpace(productIds))
+                return new List<ReviewViewModel>();
+
+            var productGuidIds = productIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => Guid.TryParse(id.Trim(), out var guid) ? guid : (Guid?)null)
+                .Where(g => g.HasValue)
+                .Select(g => g.Value)
+                .ToList();
+
+            if (!productGuidIds.Any())
+                return new List<ReviewViewModel>();
+
+            List<ReviewViewModel> productRatings = new List<ReviewViewModel>();
+
+            productRatings = await _context.Reviews
+                .Where(r => r.IsApproved && productGuidIds.Contains(r.ProductId))
+                .GroupBy(r => r.ProductId)
+                .Select(g => new ReviewViewModel
+                {
+                    ProductId = g.Key,
+                    AverageRatings = g.Average(r => (double?)r.Rating) ?? 0
+                })
+                .ToListAsync();
+
+            return productRatings;
+        }
+
+        private string MaskReviewerEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+                return email;
+
+            var parts = email.Split('@');
+            var localPart = parts[0];
+            var domain = parts[1];
+
+            if (localPart.Length <= 6)
+            {
+                string maskedlocalPart = new string('*', localPart.Length);
+                return $"{maskedlocalPart}@{domain}";
+            }
+
+            var start = localPart.Substring(0, 3);
+            var end = localPart.Substring(localPart.Length - 3, 3);
+            var masked = new string('*', localPart.Length - 6);
+
+            return $"{start}{masked}{end}@{domain}";
         }
     }
 }
