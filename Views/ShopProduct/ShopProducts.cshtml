@@ -1,0 +1,44 @@
+﻿@using localshopyNew.ViewModel
+@model IEnumerable<ProductViewModel>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="animate__animated animate__fadeInDown">Products</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add Product
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover animate__animated animate__fadeInUp">
+        <thead class="table-dark">
+            <tr>
+                <th>Product Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th style="width: 140px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductMasterName</td>
+                    <td>@item.Type</td>
+                    <td>@item.Price.ToString("0.00")</td>
+                    <td>
+                        <a asp-action="EditProduct"
+                           asp-route-productId="@item.Id"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+`

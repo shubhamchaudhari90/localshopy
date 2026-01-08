@@ -112,5 +112,11 @@ namespace localshopyNew.Services
             }
             return false;
         }
+
+        public async Task<List<Shop>> GetAllShops()
+        {
+            var shops = await _context.Shops.OrderBy(x => x.Name).ToListAsync();
+            return shops;
+        }
     }
 }

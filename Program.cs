@@ -69,6 +69,8 @@ builder.Services.AddScoped<IEncodingService, EncodingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IShopProductService, ShopProductService>();
+
 
 var app = builder.Build();
 

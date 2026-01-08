@@ -121,10 +121,11 @@
                                 @if (User.IsInRole(RoleConstants.Admin))
                                 {
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Review" asp-action="Index">Review</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Location" asp-action="Index">Location</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Category" asp-action="Index">Category</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Shop" asp-action="Index">All Shops</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="ShopProduct" asp-action="ShopList">Shop Products</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Category" asp-action="Index">Category</a></li>
+                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Location" asp-action="Index">Location</a></li>
                                 }
                             </ul>
                         </div>

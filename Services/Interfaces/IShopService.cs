@@ -11,5 +11,6 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> AddShop(Shop shop);
         Task<bool> UpdateShop(Shop shop);
         Task<bool> DeleteShop(Guid id);
+        Task<List<Shop>> GetAllShops();
     }
 }
