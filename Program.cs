@@ -54,7 +54,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache(); // required for session storage
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // session timeout
+    options.IdleTimeout = TimeSpan.FromDays(30); // session timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -82,17 +82,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 if (!app.Environment.IsDevelopment())
-    //{
+{
     app.UseExceptionHandler("/Error/500");
-//}
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 if (!app.Environment.IsDevelopment())
-    //{
+{
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
-//}
+}
 
 
 app.UseRouting();

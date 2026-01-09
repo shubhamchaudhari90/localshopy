@@ -6,11 +6,6 @@
 <div class="container mt-5">
     <h2 class="mb-4 animate__animated animate__fadeInDown">All Shops</h2>
 
-    <!-- Top action buttons -->
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <a class="btn btn-warning" href="@Url.Action("Create")">Add New Shop</a>
-    </div>
-
     @if (ViewData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger">
@@ -52,6 +47,7 @@
 
                             <!-- Details -->
                             <p class="mb-1"><strong>Phone:</strong> @shop.PhoneNo</p>
+                            <p class="mb-1"><strong>Phone:</strong> @shop.Address</p>
                             <p class="mb-1"><strong>Email:</strong> @shop.OwnerEmailId</p>
                             <p class="mb-1"><strong>Password:</strong> @shop.Password</p>
                             <p class="mb-3"><strong>Valid Till:</strong> @shop.AccountValidTill.ToShortDateString()</p>

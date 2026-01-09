@@ -20,6 +20,8 @@ namespace localshopyNew.Models
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         public required string OwnerEmailId { get; set; }
 
+        [Required(ErrorMessage = "Address is required.")]
+        public required string Address { get; set; } = "";
         public required string Password { get; set; }
 
         public bool IsOpen { get; set; } = true;
