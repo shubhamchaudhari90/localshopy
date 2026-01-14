@@ -178,20 +178,9 @@
                                             DateTime.Today >= product.DiscountValidFrom.Value.Date &&
                                             DateTime.Today <= product.DiscountValidTill.Value.Date;
 
-                                            daysLeft = product.DiscountValidTill.HasValue
-                                            ? (product.DiscountValidTill.Value.Date - DateTime.Today).Days
-                                            : int.MaxValue;
-
                                             string productCardClass = product.IsAvailable ? "" : "border-secondary bg-secondary bg-opacity-10";
 
-                                            // Determine filter category (if still needed)
-                                            string validFilter =
-                                            !product.DiscountValidTill.HasValue ? "all" :
-                                            daysLeft < 0 ? "expired" :
-                                            daysLeft <= 5 ? "less5" :
-                                            "more5";
-
-                                            <div class="col-12 col-md-6 col-lg-4 product-card" data-filter="@validFilter">
+                                            <div class="col-12 col-md-6 col-lg-4 product-card">
                                                 <div class="card h-100 shadow-sm @productCardClass">
                                                     <div class="row g-0 h-100">
 
@@ -297,6 +286,7 @@
 
 
             }
+        
         </div>
     </div>
 </div>

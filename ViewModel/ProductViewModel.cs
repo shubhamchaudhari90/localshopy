@@ -44,5 +44,7 @@ namespace localshopyNew.ViewModel
         public int ReviewCount { get; set; }
 
         public double AverageRating { get; set; }
+
+        public bool IsAddedToCart { get; set; } = false;
     }
 }

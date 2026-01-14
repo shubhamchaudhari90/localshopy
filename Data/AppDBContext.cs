@@ -17,5 +17,6 @@ namespace localshopyNew.Data
         public DbSet<ProductMaster> ProductMasters { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Shop> Shops { get; set; }
+        public DbSet<Cart> Carts { get; set; }
     }
 }

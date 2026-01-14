@@ -15,6 +15,7 @@
             <tr>
                 <th>Product Name</th>
                 <th>Type</th>
+                <td>Status</td>
                 <th>Price</th>
                 <th style="width: 140px;">Actions</th>
             </tr>
@@ -25,6 +26,7 @@
                 <tr>
                     <td>@item.ProductMasterName</td>
                     <td>@item.Type</td>
+                    <td>@item.IsAvailable</td>
                     <td>@item.Price.ToString("0.00")</td>
                     <td>
                         <a asp-action="EditProduct"
@@ -38,4 +40,3 @@
         </tbody>
     </table>
 </div>
-`

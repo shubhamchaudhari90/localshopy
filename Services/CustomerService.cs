@@ -15,7 +15,7 @@ namespace localshopyNew.Services
             _context = context;
         }
 
-        public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories)
+        public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
 
@@ -72,6 +72,11 @@ namespace localshopyNew.Services
             {
                 products = await MapReviewData(products);
             }
+
+            if (products != null && products.Count > 0 && !string.IsNullOrEmpty(emailId))
+            {
+                products = await MapCartData(products, emailId);
+            }
             return products;
         }
 
@@ -110,7 +115,7 @@ namespace localshopyNew.Services
             return categories;
         }
 
-        public async Task<ShopProductsViewModel?> GetShopDetailsByName(string shopName)
+        public async Task<ShopProductsViewModel?> GetShopDetailsByName(string shopName, string emailId)
         {
             List<ProductViewModel>? products = await (
                 from p in _context.Products
@@ -159,6 +164,11 @@ namespace localshopyNew.Services
 
             if (products != null && products.Any())
                 products = await MapReviewData(products);
+
+            if (products != null && products.Count > 0 && !string.IsNullOrEmpty(emailId))
+            {
+                products = await MapCartData(products, emailId);
+            }
 
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shopName.ToLower());
 
@@ -232,7 +242,7 @@ namespace localshopyNew.Services
             };
 
             var reviewRatings = await AverageRatingsForProducts(product.Id.ToString());
-            if (reviewRatings != null && reviewRatings.Count > 0 && reviewRatings[0] != null && reviewRatings[0].AverageRatings != null)
+            if (reviewRatings != null && reviewRatings.Count > 0 && reviewRatings[0] != null && reviewRatings[0].AverageRatings != 0)
             {
                 model.AverageRating = reviewRatings[0].AverageRatings;
                 model.ReviewCount = reviews.Count;
@@ -337,6 +347,18 @@ namespace localshopyNew.Services
                 }
             }
 
+            return products;
+        }
+
+        private async Task<List<ProductViewModel>> MapCartData(List<ProductViewModel> products, string emailId)
+        {
+            if (products != null && products.Count > 0)
+            {
+                for (int index = 0; index < products.Count; index++)
+                {
+                    products[index].IsAddedToCart = await _context.Carts.AnyAsync(c => c.ProductId == products[index].Id && c.EmailId == emailId);
+                }
+            }
             return products;
         }
     }

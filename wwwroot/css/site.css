@@ -20,3 +20,216 @@ html {
 body {
     margin-bottom: 60px;
 }
+/* Mobile first */
+.compact-btn {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 32px;
+}
+
+/* Tablets & above */
+@media (min-width: 576px) {
+    .compact-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        min-height: 38px;
+    }
+}
+
+.add-to-cart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .add-to-cart-btn i {
+        font-size: 18px;
+    }
+
+/* Mobile smaller button */
+@media (max-width: 576px) {
+    .add-to-cart-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+        .add-to-cart-btn i {
+            font-size: 16px;
+        }
+}
+
+.add-to-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile smaller button */
+@media (max-width: 576px) {
+    .add-to-cart {
+        width: 36px;
+        height: 36px;
+    }
+
+        .add-to-cart i {
+            font-size: 16px;
+        }
+}
+.cart-remove-icon {
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.qty-stepper {
+    background: #f8f9fa;
+    border-radius: 999px; /* pill shape */
+    padding: 3px;
+}
+
+
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .qty-btn i {
+        font-size: 14px;
+    }
+
+    .qty-btn:active {
+        transform: scale(0.92);
+    }
+
+.qty-value {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+
+.qty-stepper {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 2px;
+    justify-content: space-between;
+}
+
+.qty-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: #ffc107;
+    font-weight: bold;
+    line-height: 1;
+}
+
+    .qty-btn:active {
+        transform: scale(0.9);
+    }
+
+.qty-value {
+    min-width: 22px;
+    text-align: center;
+    font-weight: 600;
+}
+.cart-remove-icon {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .cart-remove-icon:active {
+        transform: scale(0.9);
+    }
+
+
+.cart-icon-link {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--bs-warning);
+    color: #000;
+    text-decoration: none;
+}
+
+    .cart-icon-link i {
+        font-size: 1.1rem;
+    }
+
+    .cart-icon-link:active {
+        transform: scale(0.92);
+    }
+
+
+
+
+/* Cart container */
+.cart-container {
+    position: relative; /* for absolute positioning of count */
+    display: inline-block;
+}
+
+/* Big hollow cart */
+.cart-icon {
+    font-size: 2.8rem; /* adjust as needed */
+    color: #fd7e14; /* Bootstrap warning-orange */
+}
+
+/* Number overlay - half on top-right of cart */
+.cart-count {
+    position: absolute;
+    top: -12%; /* slightly above cart */
+    right: -6%; /* slightly right */
+    transform: translate(50%, -50%); /* center over corner */
+
+    background-color: #ffc107; /* warning-yellow */
+    color: #212529;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    min-width: 25px;
+    text-align: center;
+    border-radius: 50%; /* circle */
+    box-shadow: 0 0 0 2px #fff; /* optional outline */
+}
+
+/* Hover effect on cart */
+.cart-container:hover .cart-icon {
+    color: #ff9800;
+}
+
+/* Optional: increase spacing between cart and logout/login */
+.d-flex.ms-auto > * {
+    margin-left: 0.75rem; /* spacing between elements */
+}
+
+
+.cart-badge {
+    font-weight: 800; /* bold */
+    font-size: 1.2rem; /* bigger number */
+    min-width: 28px; /* ensures circle doesn't shrink */
+    padding: 6px 10px; /* space around number */
+    text-align: center;
+    color: #212529; /* dark text for contrast */
+    background-color: #ffc107; /* Bootstrap warning yellow */
+    border-radius: 50%; /* circle */
+    box-shadow: 0 0 0 2px #fff; /* optional outline for contrast */
+    transform: translate(-50%, -25%); /* fine-tuned center over cart */
+}

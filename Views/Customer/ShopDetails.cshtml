@@ -63,6 +63,11 @@
                 .GroupBy(p => p.CategoryName)
                 .OrderBy(g => g.Key); // optional: order by category name
 
+                var showCartImage = false;
+                if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    showCartImage = true;
+                }
 
                 <div class="accordion" id="categoryAccordion">
 
@@ -85,7 +90,6 @@
                                 </button>
                             </h2>
 
-
                             <div id="@categoryId" class="accordion-collapse collapse show" aria-labelledby="@($"{categoryId}-heading")" data-bs-parent="#categoryAccordion">
                                 <div class="accordion-body alert alert-warning">
                                     <div class="row g-3">
@@ -103,23 +107,56 @@
                                                     <div class="row g-0 h-100">
 
                                                         <!-- Image Left -->
-                                                        <div class="col-auto p-2">
+                                                        <div class="col-3 p-2">
 
-                                                            <div class="position-relative" style="width:100px; height:100px;">
+                                                            <!-- Product Card -->
+                                                            <div class="ratio ratio-1x1">
 
                                                                 <!-- Product Image -->
-                                                                @if (!string.IsNullOrEmpty(product?.ImageFileName))
+                                                                @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                                 {
-                                                                    <img src="@Url.Content("~/images/products/" + product.ImageFileName)"
-                                                                         class="img-fluid rounded"
-                                                                         style="width:100%; height:100%; object-fit:cover;" />
+                                                                    <img src="~/images/products/@product.ImageFileName"
+                                                                         class="card-img-top img-fluid" />
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div class="d-flex align-items-center justify-content-center rounded bg-light text-muted"
-                                                                         style="width:100%; height:100%;">
-                                                                        <i class="bi bi-image" style="font-size:2rem;"></i>
+                                                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted w-100" style="aspect-ratio: 1/1;">
+                                                                        <i class="bi bi-image fs-3"></i>
                                                                     </div>
+                                                                }
+
+                                                                @if (showCartImage)
+                                                                {
+                                                                    <!-- Add to Cart Button (Half Over Image) -->
+                                                                    @if (product.IsAddedToCart)
+                                                                    {
+                                                                        <div role="button"
+                                                                             class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle"
+                                                                             style="width:30px; height:30px; z-index:10; cursor:pointer;"
+                                                                             data-shop="@product.ShopName"
+                                                                             data-product="@product.ProductMasterName">
+                                                                            <i class="bi bi-check-circle-fill added-icon"></i>
+                                                                        </div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button"
+                                                                                class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle add-to-cart"
+                                                                                style="width:30px; height:30px; z-index:10;"
+                                                                                data-shop="@product.ShopName"
+                                                                                data-product="@product.ProductMasterName">
+                                                                            <i class="bi bi-cart-plus cart-icon"></i>
+                                                                        </button>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a asp-controller="Account"
+                                                                       asp-action="Login"
+                                                                       class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle login-required-btn"
+                                                                       style="width:30px; height:30px; z-index:10;">
+                                                                        <i class="bi bi-lock-fill"></i>
+                                                                    </a>
                                                                 }
 
                                                             </div>
@@ -134,7 +171,7 @@
                                                                    asp-action="ProductDetail"
                                                                    asp-route-shopProductName="@product.ShopName.Replace("-", "--").Replace(" ", "-")_@product.ProductMasterName.Replace("-", "--").Replace(" ", "-")"
                                                                    class="fw-bold text-body text-decoration-underline">
-                                                                    <i class="bi bi-shop me-1"></i>@product.ProductMasterName
+                                                                    @product.ProductMasterName
                                                                 </a>
                                                                 <span class="fw-semibold @(product.IsAvailable ? "text-success" : "text-danger") small">
                                                                     @(product.IsAvailable ? "" : "Out of stock")
@@ -197,7 +234,7 @@
                                                             }
                                                             else
                                                             {
-                                                                <p class="text-muted mb-0">No reviews yet.</p>
+                                                                <p class="text-muted mb-0">No reviews.</p>
                                                             }
 
                                                             <p class="mb-1 text-muted small">@product.Description</p>
@@ -236,13 +273,50 @@
 
 <!-- JS Filter -->
 <script>
-    function filterProducts(filter) {
-        document.querySelectorAll('.product-card').forEach(card => {
-            if (filter === 'all' || card.dataset.filter === filter) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
+    $(document).on("click", ".add-to-cart", function (e) {
+
+            e.preventDefault();
+
+            e.stopPropagation(); // stops bubbling
+
+
+            const $btn = $(this);
+
+
+            // prevent double-click
+
+            if ($btn.data("loading")) return;
+
+            $btn.data("loading", true);
+
+            var shopName = $(this).data("shop");
+            var productName = $(this).data("product");
+
+            $.ajax({
+                url: '/Cart/AddProductToCart',
+                type: 'POST',
+                data: {
+                    shopName: shopName,
+                    productName: productName
+                },
+                success: function (response) {
+                    if (response.success === true) {
+                        const successHtml = `
+                    <div role="button"
+                         class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle added-to-cart"
+                         style="width:30px; height:30px; z-index:10; cursor:pointer;"
+                         data-shop="${$btn.data('shop')}"
+                         data-product="${$btn.data('product')}">
+                        <i class="bi bi-check-circle-fill added-icon"></i>
+                    </div>
+                `;
+
+                $btn.replaceWith(successHtml);
+                    }
+                },
+                error: function (xhr) {
+                    alert("Error occurred");
+                }
+             });
         });
-    }
 </script>

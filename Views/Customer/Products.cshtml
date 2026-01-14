@@ -2,133 +2,165 @@
 
 <div class="container py-4">
 
-    <!-- FILTER CARD -->
-    <div class="card border-warning shadow-sm mb-4">
-        <div class="card-body mb-0 rounded">
+    @if (Model.Any())
+    {
+        <!-- FILTER CARD -->
+        <div class="card border-warning shadow-sm mb-4">
+            <div class="card-body mb-0 rounded">
 
-            <!-- Top Actions -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Top Actions -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <button type="button"
-                        class="btn btn-warning fw-semibold shadow-sm"
-                        id="openCategoryModal">
-                    <i class="bi bi-funnel-fill me-1"></i>
-                    Select Categories
-                </button>
+                    <button type="button"
+                            class="btn btn-warning fw-semibold shadow-sm"
+                            id="openCategoryModal">
+                        <i class="bi bi-funnel-fill me-1"></i>
+                        Select Categories
+                    </button>
+
+                    <a asp-controller="Customer"
+                       asp-action="ChangeLocation"
+                       class="btn btn-warning btn-sm fw-semibold">
+                        <i class="bi bi-geo-alt-fill me-1"></i>
+                        Change Location
+                    </a>
+                </div>
+
+                <!-- Selected Categories -->
+                <div id="selectedCategoryAlert"
+                     class="alert alert-warning py-2 px-3 mb-0 d-none">
+                    <strong>Selected Categories:</strong>
+                    <span id="selectedCategoriesText"></span>
+                </div>
+
+                <input type="hidden" id="selectedCategories" />
+
+            </div>
+        </div>
+
+        <!-- PRODUCTS CARD -->
+        <div class="card border-warning shadow-sm">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-box-seam me-1"></i>
+                Available Products
+            </div>
+
+            <div class="card-body p-3" id="productContainer">
+
+                <!-- Empty State -->
+                <div class="card border-warning shadow-sm text-center">
+                    <div class="card-body mb-0 rounded">
+                        <div class="mb-2">
+                            <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">
+                            Please select categories to see available products.
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORY MODAL -->
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
+                <div class="modal-content border-0 shadow-sm">
+
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-funnel-fill me-1"></i>
+                            Select Categories
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body alert alert-warning mb-0 rounded-0">
+
+                        <p class="fw-semibold mb-1">Choose categories</p>
+                        <small class="text-muted d-block mb-3">
+                            Maximum <strong>3 categories</strong> allowed
+                        </small>
+
+                        <div id="categoryLimitWarning"
+                             class="alert alert-danger py-1 px-2 d-none">
+                            Maximum 3 categories allowed
+                        </div>
+
+                        <form id="categoryModalForm">
+
+                            <!-- Scrollable grid for categories -->
+                            <div class="row g-2 mb-3" style="max-height: 300px; overflow-y: auto;">
+
+                                @foreach (var cat in Model)
+                                {
+                                    <div class="col-6 col-md-12 col-lg-12">
+                                        <div class="card border-warning shadow-sm hover-shadow p-1"
+                                             style="cursor:pointer; font-size: 0.9rem;">
+                                            <div class="card-body py-1 px-2 d-flex align-items-center">
+                                                <input class="form-check-input category-checkbox me-2"
+                                                       type="checkbox"
+                                                       value="@cat.Name"
+                                                       id="cat_@cat.Name" />
+                                                <label class="form-check-label fw-semibold mb-0"
+                                                       for="cat_@cat.Name">
+                                                    @cat.Name
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+
+                            <!-- Apply Button -->
+                            <div class="d-grid">
+                                <button type="submit"
+                                        class="btn btn-warning fw-bold rounded-pill shadow-sm">
+                                    Apply & Close
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- NO CATEGORIES AVAILABLE -->
+        <div class="card border-warning shadow-sm text-center mt-4">
+            <div class="card-body rounded">
+
+                <div class="mb-2">
+                    <i class="bi bi-folder-x fs-1 text-warning"></i>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-1">
+                    No Categories Available
+                </h4>
+
+                <p class="text-muted mb-3">
+                    Categories are not available for your current location.
+                    Please try changing your location.
+                </p>
 
                 <a asp-controller="Customer"
                    asp-action="ChangeLocation"
-                   class="btn btn-warning btn-sm fw-semibold">
+                   class="btn btn-warning fw-semibold shadow-sm">
                     <i class="bi bi-geo-alt-fill me-1"></i>
                     Change Location
                 </a>
             </div>
-
-            <!-- Selected Categories -->
-            <div id="selectedCategoryAlert"
-                 class="alert alert-warning py-2 px-3 mb-0 d-none">
-                <strong>Selected Categories:</strong>
-                <span id="selectedCategoriesText"></span>
-            </div>
-
-            <input type="hidden" id="selectedCategories" />
-
         </div>
-    </div>
+    }
 
-    <!-- PRODUCTS CARD -->
-    <div class="card border-warning shadow-sm">
-        <div class="card-header bg-warning text-dark fw-bold">
-            <i class="bi bi-box-seam me-1"></i>
-            Available Products
-        </div>
-
-        <div class="card-body p-3" id="productContainer">
-
-            <!-- Empty State -->
-            <div class="card border-warning shadow-sm text-center">
-                <div class="card-body mb-0 rounded">
-                    <div class="mb-2">
-                        <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
-                    </div>
-                    <h4 class="fw-bold text-dark mb-1">
-                        Please select categories to see available products.
-                    </h4>                    
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CATEGORY MODAL -->
-    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
-            <div class="modal-content border-0 shadow-sm">
-
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-funnel-fill me-1"></i>
-                        Select Categories
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body alert alert-warning mb-0 rounded-0">
-
-                    <p class="fw-semibold mb-1">Choose categories</p>
-                    <small class="text-muted d-block mb-3">
-                        Maximum <strong>7 categories</strong> allowed
-                    </small>
-
-                    <div id="categoryLimitWarning"
-                         class="alert alert-danger py-1 px-2 d-none">
-                        Maximum 7 categories allowed
-                    </div>
-
-                    <form id="categoryModalForm">
-
-                        <!-- Scrollable grid for categories -->
-                        <div class="row g-2 mb-3" style="max-height: 300px; overflow-y: auto;">
-
-                            @foreach (var cat in Model)
-                            {
-                                <div class="col-6 col-md-12 col-lg-12">
-                                    <div class="card border-warning shadow-sm hover-shadow p-1"
-                                         style="cursor:pointer; font-size: 0.9rem;">
-                                        <div class="card-body py-1 px-2 d-flex align-items-center">
-                                            <input class="form-check-input category-checkbox me-2"
-                                                   type="checkbox"
-                                                   value="@cat.Name"
-                                                   id="cat_@cat.Name" />
-                                            <label class="form-check-label fw-semibold mb-0"
-                                                   for="cat_@cat.Name">
-                                                @cat.Name
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-
-                        </div>
-
-                        <!-- Apply Button -->
-                        <div class="d-grid">
-                            <button type="submit"
-                                    class="btn btn-warning fw-bold rounded-pill shadow-sm">
-                                Apply & Close
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
 
-            const maxSelection = 7;
+            const maxSelection = 3;
 
             $("#openCategoryModal").click(function () {
                 $("#categoryModal").modal("show");
@@ -182,7 +214,6 @@
 
             function loadProducts(categories) {
                 if (!categories || categories.length === 0) $("#selectedCategoriesText").text('');
-                console.log($("#selectedCategoriesText").text());
                 $.ajax({
                     url: '@Url.Action("ProductsByCategories", "Customer")',
                     type: 'GET',

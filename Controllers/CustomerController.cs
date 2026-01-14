@@ -6,11 +6,12 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
-    public class CustomerController(ILocationService locationService, IEncodingService encodingService, ICustomerService customerService) : Controller
+    public class CustomerController(ILocationService locationService, IEncodingService encodingService, ICustomerService customerService, ICartService cartService) : Controller
     {
         private readonly ILocationService _locationService = locationService;
         private readonly IEncodingService _encodingService = encodingService;
         private readonly ICustomerService _customerService = customerService;
+
 
         public IActionResult Index()
         {
@@ -53,14 +54,18 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> ProductsByCategories(string categories)
         {
+            string? email = User.FindFirstValue(ClaimTypes.Email);
 
-            var products = await _customerService.GetProductsByCategories(categories);
+            if (string.IsNullOrEmpty(email)) { email = string.Empty; }
+            var products = await _customerService.GetProductsByCategories(categories, email);
 
             return PartialView("_ProductListPartial", products);
         }
 
         public async Task<IActionResult> Products()
         {
+            ViewBag.CartCount = 10;
+
             Guid location = GetLocationFromSession();
             if (location == Guid.Empty)
             {
@@ -99,9 +104,15 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> ShopDetails(string shopName)
         {
+            if (string.IsNullOrEmpty(shopName)) { return RedirectToAction("NotFound404", "Error"); }
+
+            string? email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email)) { email = string.Empty; }
+
             string decodedName = shopName.Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
 
-            var shopDetails = await _customerService.GetShopDetailsByName(decodedName);
+            var shopDetails = await _customerService.GetShopDetailsByName(decodedName, email);
             if (shopDetails == null || shopDetails.Shop == null)
             {
                 return RedirectToAction(nameof(Location));
@@ -122,7 +133,7 @@ namespace localshopyNew.Controllers
 
             string[] names = shopProductName.Split("_");
 
-            if (names.Length <= 1) { return RedirectToAction("NotFound404", "Error"); }
+            if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
 
             string decodedShopName = names[0].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
             string decodedProductName = names[1].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
@@ -182,6 +193,8 @@ namespace localshopyNew.Controllers
             return RedirectToAction("ProductDetail", new { shopProductName = data });
         }
 
+
+
         private Guid GetLocationFromSession()
         {
             string locationKey = _encodingService.Encode("Location");
@@ -194,8 +207,6 @@ namespace localshopyNew.Controllers
             Guid location = Guid.Parse(locationValue);
             return location;
         }
-
-
 
     }
 }

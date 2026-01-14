@@ -128,8 +128,6 @@
         $('#ddlCategory').on('change', function () {
 
             var categoryId = $(this).val();
-            console.log("Category changed:", categoryId);
-
             var productDropdown = $('#ddlProductMaster');
             productDropdown.empty()
                 .append('<option value="">-- Select Product Master --</option>');
@@ -148,7 +146,6 @@
                     });
                 },
                 error: function (err) {
-                    console.error(err);
                     alert('Unable to load product masters.');
                 }
             });
