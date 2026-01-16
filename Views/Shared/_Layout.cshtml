@@ -137,13 +137,11 @@
                         <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none">
                             <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
 
-                            @if (ViewBag.CartCount > 0)
-                            {
-                                <span class="position-absolute top-0 start-50 translate-middle
-                                     badge top-50">
-                                    @ViewBag.CartCount
-                                </span>
-                            }
+                            <span id="spnCartCount" style="font-size: 150%; top: 25% !important;" class="position-absolute top-0 start-50 translate-middle
+                                         badge">
+                                @(Context.Session.GetInt32("CartCount") ?? 0)
+                            </span>
+
                         </a>
 
 

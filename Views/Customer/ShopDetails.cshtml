@@ -145,7 +145,7 @@
                                                                                 style="width:30px; height:30px; z-index:10;"
                                                                                 data-shop="@product.ShopName"
                                                                                 data-product="@product.ProductMasterName">
-                                                                            <i class="bi bi-cart-plus cart-icon"></i>
+                                                                            <i class="bi bi-cart-plus"></i>
                                                                         </button>
                                                                     }
                                                                 }
@@ -274,7 +274,7 @@
 <!-- JS Filter -->
 <script>
     $(document).on("click", ".add-to-cart", function (e) {
-
+        console.log('SRC');
             e.preventDefault();
 
             e.stopPropagation(); // stops bubbling
@@ -300,18 +300,22 @@
                     productName: productName
                 },
                 success: function (response) {
-                    if (response.success === true) {
+                    if (response === true) {
                         const successHtml = `
-                    <div role="button"
-                         class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle added-to-cart"
-                         style="width:30px; height:30px; z-index:10; cursor:pointer;"
-                         data-shop="${$btn.data('shop')}"
-                         data-product="${$btn.data('product')}">
-                        <i class="bi bi-check-circle-fill added-icon"></i>
-                    </div>
-                `;
+                        <div role="button"
+                            class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle added-to-cart"
+                            style="width:30px; height:30px; z-index:10; cursor:pointer;"
+                            data-shop="${$btn.data('shop')}"
+                            data-product="${$btn.data('product')}">
+                            <i class="bi bi-check-circle-fill added-icon"></i>
+                        </div>`;
+                        
+                        $btn.replaceWith(successHtml);
+                    
+                        const span = document.getElementById("spnCartCount");
+                        let currentCount = parseInt(span.textContent, 10) || 0;
+                        span.textContent = currentCount + 1;
 
-                $btn.replaceWith(successHtml);
                     }
                 },
                 error: function (xhr) {

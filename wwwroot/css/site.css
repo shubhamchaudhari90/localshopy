@@ -75,8 +75,8 @@ body {
             font-size: 16px;
         }
 }
+
 .cart-remove-icon {
-    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,6 +143,7 @@ body {
     text-align: center;
     font-weight: 600;
 }
+
 .cart-remove-icon {
     width: 30px;
     height: 30px;
@@ -157,39 +158,11 @@ body {
     }
 
 
-.cart-icon-link {
-    width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background-color: var(--bs-warning);
-    color: #000;
-    text-decoration: none;
-}
-
-    .cart-icon-link i {
-        font-size: 1.1rem;
-    }
-
-    .cart-icon-link:active {
-        transform: scale(0.92);
-    }
-
-
-
 
 /* Cart container */
 .cart-container {
     position: relative; /* for absolute positioning of count */
     display: inline-block;
-}
-
-/* Big hollow cart */
-.cart-icon {
-    font-size: 2.8rem; /* adjust as needed */
-    color: #fd7e14; /* Bootstrap warning-orange */
 }
 
 /* Number overlay - half on top-right of cart */
@@ -208,11 +181,6 @@ body {
     text-align: center;
     border-radius: 50%; /* circle */
     box-shadow: 0 0 0 2px #fff; /* optional outline */
-}
-
-/* Hover effect on cart */
-.cart-container:hover .cart-icon {
-    color: #ff9800;
 }
 
 /* Optional: increase spacing between cart and logout/login */

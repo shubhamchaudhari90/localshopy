@@ -201,42 +201,45 @@
         let newQty = isIncrease ? currentQty + 1 : currentQty - 1;
 
         // Prevent quantity going below 1
-        if (newQty < 1) return;
+        if (newQty > 0)
+        {
+            // Optional: disable buttons while processing
+            $btn.prop('disabled', true);
 
-        // Optional: disable buttons while processing
-        $btn.prop('disabled', true);
+            $.ajax({
+                url: '/Cart/UpdateCartQuantity',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: newQty,
+                    isIncrease : isIncrease
+                },
+                success: function (res) {
+                    if (res) {
+                        $qtyValue.text(newQty);
 
-        $.ajax({
-            url: '/Cart/UpdateCartQuantity',
-            type: 'POST',
-            data: {
-                productId: productId,
-                quantity: newQty
-            },
-            success: function (res) {
-                if (res) {
-                    $qtyValue.text(newQty);
+                        const element = document.querySelector(`.tot_${productId}`);
+                        if (element) {
+                            element.textContent = newQty * price ;
+                            element.textContent = `₹${element.textContent}`;
 
-                    const element = document.querySelector(`.tot_${productId}`);
-                    if (element) {
-                        element.textContent = newQty * price ;
-                        element.textContent = `₹${element.textContent}`;
+                            const span = document.getElementById("spnCartCount");
+                            let currentCount = parseInt(span.textContent, 10) || 0;
+                            span.textContent = isIncrease ? currentCount + 1 : currentCount - 1;
+                        }
+                    } else {
+                        alert(res.message || 'Unable to update quantity');
                     }
-                } else {
-                    alert(res.message || 'Unable to update quantity');
+                },
+                complete: function () {
+                    $btn.prop('disabled', false);
                 }
-            },
-            error: function () {
-                alert('Server error. Please try again.');
-            },
-            complete: function () {
-                $btn.prop('disabled', false);
-            }
-        });
+            });
+        }
     });
 
-    $(document).on('click', '.cart-remove-icon', function () {
-
+    $(document).on('click', '.cart-remove-icon', function (e) {
+        e.preventDefault();
         const $icon = $(this);
         const productId = $icon.data('id');
 
@@ -253,12 +256,12 @@
                     const el = document.querySelector(`.prd${productId}`);
                     if (el) {
                         el.remove(); // removes from UI
-                        const count = document.querySelectorAll('.product-card').length;        
-                        if (count === 0) 
-                        {    
+                        const count = document.querySelectorAll('.product-card').length;
+                        if (count === 0)
+                        {
                             const accordion = document.querySelector('.accordion'); // parent element
-    
-                            if (accordion) 
+
+                            if (accordion)
                             {
                                 accordion.innerHTML = `
                                 <div class="card border-warning shadow-sm text-center mt-4">
@@ -278,19 +281,24 @@
                                         class="btn btn-warning fw-semibold shadow-sm">
                                         Home
                                         </a>
-                                    </div>    
-                                </div>    
-                                `;        
+                                    </div>
+                                </div>
+                                `;
                             }
                         }
+                        $.ajax({
+                            url: '/Cart/GetUpdatedCartCountSession',
+                            type: 'POST',
+                            success: function(cartCount) {
+                                console.log(cartCount);
+                                const span = document.getElementById("spnCartCount");
+                                span.textContent = cartCount;
+                            },
+                        });
                     }
-
                 } else {
                     alert(res.message || 'Unable to remove item');
                 }
-            },
-            error: function () {
-                alert('Server error. Please try again.');
             }
         });
     });

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 
 namespace localshopyNew.Controllers
@@ -19,6 +20,7 @@ namespace localshopyNew.Controllers
         private readonly ILocationService _locationService;
         private readonly ICategoryService _categoryService;
         private readonly IAdminService _adminService;
+        private readonly ICartService _cartService;
         private readonly IWebHostEnvironment _env;
 
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -32,7 +34,7 @@ namespace localshopyNew.Controllers
             IWebHostEnvironment env,
             IAdminService adminService,
             SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager, ICartService cartService)
         {
             _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
@@ -42,6 +44,7 @@ namespace localshopyNew.Controllers
             _adminService = adminService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _cartService = cartService;
         }
 
 
@@ -55,6 +58,17 @@ namespace localshopyNew.Controllers
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null)
                 return RedirectToAction("Login", "Account");
+
+            Guid location = GetLocationFromSession();
+            if (location != Guid.Empty)
+            {
+                string? email = User.FindFirstValue(ClaimTypes.Email);
+
+                if (!string.IsNullOrEmpty(email))
+                {
+                    await SetCartCountInSession(email, location);
+                }
+            }
             return View(model);
         }
 
@@ -334,8 +348,25 @@ namespace localshopyNew.Controllers
 
 
         //
+        private async Task SetCartCountInSession(string emailId, Guid location)
+        {
+            var cartProducts = await _cartService.GetCartDetails(emailId, location);
+            if (cartProducts != null && cartProducts.Count > 0)
+                HttpContext.Session.SetInt32("CartCount", cartProducts.Sum(x => x.Quantity));
+        }
 
-
+        private Guid GetLocationFromSession()
+        {
+            string locationKey = _encodingService.Encode("Location");
+            string? encodedLocation = HttpContext.Session.GetString(locationKey);
+            if (string.IsNullOrEmpty(encodedLocation))
+            {
+                return Guid.Empty;
+            }
+            string locationValue = _encodingService.Decode(encodedLocation ?? string.Empty);
+            Guid location = Guid.Parse(locationValue);
+            return location;
+        }
 
         private Guid GetShopIdFromSession()
         {

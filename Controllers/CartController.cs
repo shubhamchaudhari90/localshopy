@@ -24,21 +24,21 @@ namespace localshopyNew.Controllers
         {
             string? email = User.FindFirstValue(ClaimTypes.Email);
 
-            if (string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(email))
             {
-                email = string.Empty;
+                Guid locationId = GetLocationFromSession();
+                if (locationId == Guid.Empty)
+                {
+                    return RedirectToAction("Location", "Customer");
+                }
+                List<CartViewModel> products = await _service.GetCartDetails(email, locationId);
+                if (products != null || products?.Count > 0)
+                {
+                    HttpContext.Session.SetInt32("CartCount", products.Sum(x => x.Quantity));
+                }
+                return View(products);
             }
-            Guid locationId = GetLocationFromSession();
-            if (locationId == Guid.Empty)
-            {
-                return RedirectToAction("Location", "Customer");
-            }
-            List<CartViewModel> products = await _service.GetCartDetails(email, locationId);
-            if (products != null || products?.Count > 0)
-            {
-                SetCartCountInSession(products.Count);
-            }
-            return View(products);
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpPost]
@@ -48,6 +48,8 @@ namespace localshopyNew.Controllers
             if (!string.IsNullOrEmpty(email))
             {
                 bool result = await _cartService.AddProductToCart(productName, shopName, email);
+                int cartCount = GetCartCountFromSession();
+                HttpContext.Session.SetInt32("CartCount", cartCount + 1);
                 return result;
             }
             return false;
@@ -60,36 +62,42 @@ namespace localshopyNew.Controllers
             if (!string.IsNullOrEmpty(email))
             {
                 bool result = await _cartService.RemoveProductFromCart(id, email);
+                Guid locationId = GetLocationFromSession();
+                if (locationId != Guid.Empty)
+                    await SetCartCountInSession(email, locationId);
                 return result;
             }
             return false;
         }
 
         [HttpPost]
-        public async Task<bool> UpdateCartQuantity(Guid productId, int quantity)
+        public async Task<int> GetUpdatedCartCountSession()
+        {
+            int cartCount = 0;
+            string? email = User.FindFirstValue(ClaimTypes.Email);
+            if (!string.IsNullOrEmpty(email))
+            {
+                Guid locationId = GetLocationFromSession();
+                if (locationId != Guid.Empty)
+                    cartCount = await SetCartCountInSession(email, locationId);
+            }
+            return cartCount;
+        }
+
+        [HttpPost]
+        public async Task<bool> UpdateCartQuantity(Guid productId, int quantity, bool isIncrease)
         {
             string? email = User.FindFirstValue(ClaimTypes.Email);
             if (!string.IsNullOrEmpty(email))
             {
                 bool result = await _cartService.UpdateCartQuantity(productId, quantity, email);
+                int cartCount = GetCartCountFromSession();
+                cartCount = isIncrease ? cartCount - 1 : cartCount + 1;
+                HttpContext.Session.SetInt32("CartCount", cartCount);
                 return result;
             }
             return false;
         }
-
-        [HttpPost]
-        public IActionResult RemoveFromCart(Guid productId)
-        {
-            var email = User.Identity?.Name;
-
-            if (string.IsNullOrEmpty(email))
-                return Json(new { success = false, message = "Unauthorized" });
-
-            _cartService.RemoveProductFromCart(productId, email);
-
-            return Json(new { success = true });
-        }
-
 
         private Guid GetLocationFromSession()
         {
@@ -106,26 +114,20 @@ namespace localshopyNew.Controllers
 
         private int GetCartCountFromSession()
         {
-            string cartCountKey = _encodingService.Encode("CartCount");
-            string? encodedCartCount = HttpContext.Session.GetString(cartCountKey);
-            if (string.IsNullOrEmpty(encodedCartCount))
-            {
-                return 0;
-            }
-            string cartCountValue = _encodingService.Decode(encodedCartCount ?? string.Empty);
-            int cartCount = 0;
-            if (!int.TryParse(cartCountValue, out cartCount))
-            {
-                return 0;
-            }
-            return cartCount;
+            int cartCountValue = HttpContext.Session.GetInt32("CartCount") ?? 0;
+            return cartCountValue;
         }
 
-        private void SetCartCountInSession(int count)
+        private async Task<int> SetCartCountInSession(string emailId, Guid location)
         {
-            string cartCountKey = _encodingService.Encode("CartCount");
-            string cartCountValue = _encodingService.Encode(count.ToString());
-            HttpContext.Session.SetString(cartCountKey, cartCountValue);
+            int cartCount = 0;
+            var cartProducts = await _cartService.GetCartDetails(emailId, location);
+            if (cartProducts != null && cartProducts.Count > 0)
+            {
+                cartCount = cartProducts.Sum(x => x.Quantity);
+                HttpContext.Session.SetInt32("CartCount", cartCount);
+            }
+            return cartCount;
         }
     }
 }
