@@ -228,8 +228,11 @@
                             span.textContent = isIncrease ? currentCount + 1 : currentCount - 1;
                         }
                     } else {
-                        alert(res.message || 'Unable to update quantity');
+                        location.reload();
                     }
+                },
+                error: function () {
+                    location.reload();
                 },
                 complete: function () {
                     $btn.prop('disabled', false);
@@ -297,9 +300,13 @@
                         });
                     }
                 } else {
-                    alert(res.message || 'Unable to remove item');
+                    location.reload();
                 }
+            },
+            error: function () {
+                location.reload();
             }
+
         });
     });
 </script>

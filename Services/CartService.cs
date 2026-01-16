@@ -87,7 +87,7 @@ namespace localshopyNew.Services
                 && productIds.Contains(p.Id)
                 && shop.ServedLocations.Contains(locationId)
 
-            orderby shop.Name
+            orderby shop.Name, cart.CreatedAt
 
             select new CartViewModel
             {

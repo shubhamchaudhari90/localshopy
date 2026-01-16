@@ -211,6 +211,8 @@ namespace localshopyNew.Controllers
             var cartProducts = await _cartService.GetCartDetails(emailId, location);
             if (cartProducts != null && cartProducts.Count > 0)
                 HttpContext.Session.SetInt32("CartCount", cartProducts.Sum(x => x.Quantity));
+            else
+                HttpContext.Session.SetInt32("CartCount", 0);
         }
 
         private int GetCartCountFromSession()

@@ -255,14 +255,9 @@
         $(document).on("click", ".add-to-cart", function (e) {
 
             e.preventDefault();
-
-            e.stopPropagation(); // stops bubbling
-
-
+            e.stopPropagation();
+            
             const $btn = $(this);
-
-
-            // prevent double-click
 
             if ($btn.data("loading")) return;
 
@@ -287,13 +282,16 @@
                         span.textContent = currentCount + 1;
 
                     }
+                    else{
+                        location.reload();
+                    }
                 },
                 error: function (xhr) {
-                    alert("Error occurred");
+                    location.reload();
                 }
              });
         });
-        
+
         function toggleCart(productId) {
             const addBtn = document.getElementsByClassName(`btn_${productId}`)[0];
             const addedDiv = document.getElementsByClassName(`div_${productId}`)[0];

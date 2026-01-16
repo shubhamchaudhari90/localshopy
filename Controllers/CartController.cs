@@ -33,9 +33,9 @@ namespace localshopyNew.Controllers
                 }
                 List<CartViewModel> products = await _service.GetCartDetails(email, locationId);
                 if (products != null || products?.Count > 0)
-                {
                     HttpContext.Session.SetInt32("CartCount", products.Sum(x => x.Quantity));
-                }
+                else
+                    HttpContext.Session.SetInt32("CartCount", 0);
                 return View(products);
             }
             return RedirectToAction("Login", "Account");
@@ -49,7 +49,8 @@ namespace localshopyNew.Controllers
             {
                 bool result = await _cartService.AddProductToCart(productName, shopName, email);
                 int cartCount = GetCartCountFromSession();
-                HttpContext.Session.SetInt32("CartCount", cartCount + 1);
+                if (result)
+                    HttpContext.Session.SetInt32("CartCount", cartCount + 1);
                 return result;
             }
             return false;
@@ -91,9 +92,13 @@ namespace localshopyNew.Controllers
             if (!string.IsNullOrEmpty(email))
             {
                 bool result = await _cartService.UpdateCartQuantity(productId, quantity, email);
-                int cartCount = GetCartCountFromSession();
-                cartCount = isIncrease ? cartCount - 1 : cartCount + 1;
-                HttpContext.Session.SetInt32("CartCount", cartCount);
+
+                if (result)
+                {
+                    int cartCount = GetCartCountFromSession();
+                    cartCount = isIncrease ? cartCount - 1 : cartCount + 1;
+                    HttpContext.Session.SetInt32("CartCount", cartCount);
+                }
                 return result;
             }
             return false;
@@ -127,6 +132,8 @@ namespace localshopyNew.Controllers
                 cartCount = cartProducts.Sum(x => x.Quantity);
                 HttpContext.Session.SetInt32("CartCount", cartCount);
             }
+            else
+                HttpContext.Session.SetInt32("CartCount", 0);
             return cartCount;
         }
     }
