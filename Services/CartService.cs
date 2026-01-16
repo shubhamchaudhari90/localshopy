@@ -106,7 +106,25 @@ namespace localshopyNew.Services
                 CategoryName = c.Name,
                 Type = p.Type
 
-            }).Distinct().ToListAsync();
+            })
+            .GroupBy(x => new { x.ShopId, x.ProductId, x.ProductMasterId, x.CategoryId, x.ShopName, x.ProductName, x.ImageFileName, x.Price, x.Discount, x.DiscountValidFrom, x.DiscountValidTill, x.CategoryName, x.Type })
+            .Select(g => new CartViewModel
+            {
+                ShopId = g.Key.ShopId,
+                ProductId = g.Key.ProductId,
+                ProductMasterId = g.Key.ProductMasterId,
+                CategoryId = g.Key.CategoryId,
+                ShopName = g.Key.ShopName,
+                ProductName = g.Key.ProductName,
+                ImageFileName = g.Key.ImageFileName,
+                Quantity = g.Max(x => x.Quantity),
+                Price = g.Key.Price,
+                Discount = g.Key.Discount,
+                DiscountValidFrom = g.Key.DiscountValidFrom,
+                DiscountValidTill = g.Key.DiscountValidTill,
+                CategoryName = g.Key.CategoryName,
+                Type = g.Key.Type
+            }).ToListAsync();
 
             return products;
         }

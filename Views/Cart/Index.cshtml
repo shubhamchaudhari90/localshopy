@@ -8,7 +8,7 @@
 <div class="container mt-5 d-flex justify-content-center">
     <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
         <div class="card-body p-4">
-            <div class="accordion">
+            <div class="accordion product-cart">
 
                 @if (Model.Any())
                 {
@@ -177,6 +177,45 @@
 
             </div>
 
+            <div class="accordion order-acc">
+                <div class="accordion-item mb-3">
+                    <button class="accordion-button bg-warning text-dark fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseId"
+                            aria-expanded="true">
+                        Order
+                    </button>
+                    <div id="collapseId" class="accordion-collapse collapse show">
+                        <div class="accordion-body alert alert-warning">
+                            <div class="row g-3">
+
+                                <!-- Total / Value Card -->
+                                <div class="col-12">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body">
+
+                                            <!-- One line: Total (left) | Value (right) -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">Total</span>
+                                                <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Place Order Button -->
+                                <div class="col-12 d-flex align-items-center justify-content-end">
+                                    <button class="btn btn-warning text-dark fw-semibold">
+                                        Place Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -230,6 +269,7 @@
                     } else {
                         location.reload();
                     }
+                    calculateTotalPrice();
                 },
                 error: function () {
                     location.reload();
@@ -253,16 +293,16 @@
                 id: productId
             },
             success: function (res) {
-                console.log(res)
                 if (res) {
 
                     const el = document.querySelector(`.prd${productId}`);
                     if (el) {
                         el.remove(); // removes from UI
                         const count = document.querySelectorAll('.product-card').length;
+
                         if (count === 0)
                         {
-                            const accordion = document.querySelector('.accordion'); // parent element
+                            const accordion = document.querySelector('.product-cart'); // parent element
 
                             if (accordion)
                             {
@@ -288,12 +328,19 @@
                                 </div>
                                 `;
                             }
+
+                            const orderACc = document.querySelector('.order-acc'); // parent element
+
+                            if (orderACc)
+                            {
+                                orderACc.innerHTML = '';
+                            
+                            }
                         }
                         $.ajax({
                             url: '/Cart/GetUpdatedCartCountSession',
                             type: 'POST',
                             success: function(cartCount) {
-                                console.log(cartCount);
                                 const span = document.getElementById("spnCartCount");
                                 span.textContent = cartCount;
                             },
@@ -302,11 +349,33 @@
                 } else {
                     location.reload();
                 }
+                calculateTotalPrice();
             },
             error: function () {
                 location.reload();
+                calculateTotalPrice();
             }
 
         });
     });
+
+    function calculateTotalPrice() {
+        let total = 0;
+
+        document.querySelectorAll('.total-price').forEach(span => {
+            // Get text like "₹1234"
+            let value = span.textContent
+                .replace('₹', '')
+                .replace(/,/g, '')
+                .trim();
+
+            total += parseFloat(value) || 0;
+        });
+
+        // Update the total label
+        document.getElementById('totalValueLabel').textContent = '₹' + total.toFixed(2);
+    }
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', calculateTotalPrice);
 </script>
