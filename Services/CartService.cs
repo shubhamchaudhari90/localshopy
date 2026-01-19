@@ -14,6 +14,7 @@ namespace localshopyNew.Services
         {
             _context = context;
         }
+
         public async Task<bool> AddProductToCart(string productName, string shopName, string emailId)
         {
             ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(pm => pm.ProductName == productName);
@@ -142,6 +143,5 @@ namespace localshopyNew.Services
 
             return true;
         }
-
     }
 }

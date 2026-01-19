@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using localshopyNew.Data;
 
@@ -10,9 +11,11 @@ using localshopyNew.Data;
 namespace localshopyNew.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260119125700_Added-OrderTables")]
+    partial class AddedOrderTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
@@ -294,6 +297,9 @@ namespace localshopyNew.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Discount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("EmailId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -319,14 +325,6 @@ namespace localshopyNew.Migrations
 
                     b.Property<int>("ShippingFee")
                         .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("ShopId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ShopName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -356,6 +354,11 @@ namespace localshopyNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("TEXT");
 
@@ -369,6 +372,14 @@ namespace localshopyNew.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShopName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("TotalPrice")
                         .HasColumnType("INTEGER");

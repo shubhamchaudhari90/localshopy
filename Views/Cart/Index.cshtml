@@ -150,42 +150,67 @@
 
             @if (Model.Any())
             {
-                <div class="accordion order-acc">
-                    <div class="accordion-item mb-3">
-                        <button class="accordion-button bg-warning text-dark fw-semibold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseId"
-                                aria-expanded="true">
-                            Order
-                        </button>
+                <form asp-controller="Order" asp-action="OrderDetails" method="post">
+                    <div class="accordion order-acc">
+                        <div class="accordion-item mb-3">
+                            <button class="accordion-button bg-warning text-dark fw-semibold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseId"
+                                    aria-expanded="true">
+                                Order
+                            </button>
 
-                        <div id="collapseId" class="accordion-collapse collapse show">
-                            <div class="accordion-body alert alert-warning">
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <div class="card h-100 shadow-sm">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="fw-bold">Total</span>
-                                                    <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                            <div id="collapseId" class="accordion-collapse collapse show">
+                                <div class="accordion-body alert alert-warning">
+                                    <div class="row g-3">
+
+                                        <!-- Address Inputs -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Wing</label>
+                                            <input type="text"
+                                                   name="Wing"
+                                                   class="form-control"
+                                                   placeholder="e.g. A, B, East"
+                                                   required />
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Flat Number</label>
+                                            <input type="text"
+                                                   name="FlatNumber"
+                                                   class="form-control"
+                                                   placeholder="e.g. 101"
+                                                   required />
+                                        </div>
+
+                                        <!-- Total Card -->
+                                        <div class="col-12">
+                                            <div class="card h-100 shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="fw-bold">Total</span>
+                                                        <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-12 d-flex align-items-center justify-content-end">
-                                        <a asp-controller="Order"
-                                           asp-action="Customer"
-                                           class="btn btn-warning text-dark fw-semibold">
-                                            Place Order
-                                        </a>
+                                        <!-- Submit Button -->
+                                        <div class="col-12 d-flex align-items-center justify-content-end">
+                                            <button type="submit"
+                                                    class="btn btn-warning text-dark fw-semibold">
+                                                Place Order
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
+
             }
 
         </div>

@@ -7,7 +7,6 @@ namespace localshopyNew.Services
     public class SessionService : ISessionService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDataProtector _protector;
         private readonly IEncodingService _encodingService;
 
         public SessionService(
@@ -16,7 +15,6 @@ namespace localshopyNew.Services
             IEncodingService encodingService)
         {
             _httpContextAccessor = httpContextAccessor;
-            _protector = provider.CreateProtector("EncryptedCartSession");
             _encodingService = encodingService;
         }
 
@@ -48,7 +46,6 @@ namespace localshopyNew.Services
             Session.Remove(locationKey);
         }
 
-
         public void SetCartCount(int cartCount)
         {
             string cartCountKey = _encodingService.Encode("CartCount");
@@ -71,7 +68,6 @@ namespace localshopyNew.Services
             return cartCount;
         }
 
-
         public void SetShopId(Guid shopId)
         {
             string shopIdKey = _encodingService.Encode("ShopId");
@@ -91,7 +87,6 @@ namespace localshopyNew.Services
             Guid shopId = Guid.Parse(shopIdValue);
             return shopId;
         }
-
 
         public void SetProductId(Guid productId)
         {
@@ -126,6 +121,5 @@ namespace localshopyNew.Services
             Session.Remove(RoleConstants.IsShopkeeper);
             Session.Clear();
         }
-
     }
 }

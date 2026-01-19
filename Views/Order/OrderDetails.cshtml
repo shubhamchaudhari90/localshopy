@@ -1,0 +1,163 @@
+﻿@model List<Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-4">
+    <h3 class="mb-4">My Orders</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var order in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4 order-card">
+                    <div class="card h-100 shadow-sm border-warning">
+                        <div class="card-body d-flex flex-column">
+
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    Order #@order.OrderNumber
+                                </h5>
+
+                                @{
+                                    string statusClass = order.Status switch
+                                    {
+                                        "DELIVERED" => "bg-success",
+                                        "CANCELLED" => "bg-danger",
+                                        "REJECTED" => "bg-danger",
+                                        "PROCESSING" => "bg-info text-dark",
+                                        _ => "bg-warning text-dark"
+                                    };
+                                }
+
+                                <span class="badge @statusClass">
+                                    @order.Status
+                                </span>
+
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <!-- Order Info -->
+                            <p class="mb-1">
+                                <strong>Shop:</strong> @order.ShopName
+                            </p>
+
+                           @*  <p class="mb-1">
+                                <strong>Payment:</strong> @order.PaymentStatus
+                                @if (!string.IsNullOrEmpty(order.PaymentMethod))
+                                {
+                                    <span>(@order.PaymentMethod)</span>
+                                }
+                            </p> *@
+
+                            @{
+                                var duration = DateTime.Now - order.CreatedAt;
+                                int hours = (int)duration.TotalHours;
+                                int minutes = duration.Minutes;
+                                string timeAgo;
+
+                                if (hours > 0)
+                                    timeAgo = $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")} ago";
+                                else if (minutes > 0)
+                                    timeAgo = $"{minutes} min{(minutes != 1 ? "s" : "")} ago";
+                                else
+                                    timeAgo = "Just now";
+                            }
+                            <p class="mb-1">
+                                <strong>Order Date:</strong> @order.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
+                                <span class="text-muted">(@timeAgo)</span>
+                            </p>
+
+
+                            <p class="mb-2">
+                                <strong>Shipping Address:</strong><br />
+                                @order.ShippingAddress
+                            </p>
+
+                            <hr class="my-2" />
+
+                            <!-- Order Items -->
+                            <div class="mb-2">
+                                <strong>Items</strong>
+
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var item in order.OrderItems)
+                                    {
+                                        <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-semibold">
+                                                    @item.ProductName
+                                                </div>
+                                                <small class="text-muted">
+                                                    @item.Type | Qty: @item.Quantity
+                                                </small>
+                                            </div>
+
+                                            <span class="fw-semibold">
+                                                ₹@item.TotalPrice
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <!-- Total Summary -->
+                            <div class="mt-2">
+                                @* <div class="d-flex justify-content-between">
+                                    <span>Subtotal</span>
+                                    <span>₹@order.Subtotal</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Tax</span>
+                                    <span>₹@order.Tax</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <span>Shipping</span>
+                                    <span>₹@order.ShippingFee</span>
+                                </div> *@
+
+                                <div class="d-flex justify-content-between fw-bold mt-1">
+                                    <span>Total</span>
+                                    <span>₹@order.TotalAmount</span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="mt-auto pt-3 d-flex gap-2">
+                                <a class="btn btn-sm btn-warning flex-fill"
+                                   href="@Url.Action("Index", "Order", new { id = order.Id })">
+                                    Back
+                                </a>
+
+                                @if (order.Status == "PENDING")
+                                {
+                                    <a class="btn btn-sm btn-danger flex-fill"
+                                       href="@Url.Action("Cancel", "Order", new { id = order.Id })"
+                                       onclick="return confirm('Are you sure you want to cancel this order?');">
+                                        Cancel
+                                    </a>
+
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
