@@ -12,24 +12,23 @@ namespace localshopyNew.Controllers
     public class AccountController : Controller
     {
         private readonly IShopkeeperService _shopkeeperService;
-        private readonly IEncodingService _encodingService;
         private readonly IAdminService _adminService;
+        private readonly ISessionService _sessionService;
 
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
 
         public AccountController(
             IShopkeeperService shopkeeperService,
-            IEncodingService encodingService,
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
-            IAdminService adminService)
+            IAdminService adminService, ISessionService sessionService)
         {
-            _encodingService = encodingService;
             _shopkeeperService = shopkeeperService;
             _signInManager = signInManager;
             _userManager = userManager;
             _adminService = adminService;
+            _sessionService = sessionService;
         }
 
         public IActionResult GoogleLogin()
@@ -75,27 +74,24 @@ namespace localshopyNew.Controllers
 
             if (!string.IsNullOrEmpty(admin))
             {
-                HttpContext.Session.SetString(RoleConstants.Admin, admin);
+                _sessionService.SetString(RoleConstants.Admin, admin);
                 await SetRole(email, RoleConstants.Admin);
                 return RedirectToAction("Index", "Location");
             }
 
             var shopDetails = await _shopkeeperService.GetShopDetailsByEmailId(email);
 
-            if (shopDetails == null)
+            if (shopDetails == null || shopDetails.Shop == null)
             {
                 return RedirectToAction("Products", "Customer");
             }
             else
             {
-                string shopIdKey = _encodingService.Encode("ShopId");
-                string shopIdValue = _encodingService.Encode(shopDetails.Shop.Id.ToString());
-
-                HttpContext.Session.SetString(shopIdKey, shopIdValue);
+                _sessionService.SetShopId(shopDetails.Shop.Id);
 
                 if (shopDetails.Shop.OwnerEmailId != "")
                 {
-                    HttpContext.Session.SetString(RoleConstants.IsShopkeeper, "TRUE");
+                    _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
                     await SetRole(email, RoleConstants.Shopkeeper);
                 }
                 return RedirectToAction("ShopDetails", "Shopkeeper");
@@ -119,7 +115,7 @@ namespace localshopyNew.Controllers
 
             if (!string.IsNullOrEmpty(admin))
             {
-                HttpContext.Session.SetString(RoleConstants.Admin, admin);
+                _sessionService.SetString(RoleConstants.Admin, admin);
 
                 await SetRole(model.Email, RoleConstants.Admin);
 
@@ -132,14 +128,12 @@ namespace localshopyNew.Controllers
                 ViewData["ErrorMessage"] = "Email Id OR Password not match";
                 return View();
             }
-            string shopIdKey = _encodingService.Encode("ShopId");
-            string shopIdValue = _encodingService.Encode(shop.Id.ToString());
 
-            HttpContext.Session.SetString(shopIdKey, shopIdValue);
+            _sessionService.SetShopId(shop.Id);
 
             if (model.Email != "")
             {
-                HttpContext.Session.SetString(RoleConstants.IsShopkeeper, "TRUE");
+                _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
                 await SetRole(model.Email, RoleConstants.Shopkeeper);
             }
             return RedirectToAction("ShopDetails", "Shopkeeper");
@@ -147,18 +141,8 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Logout()
         {
-
-            string shopIdKey = _encodingService.Encode("ShopId");
-
             await _signInManager.SignOutAsync();
-
-            // Remove a specific key
-            HttpContext.Session.Remove("shopIdKey");
-            HttpContext.Session.Remove(RoleConstants.IsShopkeeper);
-
-            // Or remove all session data
-            HttpContext.Session.Clear();
-
+            _sessionService.Logout();
             return RedirectToAction("Login");
         }
 

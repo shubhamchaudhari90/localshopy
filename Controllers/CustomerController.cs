@@ -6,12 +6,12 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
-    public class CustomerController(ILocationService locationService, IEncodingService encodingService, ICustomerService customerService, ICartService cartService) : Controller
+    public class CustomerController(ILocationService locationService, ICustomerService customerService, ICartService cartService, ISessionService sessionService) : Controller
     {
         private readonly ILocationService _locationService = locationService;
-        private readonly IEncodingService _encodingService = encodingService;
         private readonly ICustomerService _customerService = customerService;
         private readonly ICartService _cartService = cartService;
+        private readonly ISessionService _sessionService = sessionService;
 
         public IActionResult Index()
         {
@@ -42,19 +42,20 @@ namespace localshopyNew.Controllers
 
             if (locations.Any(x => x.Id == model.SelectedLocationId))
             {
-                string locationKey = _encodingService.Encode("Location");
-                string locationValue = _encodingService.Encode(model.SelectedLocationId.ToString() ?? "");
-                HttpContext.Session.SetString(locationKey, locationValue);
-
-                string? email = User.FindFirstValue(ClaimTypes.Email);
-
-                if (!string.IsNullOrEmpty(email))
+                if (model.SelectedLocationId != Guid.Empty)
                 {
-                    Guid locationId = Guid.Parse(model.SelectedLocationId.ToString());
-                    await SetCartItemSession(email, locationId);
-                }
+                    _sessionService.SetLocation(model.SelectedLocationId ?? Guid.Empty);
 
-                return RedirectToAction(nameof(Products));
+                    string? email = User.FindFirstValue(ClaimTypes.Email);
+
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        Guid locationId = Guid.Parse(model.SelectedLocationId.ToString());
+                        await SetCartCountInSession(email, locationId);
+                    }
+
+                    return RedirectToAction(nameof(Products));
+                }
             }
 
             return View(locations);
@@ -72,7 +73,7 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Products()
         {
-            Guid location = GetLocationFromSession();
+            Guid location = _sessionService.GetLocation();
             if (location == Guid.Empty)
             {
                 return RedirectToAction(nameof(Location));
@@ -84,7 +85,7 @@ namespace localshopyNew.Controllers
 
             if (!string.IsNullOrEmpty(email))
             {
-                await SetCartItemSession(email, location);
+                await SetCartCountInSession(email, location);
             }
 
             return View(model);
@@ -95,7 +96,7 @@ namespace localshopyNew.Controllers
             List<Category>? categories = new List<Category>();
 
             // Get location from session
-            Guid location = GetLocationFromSession();
+            Guid location = _sessionService.GetLocation();
             if (location == Guid.Empty)
             {
                 return categories;
@@ -164,10 +165,7 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> ChangeLocation()
         {
             List<Location> locations = await _locationService.GetActiveLocations();
-            string locationKey = _encodingService.Encode("Location");
-
-            // Remove a specific key
-            HttpContext.Session.Remove(locationKey);
+            _sessionService.RemoveLocation();
             return RedirectToAction(nameof(Location));
         }
 
@@ -206,42 +204,18 @@ namespace localshopyNew.Controllers
             return RedirectToAction("ProductDetail", new { shopProductName = data });
         }
 
-        private async Task SetCartItemSession(string emailId, Guid location)
+        private async Task SetCartCountInSession(string emailId, Guid location)
         {
             var cartProducts = await _cartService.GetCartDetails(emailId, location);
             if (cartProducts != null && cartProducts.Count > 0)
-                HttpContext.Session.SetInt32("CartCount", cartProducts.Sum(x => x.Quantity));
+                _sessionService.SetCartCount(cartProducts.Sum(x => x.Quantity));
             else
-                HttpContext.Session.SetInt32("CartCount", 0);
+                _sessionService.SetCartCount(0);
         }
 
-        private int GetCartCountFromSession()
-        {
-            string? cartCountValue = HttpContext.Session.GetString("CartCount");
-            if (string.IsNullOrEmpty(cartCountValue))
-            {
-                return 0;
-            }
-            int cartCount = 0;
-            if (!int.TryParse(cartCountValue, out cartCount))
-            {
-                return 0;
-            }
-            return cartCount;
-        }
 
-        private Guid GetLocationFromSession()
-        {
-            string locationKey = _encodingService.Encode("Location");
-            string? encodedLocation = HttpContext.Session.GetString(locationKey);
-            if (string.IsNullOrEmpty(encodedLocation))
-            {
-                return Guid.Empty;
-            }
-            string locationValue = _encodingService.Decode(encodedLocation ?? string.Empty);
-            Guid location = Guid.Parse(locationValue);
-            return location;
-        }
+
+
 
     }
 }

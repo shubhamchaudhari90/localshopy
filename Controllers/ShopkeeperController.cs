@@ -13,44 +13,31 @@ namespace localshopyNew.Controllers
 {
 
     [Authorize(Roles = RoleConstants.Shopkeeper)]
-    public class ShopkeeperController : Controller
+    public class ShopkeeperController(
+        IShopkeeperService shopkeeperService,
+        ILocationService locationService,
+        ICategoryService categoryService,
+        IWebHostEnvironment env,
+        IAdminService adminService,
+        SignInManager<IdentityUser> signInManager,
+        UserManager<IdentityUser> userManager,
+        ICartService cartService,
+        ISessionService sessionService) : Controller
     {
-        private readonly IShopkeeperService _shopkeeperService;
-        private readonly IEncodingService _encodingService;
-        private readonly ILocationService _locationService;
-        private readonly ICategoryService _categoryService;
-        private readonly IAdminService _adminService;
-        private readonly ICartService _cartService;
-        private readonly IWebHostEnvironment _env;
+        private readonly IShopkeeperService _shopkeeperService = shopkeeperService;
+        private readonly ILocationService _locationService = locationService;
+        private readonly ICategoryService _categoryService = categoryService;
+        private readonly IAdminService _adminService = adminService;
+        private readonly ICartService _cartService = cartService;
+        private readonly ISessionService _sessionService = sessionService;
+        private readonly IWebHostEnvironment _env = env;
 
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public ShopkeeperController(
-            IShopkeeperService shopkeeperService,
-            IEncodingService encodingService,
-            ILocationService locationService,
-            ICategoryService categoryService,
-            IWebHostEnvironment env,
-            IAdminService adminService,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager, ICartService cartService)
-        {
-            _encodingService = encodingService;
-            _shopkeeperService = shopkeeperService;
-            _locationService = locationService;
-            _categoryService = categoryService;
-            _env = env;
-            _adminService = adminService;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _cartService = cartService;
-        }
-
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
 
         public async Task<IActionResult> ShopDetails()
         {
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
@@ -59,7 +46,7 @@ namespace localshopyNew.Controllers
             if (model == null)
                 return RedirectToAction("Login", "Account");
 
-            Guid location = GetLocationFromSession();
+            Guid location = _sessionService.GetLocation();
             if (location != Guid.Empty)
             {
                 string? email = User.FindFirstValue(ClaimTypes.Email);
@@ -72,12 +59,10 @@ namespace localshopyNew.Controllers
             return View(model);
         }
 
-
-
         public async Task<IActionResult> Edit()
         {
 
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
@@ -116,8 +101,7 @@ namespace localshopyNew.Controllers
 
             ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
 
-
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
@@ -162,7 +146,7 @@ namespace localshopyNew.Controllers
             {
                 ViewData["ErrorMessage"] = "Mandatory field missing";
             }
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
@@ -216,10 +200,7 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> EditProduct(Guid productId)
         {
-            string productIdKey = _encodingService.Encode("ProductId");
-            string productIdValue = _encodingService.Encode(productId.ToString());
-
-            HttpContext.Session.SetString(productIdKey, productIdValue);
+            _sessionService.SetProductId(productId);
 
             var categoryList = await _categoryService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
@@ -249,7 +230,7 @@ namespace localshopyNew.Controllers
             }
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
 
-            Guid productId = GetProductIdFromSession();
+            Guid productId = _sessionService.GetProductId();
             if (productId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Product not found";
@@ -264,7 +245,7 @@ namespace localshopyNew.Controllers
                 return View(product);
             }
 
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
@@ -276,7 +257,6 @@ namespace localshopyNew.Controllers
                 ViewData["ErrorMessage"] = "Image must be less than 1 MB";
                 return View(product);
             }
-
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
@@ -315,7 +295,7 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid productId)
         {
-            Guid shopId = GetShopIdFromSession();
+            Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
@@ -346,54 +326,13 @@ namespace localshopyNew.Controllers
             return Json(result);
         }
 
-
-        //
         private async Task SetCartCountInSession(string emailId, Guid location)
         {
             var cartProducts = await _cartService.GetCartDetails(emailId, location);
             if (cartProducts != null && cartProducts.Count > 0)
-                HttpContext.Session.SetInt32("CartCount", cartProducts.Sum(x => x.Quantity));
+                _sessionService.SetCartCount(cartProducts.Sum(x => x.Quantity));
             else
-                HttpContext.Session.SetInt32("CartCount", 0);
-        }
-
-        private Guid GetLocationFromSession()
-        {
-            string locationKey = _encodingService.Encode("Location");
-            string? encodedLocation = HttpContext.Session.GetString(locationKey);
-            if (string.IsNullOrEmpty(encodedLocation))
-            {
-                return Guid.Empty;
-            }
-            string locationValue = _encodingService.Decode(encodedLocation ?? string.Empty);
-            Guid location = Guid.Parse(locationValue);
-            return location;
-        }
-
-        private Guid GetShopIdFromSession()
-        {
-            string shopIdKey = _encodingService.Encode("ShopId");
-            string? encodedShopId = HttpContext.Session.GetString(shopIdKey);
-            if (string.IsNullOrEmpty(encodedShopId))
-            {
-                return Guid.Empty;
-            }
-            string shopIdValue = _encodingService.Decode(encodedShopId ?? string.Empty);
-            Guid shopId = Guid.Parse(shopIdValue);
-            return shopId;
-        }
-
-        private Guid GetProductIdFromSession()
-        {
-            string productIdKey = _encodingService.Encode("ProductId");
-            string? encodedProductId = HttpContext.Session.GetString(productIdKey);
-            if (string.IsNullOrEmpty(encodedProductId))
-            {
-                return Guid.Empty;
-            }
-            string productIdValue = _encodingService.Decode(encodedProductId ?? string.Empty);
-            Guid productId = Guid.Parse(productIdValue);
-            return productId;
+                _sessionService.SetCartCount(0);
         }
 
         private async Task RemoveUnusedImages()
@@ -421,8 +360,5 @@ namespace localshopyNew.Controllers
                 }
             }
         }
-
-
-
     }
 }

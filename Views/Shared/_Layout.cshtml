@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject ISessionService _sessionService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -48,8 +50,6 @@
             background: linear-gradient(90deg, #FFC107, #FFCA28);
         }
 
-
-
             .navbar-custom .navbar-brand,
             .navbar-custom .nav-link {
                 color: #fff;
@@ -83,6 +83,7 @@
     @using Microsoft.AspNetCore.Http
     @using localshopyNew.Constants
     @using System.Security.Claims
+@using localshopyNew.Services.Interfaces
 
     <header>
         <nav class="navbar navbar-dark navbar-custom shadow-sm">
@@ -133,18 +134,13 @@
                 <div class="d-flex align-items-center ms-auto">
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                     {
-
                         <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none">
                             <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
-
                             <span id="spnCartCount" style="font-size: 150%; top: 25% !important;" class="position-absolute top-0 start-50 translate-middle
-                                         badge">
-                                @(Context.Session.GetInt32("CartCount") ?? 0)
+                                             badge">
+                                @(_sessionService.GetCartCount())
                             </span>
-
                         </a>
-
-
 
                         <a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a>
                     }
@@ -158,26 +154,21 @@
                         </form>
                     }
                 </div>
-
             </div>
         </nav>
     </header>
-
 
     <main role="main" class="flex-shrink-0 alert alert-warning ">
         <div class="container">
             @RenderBody()
         </div>
     </main>
-    2
+
     <footer class="footer text-muted bg-light py- mt-auto">
         <div class="container text-center">
             &copy; @DateTime.Now.Year - localshopy
-            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-
     @RenderSection("Scripts", required: false)
 </body>
-
 </html>

@@ -59,6 +59,10 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
+
+builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IProductMasterService, ProductMasterService>();

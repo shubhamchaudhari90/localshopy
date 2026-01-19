@@ -20,6 +20,7 @@
                                 aria-expanded="true">
                             Cart
                         </button>
+
                         <div id="collapseId" class="accordion-collapse collapse show">
                             <div class="accordion-body alert alert-warning">
                                 <div class="row g-3">
@@ -35,13 +36,8 @@
                                         <div class="col-12 col-md-6 col-lg-4 product-card prd@(product.ProductId)">
                                             <div class="card h-100 shadow-sm">
                                                 <div class="row g-0 h-100">
-
                                                     <div class="col-3 p-2">
-
-                                                        <!-- Product Card -->
                                                         <div class="ratio ratio-1x1">
-
-                                                            <!-- Product Image -->
                                                             @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                             {
                                                                 <img src="~/images/products/@product.ImageFileName"
@@ -53,6 +49,7 @@
                                                                     <i class="bi bi-image fs-3"></i>
                                                                 </div>
                                                             }
+
                                                             <span role="button"
                                                                   class="cart-remove-icon position-absolute top-100 start-50 translate-middle bg-warning rounded"
                                                                   style="width: 25px !important; height: 25px !important;"
@@ -60,23 +57,15 @@
                                                                   aria-label="Remove item">
                                                                 <i class="bi bi-trash text-danger fs-5"></i>
                                                             </span>
-
-
                                                         </div>
                                                     </div>
 
-                                                    <!-- Product Data -->
                                                     <div class="col-9 d-flex flex-column p-2">
-
-                                                        <!-- LINE 1: PRODUCT NAME -->
-                                                        <div class="fw-bold text-body text-truncate"
-                                                             style="white-space:nowrap;">
+                                                        <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
                                                             @product.ProductName
                                                         </div>
 
-                                                        <!-- LINE 2: SHOP NAME (LEFT) + TYPE (RIGHT) -->
                                                         <div class="d-flex align-items-center justify-content-between mb-1">
-
                                                             <div class="fw-semibold text-secondary text-truncate"
                                                                  style="max-width: calc(100% - 24px); white-space:nowrap;"
                                                                  title="@product.ShopName">
@@ -91,33 +80,25 @@
                                                                 "";
                                                             }
 
-                                                            <!-- TYPE ICON -->
                                                             <div title="@product.Type"
                                                                  class="d-flex align-items-center justify-content-center flex-shrink-0"
                                                                  style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
                                                                 <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
                                                             </div>
-
                                                         </div>
 
-                                                        <!-- LINE 3: PRICE + QTY (LEFT) | DELETE (RIGHT) -->
                                                         <div class="d-flex align-items-center justify-content-between gap-3">
-
-                                                            <!-- Price + Quantity Stepper -->
                                                             <div class="d-flex align-items-center gap-2">
-
-                                                                <!-- Unit Price -->
-                                                                <span class="fw-bold text-success unit-price" data-price="@product.FinalPrice">
+                                                                <span class="fw-bold text-success unit-price"
+                                                                      data-price="@product.FinalPrice">
                                                                     ₹@product.FinalPrice
                                                                 </span>
 
-                                                                <!-- Quantity Stepper -->
                                                                 <div class="qty-stepper d-flex align-items-center">
                                                                     <button type="button"
                                                                             class="btn btn-warning btn-sm qty-btn decrease"
                                                                             data-id="@product.ProductId"
-                                                                            data-price="@product.FinalPrice"
-                                                                            aria-label="Decrease quantity">
+                                                                            data-price="@product.FinalPrice">
                                                                         <i class="bi bi-dash"></i>
                                                                     </button>
 
@@ -126,27 +107,21 @@
                                                                     <button type="button"
                                                                             class="btn btn-warning btn-sm qty-btn increase"
                                                                             data-id="@product.ProductId"
-                                                                            data-price="@product.FinalPrice"
-                                                                            aria-label="Increase quantity">
+                                                                            data-price="@product.FinalPrice">
                                                                         <i class="bi bi-plus"></i>
                                                                     </button>
                                                                 </div>
 
-                                                                <!-- Total Price -->
                                                                 <span class="fw-bold text-success total-price tot_@product.ProductId">
                                                                     ₹@(product.FinalPrice* product.Quantity)
                                                                 </span>
-
                                                             </div>
                                                         </div>
-
                                                     </div>
-
                                                 </div>
                                             </div>
                                         </div>
                                     }
-
                                 </div>
                             </div>
                         </div>
@@ -156,19 +131,15 @@
                 {
                     <div class="card border-warning shadow-sm text-center mt-4">
                         <div class="card-body rounded">
-
                             <div class="mb-2">
                                 <i class="bi bi-folder-x fs-1 text-warning"></i>
                             </div>
 
-                            <h4 class="fw-bold text-dark mb-1">
-                                No Product Available
-                            </h4>
+                            <h4 class="fw-bold text-dark mb-1">No Product Available</h4>
                             <br />
                             <a asp-controller="Customer"
                                asp-action="Products"
                                class="btn btn-warning fw-semibold shadow-sm">
-
                                 Home
                             </a>
                         </div>
@@ -177,48 +148,48 @@
 
             </div>
 
-            <div class="accordion order-acc">
-                <div class="accordion-item mb-3">
-                    <button class="accordion-button bg-warning text-dark fw-semibold"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#collapseId"
-                            aria-expanded="true">
-                        Order
-                    </button>
-                    <div id="collapseId" class="accordion-collapse collapse show">
-                        <div class="accordion-body alert alert-warning">
-                            <div class="row g-3">
+            @if (Model.Any())
+            {
+                <div class="accordion order-acc">
+                    <div class="accordion-item mb-3">
+                        <button class="accordion-button bg-warning text-dark fw-semibold"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseId"
+                                aria-expanded="true">
+                            Order
+                        </button>
 
-                                <!-- Total / Value Card -->
-                                <div class="col-12">
-                                    <div class="card h-100 shadow-sm">
-                                        <div class="card-body">
-
-                                            <!-- One line: Total (left) | Value (right) -->
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="fw-bold">Total</span>
-                                                <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                        <div id="collapseId" class="accordion-collapse collapse show">
+                            <div class="accordion-body alert alert-warning">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="card h-100 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold">Total</span>
+                                                    <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                                                </div>
                                             </div>
-
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Place Order Button -->
-                                <div class="col-12 d-flex align-items-center justify-content-end">
-                                    <button class="btn btn-warning text-dark fw-semibold">
-                                        Place Order
-                                    </button>
+                                    <div class="col-12 d-flex align-items-center justify-content-end">
+                                        <a asp-controller="Order"
+                                           asp-action="Customer"
+                                           class="btn btn-warning text-dark fw-semibold">
+                                            Place Order
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+
         </div>
     </div>
-
 </div>
 
 <script>
@@ -334,7 +305,7 @@
                             if (orderACc)
                             {
                                 orderACc.innerHTML = '';
-                            
+
                             }
                         }
                         $.ajax({
