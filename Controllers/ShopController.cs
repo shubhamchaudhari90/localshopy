@@ -54,8 +54,17 @@ namespace localshopyNew.Controllers
 
             if (!ModelState.IsValid)
             {
+                string allErrors = string.Join("; ",
+                    ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                );
+
+                ViewData["ErrorMessage"] = allErrors;
+
                 return View(shop);
             }
+
             bool isNameExists = await _shopService.IsShopNameExists(shop.Name);
             if (isNameExists)
             {

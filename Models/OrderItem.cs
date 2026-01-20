@@ -18,6 +18,7 @@ namespace localshopyNew.Models
         [MaxLength(200)]
         public string ProductName { get; set; }
 
+        public string? ImageFileName { get; set; }
 
         [Required]
         [MaxLength(200)]

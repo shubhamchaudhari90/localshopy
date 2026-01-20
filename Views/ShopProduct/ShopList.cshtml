@@ -14,9 +14,12 @@
     }
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            <strong>No shop found.</strong>
+        <div class="card border-info mb-3" style="max-width: 18rem;">
+            <div class="card-body text-info">
+                <h5 class="card-title"><strong>No shop found.</strong></h5>
+            </div>
         </div>
+
     }
     else
     {

@@ -7,5 +7,6 @@ namespace localshopyNew.Services.Interfaces
         Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing);
         Task<List<Order>> GetAllOrders(string emailId, Guid locationId);
         Task<Order?> GetOrder(Guid id);
+        Task<bool> Cancel(Guid id);
     }
 }

@@ -20,5 +20,6 @@ namespace localshopyNew.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderTracking> orderTrackings { get; set; }
     }
 }

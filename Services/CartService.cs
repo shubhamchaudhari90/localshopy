@@ -17,13 +17,13 @@ namespace localshopyNew.Services
 
         public async Task<bool> AddProductToCart(string productName, string shopName, string emailId)
         {
-            ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(pm => pm.ProductName == productName);
+            ProductMaster? productMaster = await _context.ProductMasters.AsNoTracking().FirstOrDefaultAsync(pm => pm.ProductName == productName);
             if (productMaster != null)
             {
                 Shop? shop = await _context.Shops.FirstOrDefaultAsync(s => s.Name == shopName);
                 if (shop != null)
                 {
-                    Product? product = await _context.Products.FirstOrDefaultAsync(p => p.ProductMasterId == productMaster.Id && p.ShopId == shop.Id);
+                    Product? product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductMasterId == productMaster.Id && p.ShopId == shop.Id);
 
                     if (product != null)
                     {
@@ -61,72 +61,80 @@ namespace localshopyNew.Services
         {
             List<CartViewModel> products = new List<CartViewModel>();
 
-            var productIds = await _context.Carts
-                .Where(x => x.EmailId == emailId)
-                .Select(x => x.ProductId)
-                .ToListAsync();
+            products = await
+                (
+                from cart in _context.Carts.AsNoTracking()
+                join p in _context.Products.AsNoTracking()
+                on cart.ProductId equals p.Id
 
-            products = await (
-            from p in _context.Products
-            join pm in _context.ProductMasters
-            on p.ProductMasterId equals pm.Id
+                join pm in _context.ProductMasters.AsNoTracking()
+                on p.ProductMasterId equals pm.Id
 
-            join shop in _context.Shops
-            on p.ShopId equals shop.Id
+                join shop in _context.Shops.AsNoTracking()
+                on p.ShopId equals shop.Id
 
-            join cart in _context.Carts
-            on p.Id equals cart.ProductId
+                join cat in _context.Categoties.AsNoTracking()
+                on pm.CategoryId equals cat.Id into categoryGroup
+                from c in categoryGroup.DefaultIfEmpty() // LEFT JOIN
 
-            join c in _context.Categoties
-                on pm.CategoryId equals c.Id into cat
-            from c in cat.DefaultIfEmpty() // LEFT JOIN
-            where p.IsActive    // NOT DELETED
-                && p.IsAvailable    // AVAILABLE ONLY (NO OUT OF STOCK)
-                && shop.IsOpen      // SHOP SHOULD BE OPEN
-                && shop.AccountValidTill.Date >= DateTime.Today // SHOP ACCOUNT SHOULD BE VALID
-                && c.IsActive
-                && productIds.Contains(p.Id)
+                where cart.EmailId == emailId
+                && p.IsActive
+                && p.IsAvailable
+                && shop.IsOpen
+                && shop.AccountValidTill.Date >= DateTime.Today
+                && (c == null || c.IsActive) // ✅ preserve LEFT JOIN
                 && shop.ServedLocations.Contains(locationId)
 
-            orderby shop.Name, cart.CreatedAt
+                orderby shop.Name, cart.CreatedAt
 
-            select new CartViewModel
-            {
-                ShopId = shop.Id,
-                ProductId = p.Id,
-                ProductMasterId = pm.Id,
-                CategoryId = c.Id,
-                ShopName = shop.Name,
-                ProductName = pm.ProductName,
-                ImageFileName = p.ImageFileName,
-                Quantity = cart.Quantity == 0 ? 1 : cart.Quantity,
-                Price = p.Price,
-                Discount = p.Discount,
-                DiscountValidFrom = p.DiscountValidFrom,
-                DiscountValidTill = p.DiscountValidTill,
-                CategoryName = c.Name,
-                Type = p.Type
-
-            })
-            .GroupBy(x => new { x.ShopId, x.ProductId, x.ProductMasterId, x.CategoryId, x.ShopName, x.ProductName, x.ImageFileName, x.Price, x.Discount, x.DiscountValidFrom, x.DiscountValidTill, x.CategoryName, x.Type })
-            .Select(g => new CartViewModel
-            {
-                ShopId = g.Key.ShopId,
-                ProductId = g.Key.ProductId,
-                ProductMasterId = g.Key.ProductMasterId,
-                CategoryId = g.Key.CategoryId,
-                ShopName = g.Key.ShopName,
-                ProductName = g.Key.ProductName,
-                ImageFileName = g.Key.ImageFileName,
-                Quantity = g.Max(x => x.Quantity),
-                Price = g.Key.Price,
-                Discount = g.Key.Discount,
-                DiscountValidFrom = g.Key.DiscountValidFrom,
-                DiscountValidTill = g.Key.DiscountValidTill,
-                CategoryName = g.Key.CategoryName,
-                Type = g.Key.Type
-            }).ToListAsync();
-
+                select new CartViewModel
+                {
+                    ShopId = shop.Id,
+                    ProductId = p.Id,
+                    ProductMasterId = pm.Id,
+                    CategoryId = c != null ? c.Id : Guid.Empty,
+                    ShopName = shop.Name,
+                    ProductName = pm.ProductName,
+                    ImageFileName = p.ImageFileName,
+                    Quantity = cart.Quantity == 0 ? 1 : cart.Quantity,
+                    Price = p.Price,
+                    Discount = p.Discount,
+                    DiscountValidFrom = p.DiscountValidFrom,
+                    DiscountValidTill = p.DiscountValidTill,
+                    CategoryName = c != null ? c.Name : "Other",
+                    Type = p.Type
+                }).GroupBy(x => new
+                {
+                    x.ShopId,
+                    x.ProductId,
+                    x.ProductMasterId,
+                    x.CategoryId,
+                    x.ShopName,
+                    x.ProductName,
+                    x.ImageFileName,
+                    x.Price,
+                    x.Discount,
+                    x.DiscountValidFrom,
+                    x.DiscountValidTill,
+                    x.CategoryName,
+                    x.Type
+                }).Select(g => new CartViewModel
+                {
+                    ShopId = g.Key.ShopId,
+                    ProductId = g.Key.ProductId,
+                    ProductMasterId = g.Key.ProductMasterId,
+                    CategoryId = g.Key.CategoryId,
+                    ShopName = g.Key.ShopName,
+                    ProductName = g.Key.ProductName,
+                    ImageFileName = g.Key.ImageFileName,
+                    Quantity = g.Max(x => x.Quantity),
+                    Price = g.Key.Price,
+                    Discount = g.Key.Discount,
+                    DiscountValidFrom = g.Key.DiscountValidFrom,
+                    DiscountValidTill = g.Key.DiscountValidTill,
+                    CategoryName = g.Key.CategoryName,
+                    Type = g.Key.Type
+                }).ToListAsync();
             return products;
         }
 

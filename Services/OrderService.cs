@@ -1,4 +1,5 @@
-﻿using localshopyNew.Data;
+﻿using localshopyNew.Constants;
+using localshopyNew.Data;
 using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
@@ -41,6 +42,7 @@ namespace localshopyNew.Services
                 {
                     ShopId = shop.Id,
                     ShopName = shop.Name,
+                    ShopNumber = shop.ShopNumber,
                     ProductId = p.Id,
                     ProductName = pm.ProductName,
                     ProductMasterId = pm.Id,
@@ -71,9 +73,10 @@ namespace localshopyNew.Services
                 .ToDictionaryAsync(x => x.Key, x => x.Count);
 
             var orders = new List<Order>();
+            var orderTracking = new List<OrderTracking>();
             var orderItems = new List<OrderItem>();
 
-            foreach (var shopGroup in products.GroupBy(x => new { x.ShopId, x.ShopName }))
+            foreach (var shopGroup in products.GroupBy(x => new { x.ShopId, x.ShopName, x.ShopNumber }))
             {
                 var count = orderCountByShop.GetValueOrDefault(shopGroup.Key.ShopName, 0) + 1;
 
@@ -88,7 +91,9 @@ namespace localshopyNew.Services
                     ShopName = shopGroup.Key.ShopName,
                     CreatedAt = now,
                     UpdatedAt = now,
-                    OrderNumber = $"{now:yyyy-MM-dd}-{count}",
+                    OrderNumber = $"{now:yyyy-MM-dd}-{shopGroup.Key.ShopNumber.ToString("D3")}-{count}",
+
+                    Status = OrderStatus.ORDER_PLACED,
 
                     BillingAddress = $"Flat Number: {flatNumber}, Wing: {wing}, Society Name: {location.Name}, Address: {location.Address}",
                     ShippingAddress = $"Flat Number: {flatNumber}, Wing: {wing}, Society Name: {location.Name}, Address: {location.Address}",
@@ -102,6 +107,14 @@ namespace localshopyNew.Services
                     TotalAmount = subTotal    // or subTotal + Tax + ShippingFee
                 };
 
+                orderTracking.Add(new OrderTracking
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = order.Id,
+                    Status = OrderStatus.ORDER_PLACED,
+                    CreatedAt = DateTime.UtcNow
+                });
+
                 orders.Add(order);
 
                 orderItems.AddRange(
@@ -114,12 +127,13 @@ namespace localshopyNew.Services
                         Quantity = p.Quantity,
                         UnitPrice = p.FinalPrice,
                         TotalPrice = p.FinalPrice * p.Quantity,
-                        Type = p.Type
+                        Type = p.Type,
+                        ImageFileName = p.ImageFileName,
                     })
                 );
             }
 
-
+            await _context.orderTrackings.AddRangeAsync(orderTracking);
             await _context.Orders.AddRangeAsync(orders);
             await _context.OrderItems.AddRangeAsync(orderItems);
 
@@ -140,13 +154,13 @@ namespace localshopyNew.Services
         public async Task<List<Order>> GetAllOrders(string emailId, Guid locationId)
         {
             // Get location first
-            var location = await _context.Locations.FirstOrDefaultAsync(x => x.Id == locationId);
+            var location = await _context.Locations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == locationId);
 
             if (location == null)
                 return new List<Order>();
 
             // Fetch orders
-            var orders = await _context.Orders
+            var orders = await _context.Orders.AsNoTracking()
                 .Where(o => o.EmailId == emailId &&
                             EF.Functions.Like(o.ShippingAddress, $"%{location.Name}%"))
                 .Include(o => o.OrderItems)
@@ -160,6 +174,17 @@ namespace localshopyNew.Services
         {
             Order? order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
             return order;
+        }
+
+        public async Task<bool> Cancel(Guid id)
+        {
+            Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id);
+            if (order == null || order.Status != OrderStatus.ORDER_PLACED)
+                return false;
+
+            order.Status = OrderStatus.CANCELLED;
+            int rowsUpdated = _context.SaveChanges();
+            return rowsUpdated > 0;
         }
     }
 }

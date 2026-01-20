@@ -1,4 +1,5 @@
-﻿@model List<Order>
+﻿@using localshopyNew.Constants
+@model List<Order>
 
 @{
     ViewData["Title"] = "All Orders";
@@ -6,11 +7,18 @@
 
 <div class="container mt-4">
     <h3 class="mb-4">All Orders</h3>
-
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
     @if (!Model.Any())
     {
-        <div class="alert alert-warning">
-            No orders found.
+        <div class="card border-info mb-3">
+            <div class="card-body text-info">
+                <h5 class="card-title"><strong>No order found.</strong></h5>
+            </div>
         </div>
     }
     else
@@ -22,10 +30,10 @@
                 // Determine badge color
                 string statusClass = order.Status switch
                 {
-                    "DELIVERED" => "bg-success",
-                    "CANCELLED" => "bg-danger",
-                    "REJECTED" => "bg-danger",
-                    "PROCESSING" => "bg-info text-dark",
+                    OrderStatus.DELIVERED => "bg-success",
+                    OrderStatus.CANCELLED => "bg-danger",
+                    OrderStatus.REJECTED => "bg-danger",
+                    OrderStatus.PROCESSING => "bg-info text-dark",
                     _ => "bg-warning text-dark"
                 };
 
@@ -53,14 +61,14 @@
 
                                 <hr class="my-2" />
 
-                                <!-- Order Info -->
-                                <p class="mb-1"><strong>Shop:</strong> @order.ShopName</p>
-                                <p class="mb-1">
-                                    <strong>Order Date:</strong> @order.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
-                                    <span class="text-muted">(@timeAgo)</span>
-                                </p>
-                                <p class="mb-1"><strong>Items:</strong> @order.OrderItems.Count</p>
-                                <p class="mb-1"><strong>Total:</strong> ₹@order.TotalAmount</p>
+                                <div class="mb-1"><strong>Shop:</strong> @order.ShopName</div>
+
+                                <div class="mb-1">
+                                    <strong>Ordered time:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
+                                </div>
+
+                                <div class="mb-1"><strong>Items:</strong> @order.OrderItems.Count | Qty: @order.OrderItems.Sum(x => x.Quantity)</div>
+                                <div class="mb-1"><strong>Total:</strong> ₹@order.TotalAmount</div>
 
                             </div>
                         </div>

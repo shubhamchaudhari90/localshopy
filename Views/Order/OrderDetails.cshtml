@@ -1,4 +1,5 @@
-﻿@model List<Order>
+﻿@using localshopyNew.Constants
+@model List<Order>
 
 @{
     ViewData["Title"] = "My Orders";
@@ -6,7 +7,12 @@
 
 <div class="container mt-4">
     <h3 class="mb-4">My Orders</h3>
-
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
     @if (!Model.Any())
     {
         <div class="alert alert-warning">
@@ -18,7 +24,7 @@
         <div class="row g-3">
             @foreach (var order in Model)
             {
-                <div class="col-12 col-md-6 col-lg-4 order-card">
+                <div class="col-12 order-card">
                     <div class="card h-100 shadow-sm border-warning">
                         <div class="card-body d-flex flex-column">
 
@@ -31,10 +37,10 @@
                                 @{
                                     string statusClass = order.Status switch
                                     {
-                                        "DELIVERED" => "bg-success",
-                                        "CANCELLED" => "bg-danger",
-                                        "REJECTED" => "bg-danger",
-                                        "PROCESSING" => "bg-info text-dark",
+                                        OrderStatus.DELIVERED => "bg-success",
+                                        OrderStatus.CANCELLED => "bg-danger",
+                                        OrderStatus.REJECTED => "bg-danger",
+                                        OrderStatus.PROCESSING => "bg-info text-dark",
                                         _ => "bg-warning text-dark"
                                     };
                                 }
@@ -52,7 +58,7 @@
                                 <strong>Shop:</strong> @order.ShopName
                             </p>
 
-                           @*  <p class="mb-1">
+                            @*  <p class="mb-1">
                                 <strong>Payment:</strong> @order.PaymentStatus
                                 @if (!string.IsNullOrEmpty(order.PaymentMethod))
                                 {
@@ -70,14 +76,12 @@
                                     timeAgo = $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")} ago";
                                 else if (minutes > 0)
                                     timeAgo = $"{minutes} min{(minutes != 1 ? "s" : "")} ago";
-                                else
+                                else   
                                     timeAgo = "Just now";
                             }
                             <p class="mb-1">
-                                <strong>Order Date:</strong> @order.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
-                                <span class="text-muted">(@timeAgo)</span>
+                                <strong>Ordered time:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
                             </p>
-
 
                             <p class="mb-2">
                                 <strong>Shipping Address:</strong><br />
@@ -87,29 +91,82 @@
                             <hr class="my-2" />
 
                             <!-- Order Items -->
-                            <div class="mb-2">
-                                <strong>Items</strong>
+                            <div id="collapseOrderItems" class="accordion-collapse collapse show">
+                                <div class="accordion-body alert alert-warning">
+                                    <div class="row g-3">
+                                        @foreach (var item in order.OrderItems)
+                                        {
+                                            <div class="col-12 col-md-6 col-lg-4 product-card prd@(item.ProductId)">
+                                                <div class="card h-100 shadow-sm">
+                                                    <div class="row g-0 h-100">
+                                                        <!-- Image -->
+                                                        <div class="col-3 p-2">
+                                                            <div class="ratio ratio-1x1">
+                                                                @if (!string.IsNullOrEmpty(item.ImageFileName))
+                                                                {
+                                                                    <img src="~/images/products/@item.ImageFileName"
+                                                                         class="card-img-top img-fluid" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted w-100" style="aspect-ratio: 1/1;">
+                                                                        <i class="bi bi-image fs-3"></i>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
 
-                                <ul class="list-group list-group-flush">
-                                    @foreach (var item in order.OrderItems)
-                                    {
-                                        <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <div class="fw-semibold">
-                                                    @item.ProductName
+                                                        <!-- Info -->
+                                                        <div class="col-9 d-flex flex-column p-2">
+                                                            <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
+                                                                @item.ProductName
+                                                            </div>
+
+                                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                                @* Product Type Indicator *@
+                                                                @{
+                                                                    string typeColor =
+                                                                    item.Type == "Veg" ? "var(--bs-success)" :
+                                                                    item.Type == "Egg" ? "var(--bs-warning)" :
+                                                                    item.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                                    "";
+                                                                }
+
+                                                                <div title="@item.Type"
+                                                                     class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                                     style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+                                                                    <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                                                    <!-- Unit Price -->
+                                                                    <div>
+                                                                        <strong>Price:</strong> <span class="text-success">₹@item.UnitPrice</span>
+                                                                    </div>
+
+                                                                    <!-- Quantity -->
+                                                                    <div>
+                                                                        <strong>Qty:</strong> @item.Quantity
+                                                                    </div>
+
+                                                                    <!-- Total -->
+                                                                    <div>
+                                                                        <strong>Total:</strong> <span class="text-success">₹@item.TotalPrice</span>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <small class="text-muted">
-                                                    @item.Type | Qty: @item.Quantity
-                                                </small>
                                             </div>
-
-                                            <span class="fw-semibold">
-                                                ₹@item.TotalPrice
-                                            </span>
-                                        </li>
-                                    }
-                                </ul>
+                                        }
+                                    </div>
+                                </div>
                             </div>
+
 
                             <hr class="my-2" />
 
@@ -139,17 +196,25 @@
                             <!-- Actions -->
                             <div class="mt-auto pt-3 d-flex gap-2">
                                 <a class="btn btn-sm btn-warning flex-fill"
-                                   href="@Url.Action("Index", "Order", new { id = order.Id })">
+                                   href="@Url.Action("Index", "Order")">
                                     Back
                                 </a>
 
-                                @if (order.Status == "PENDING")
+                                @if (order.Status == OrderStatus.ORDER_PLACED)
                                 {
-                                    <a class="btn btn-sm btn-danger flex-fill"
-                                       href="@Url.Action("Cancel", "Order", new { id = order.Id })"
-                                       onclick="return confirm('Are you sure you want to cancel this order?');">
-                                        Cancel
-                                    </a>
+                                    <form asp-action="Cancel"
+                                          asp-controller="Order"
+                                          method="post"
+                                          class="flex-fill"
+                                          onsubmit="return confirm('Are you sure you want to cancel this order?');">
+
+                                        <input type="hidden" name="id" value="@order.Id" />
+
+                                        <button type="submit" class="btn btn-sm btn-danger w-100">
+                                            Cancel
+                                        </button>
+                                    </form>
+
 
                                 }
                             </div>

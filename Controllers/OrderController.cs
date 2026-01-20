@@ -21,6 +21,7 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> OrderDetails(string wing, string flatNumber)
         {
+            TempData["ErrorMessage"] = null;
             string? email = User.FindFirstValue(ClaimTypes.Email);
             if (!string.IsNullOrEmpty(email))
             {
@@ -28,13 +29,7 @@ namespace localshopyNew.Controllers
                 if (locationId != Guid.Empty)
                 {
                     List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing);
-                    int cartCount = _sessionService.GetCartCount();
-                    foreach (Order order in orders)
-                    {
-                        int itemsCount = order.OrderItems.Sum(x => x.Quantity);
-                        cartCount = cartCount - itemsCount;
-                    }
-                    _sessionService.SetCartCount(cartCount);
+                    _sessionService.SetCartCount(0);
                     return View(orders);
                 }
             }
@@ -42,10 +37,17 @@ namespace localshopyNew.Controllers
             return RedirectToAction("Index", "Cart");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(Guid id)
         {
-
-            return RedirectToAction("Index", "Order");
+            TempData["ErrorMessage"] = null;
+            bool isCancelled = await _orderService.Cancel(id);
+            if (!isCancelled)
+            {
+                TempData["ErrorMessage"] = "Order is not cancelled";
+            }
+            return RedirectToAction(nameof(OrderDetails), new { id });
         }
 
         public async Task<IActionResult> Index()
@@ -68,13 +70,10 @@ namespace localshopyNew.Controllers
         {
             var order = await _orderService.GetOrder(id);
 
-            if (order == null) return NotFound();
+            if (order is null)
+                return NotFound();
 
-            List<Order> orders = new List<Order>();
-
-            orders.Add(order);
-
-            return View(orders);
+            return View(new List<Order> { order });
         }
 
 

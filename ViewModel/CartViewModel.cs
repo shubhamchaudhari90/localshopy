@@ -36,5 +36,7 @@
         public DateTime? DiscountValidTill { get; set; }
         public string CategoryName { get; set; }
         public string Type { get; set; }
+
+        public int ShopNumber { get; set; }
     }
 }

@@ -43,7 +43,19 @@ namespace localshopyNew.Services
 
         public async Task<bool> AddShop(Shop shop)
         {
-            var existingShop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shop.Name.ToLower() || x.OwnerEmailId.ToLower() == shop.OwnerEmailId.ToLower());
+            int maxShopNumber = 0;
+            if (await _context.Shops.AsNoTracking().AnyAsync())
+            {
+                maxShopNumber = await _context.Shops
+                    .AsNoTracking()
+                    .Select(x => x.ShopNumber)
+                    .MaxAsync();
+            }
+
+            var nextShopNumber = maxShopNumber + 1;
+
+
+            Shop? existingShop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shop.Name.ToLower() || x.OwnerEmailId.ToLower() == shop.OwnerEmailId.ToLower());
             if (existingShop != null)
             {
                 return false;
@@ -53,6 +65,7 @@ namespace localshopyNew.Services
             shop.IsActive = true;
             shop.AccountValidTill = DateTime.Today.AddMonths(1);
             shop.OwnerEmailId = shop.OwnerEmailId.ToLower();
+            shop.ShopNumber = nextShopNumber;
             await _context.AddAsync(shop);
             int rowsInserted = await _context.SaveChangesAsync();
             if (rowsInserted > 0)
