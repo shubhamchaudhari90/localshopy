@@ -201,3 +201,20 @@ body {
     box-shadow: 0 0 0 2px #fff; /* optional outline for contrast */
     transform: translate(-50%, -25%); /* fine-tuned center over cart */
 }
+.progress-slim {
+    height: 6px !important; /* Slim height */
+    border-radius: 10px;
+    background-color: #f1f1f1;
+}
+
+    .progress-slim .progress-bar {
+        border-radius: 10px;
+        transition: width 0.4s ease;
+    }
+
+/* Even slimmer on small screens */
+@media (max-width: 576px) {
+    .progress-slim {
+        height: 4px;
+    }
+}

@@ -19,7 +19,69 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> OrderDetails(string wing, string flatNumber)
+        public async Task<IActionResult> OrderDetails(Guid id)
+        {
+            var order = await _orderService.GetOrderById(id);
+
+            if (order is null)
+                return NotFound();
+
+            return View(new List<Order> { order });
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            List<Order> ordersList = new List<Order>();
+            string? email = User.FindFirstValue(ClaimTypes.Email);
+            if (!string.IsNullOrEmpty(email))
+            {
+                Guid locationId = _sessionService.GetLocation();
+                if (locationId != Guid.Empty)
+                {
+                    ordersList = await _orderService.GetAllOrders(email, locationId);
+                    return View(ordersList);
+                }
+            }
+            return View(ordersList);
+        }
+
+        public async Task<IActionResult> AllOrders()
+        {
+            List<Order> orderList = new List<Order>();
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            orderList = await _orderService.GetAllOrdersByShopId(shopId);
+            return View(orderList);
+        }
+
+        public async Task<IActionResult> OrdersToServe()
+        {
+            List<Order> orderList = new List<Order>();
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Logout", "Account");
+            }
+            orderList = await _orderService.OrdersToServe(shopId);
+            return View(orderList);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProcessOrder(Guid id)
+        {
+            var order = await _orderService.GetOrderById(id);
+
+            if (order is null)
+                return NotFound();
+
+            return View(new List<Order> { order });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder(string wing, string flatNumber)
         {
             TempData["ErrorMessage"] = null;
             string? email = User.FindFirstValue(ClaimTypes.Email);
@@ -30,7 +92,7 @@ namespace localshopyNew.Controllers
                 {
                     List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing);
                     _sessionService.SetCartCount(0);
-                    return View(orders);
+                    return View("OrderDetails", orders);
                 }
             }
 
@@ -50,37 +112,100 @@ namespace localshopyNew.Controllers
             return RedirectToAction(nameof(OrderDetails), new { id });
         }
 
-        public async Task<IActionResult> Index()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(Guid id)
         {
-            List<Order> ordersList = new List<Order>();
-            string? email = User.FindFirstValue(ClaimTypes.Email);
-            if (!string.IsNullOrEmpty(email))
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
             {
-                Guid locationId = _sessionService.GetLocation();
-                if (locationId != Guid.Empty)
-                {
-                    ordersList = await _orderService.GetAllOrders(email, locationId);
-                    return View(ordersList);
-                }
+                return RedirectToAction("Login", "Account");
             }
-            return View(ordersList);
+
+            TempData["ErrorMessage"] = null;
+            bool isCancelled = await _orderService.Reject(id, shopId);
+            if (!isCancelled)
+            {
+                TempData["ErrorMessage"] = "Order is not Rejected";
+            }
+            return RedirectToAction(nameof(OrdersToServe));
         }
 
-        public async Task<IActionResult> OrderDetails(Guid id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Accept(Guid id)
         {
-            var order = await _orderService.GetOrder(id);
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            if (order is null)
-                return NotFound();
-
-            return View(new List<Order> { order });
+            TempData["ErrorMessage"] = null;
+            bool isAccepted = await _orderService.Accept(id, shopId);
+            if (!isAccepted)
+            {
+                TempData["ErrorMessage"] = "Order is not Accepted";
+            }
+            return RedirectToAction(nameof(OrdersToServe));
         }
 
-
-        public IActionResult Shopkeeper()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Processing(Guid id)
         {
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            return View();
+            TempData["ErrorMessage"] = null;
+            bool isAccepted = await _orderService.Processing(id, shopId);
+            if (!isAccepted)
+            {
+                TempData["ErrorMessage"] = "Order is not Processing";
+            }
+            return RedirectToAction(nameof(OrdersToServe));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OutForDelivery(Guid id)
+        {
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            TempData["ErrorMessage"] = null;
+            bool isAccepted = await _orderService.OutForDelivery(id, shopId);
+            if (!isAccepted)
+            {
+                TempData["ErrorMessage"] = "Order is not OutForDelivery";
+            }
+            return RedirectToAction(nameof(OrdersToServe));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delivered(Guid id)
+        {
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            TempData["ErrorMessage"] = null;
+            bool isAccepted = await _orderService.Delivered(id, shopId);
+            if (!isAccepted)
+            {
+                TempData["ErrorMessage"] = "Order is not Delivered";
+            }
+            return RedirectToAction(nameof(AllOrders));
+        }
+
     }
 }

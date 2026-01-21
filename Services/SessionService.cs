@@ -119,6 +119,8 @@ namespace localshopyNew.Services
             string shopIdKey = _encodingService.Encode("ShopId");
             Session.Remove(shopIdKey);
             Session.Remove(RoleConstants.IsShopkeeper);
+            Session.Remove(RoleConstants.Admin);
+            Session.Remove(RoleConstants.Shopkeeper);
             Session.Clear();
         }
     }

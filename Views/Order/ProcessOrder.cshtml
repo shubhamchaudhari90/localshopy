@@ -1,8 +1,10 @@
 ﻿@using localshopyNew.Constants
 @model List<Order>
+
 @{
     ViewData["Title"] = "My Orders";
 }
+
 <div class="container mt-4">
     <h3 class="mb-4">My Orders</h3>
     @if (TempData["ErrorMessage"] != null)
@@ -47,7 +49,6 @@
                                 </span>
                             </div>
                             <hr class="my-2" />
-
                             @{
                                 int progress = 0;
                                 string progressClass = "bg-warning";
@@ -80,9 +81,8 @@
                                         break;
                                 }
                             }
-
-                            <div class="progress progress-slim">
-                                <div class="progress-bar @progressClass progress-bar-animated progress-bar-striped"
+                            <div class="progress">
+                                <div class="progress-bar @progressClass"
                                      role="progressbar"
                                      style="width: @progress%"
                                      aria-valuenow="@progress"
@@ -93,37 +93,21 @@
 
                             <hr class="my-2" />
 
-                            <p class="mb-1">
-                                <strong>Shop:</strong> @order.ShopName
-                            </p>
                             @{
                                 var duration = DateTime.Now - order.CreatedAt;
                                 int hours = (int)duration.TotalHours;
                                 int minutes = duration.Minutes;
                                 string timeAgo;
+
                                 if (hours > 0)
                                     timeAgo = $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")}";
                                 else if (minutes > 0)
                                     timeAgo = $"{minutes} min{(minutes != 1 ? "s" : "")}";
                                 else
                                     timeAgo = "Just now";
-
-                                var durationUA = DateTime.Now - order.UpdatedAt;
-                                int hoursUA = (int)durationUA.TotalHours;
-                                int minutesUA = durationUA.Minutes;
-                                string timeAgoUA;
-                                if (hoursUA > 0)
-                                    timeAgoUA = $"{hoursUA} hour{(hoursUA > 1 ? "s" : "")} {minutesUA} min{(minutesUA != 1 ? "s" : "")}";
-                                else if (minutesUA > 0)
-                                    timeAgoUA = $"{minutesUA} min{(minutesUA != 1 ? "s" : "")}";
-                                else
-                                    timeAgoUA = "Just now";
                             }
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
-                            </p>
-                            <p class="mb-1">
-                                <strong>Last Updated at:</strong> @order.UpdatedAt.ToString("hh:mm tt") (@timeAgoUA)
                             </p>
                             <p class="mb-2">
                                 <strong>Shipping Address:</strong><br />
@@ -138,7 +122,6 @@
                                             <div class="col-12 col-md-6 col-lg-4 product-card prd@(item.ProductId)">
                                                 <div class="card h-100 shadow-sm">
                                                     <div class="row g-0 h-100">
-                                                        <!-- Image -->
                                                         <div class="col-3 p-2">
                                                             <div class="ratio ratio-1x1">
                                                                 @if (!string.IsNullOrEmpty(item.ImageFileName))
@@ -177,9 +160,11 @@
                                                                     <div>
                                                                         <strong>Price:</strong> <span class="text-success">₹@item.UnitPrice</span>
                                                                     </div>
+
                                                                     <div>
                                                                         <strong>Qty:</strong> @item.Quantity
                                                                     </div>
+
                                                                     <div>
                                                                         <strong>Total:</strong> <span class="text-success">₹@item.TotalPrice</span>
                                                                     </div>
@@ -201,23 +186,69 @@
                                 </div>
                             </div>
                             <div class="mt-auto pt-3 d-flex gap-2">
+
                                 @if (order.Status == OrderStatus.ORDER_PLACED)
                                 {
-                                    <form asp-action="Cancel"
-                                          asp-controller="Order"
-                                          method="post"
-                                          class="flex-fill"
-                                          onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                                    <form asp-action="Reject" asp-controller="Order" method="post" class="flex-fill"
+                                          onsubmit="return confirm('Are you sure you want to REJECT this order?');">
                                         <input type="hidden" name="id" value="@order.Id" />
-                                        <button type="submit" class="btn btn-sm btn-danger w-100">
-                                            Cancel
+                                        <button type="submit" class="fw-bold btn btn-sm btn-danger w-100">
+                                            Reject
+                                        </button>
+                                    </form>
+                                    <a class="fw-bold btn btn-sm btn-secondary flex-fill"
+                                       href="@Url.Action("OrdersToServe", "Order")">
+                                        Back
+                                    </a>
+                                    <form asp-action="Accept" asp-controller="Order" method="post" class="flex-fill">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="fw-bold btn btn-sm btn-warning w-100">
+                                            Accept
                                         </button>
                                     </form>
                                 }
-                                <a class="btn btn-sm btn-warning flex-fill"
-                                   href="@Url.Action("Index", "Order")">
-                                    Back
-                                </a>
+
+                                @if (order.Status == OrderStatus.ACCEPTED)
+                                {
+                                    <a class="fw-bold btn btn-sm btn-secondary flex-fill"
+                                       href="@Url.Action("OrdersToServe", "Order")">
+                                        Back
+                                    </a>
+                                    <form asp-action="Processing" asp-controller="Order" method="post" class="flex-fill">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="fw-bold btn btn-sm btn-warning w-100">
+                                            @OrderStatus.PROCESSING
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (order.Status == OrderStatus.PROCESSING)
+                                {
+                                    <a class="fw-bold btn btn-sm btn-secondary flex-fill"
+                                       href="@Url.Action("OrdersToServe", "Order")">
+                                        Back
+                                    </a>
+                                    <form asp-action="OutForDelivery" asp-controller="Order" method="post" class="flex-fill">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="fw-bold btn btn-sm btn-warning w-100">
+                                            @OrderStatus.OUT_FOR_DELIVERY
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (order.Status == OrderStatus.OUT_FOR_DELIVERY)
+                                {
+                                    <a class="fw-bold btn btn-sm btn-secondary flex-fill"
+                                       href="@Url.Action("OrdersToServe", "Order")">
+                                        Back
+                                    </a>
+                                    <form asp-action="Delivered" asp-controller="Order" method="post" class="flex-fill">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="fw-bold btn btn-sm btn-warning w-100">
+                                            @OrderStatus.DELIVERED
+                                        </button>
+                                    </form>
+                                }
                             </div>
                         </div>
                     </div>

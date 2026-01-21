@@ -40,11 +40,11 @@ namespace localshopyNew.Controllers
             Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
 
             Guid location = _sessionService.GetLocation();
             if (location != Guid.Empty)
@@ -66,11 +66,11 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null || model.Shop == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
 
             var locationList = await _locationService.GetActiveLocations();
             if (locationList == null)
@@ -105,13 +105,13 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             shop.Id = shopId;
 
             ShopProductsViewModel? model = await _shopkeeperService.UpdateShopData(shop);
             if (model == null || model.Shop == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             return RedirectToAction(nameof(ShopDetails), model);
         }
 
@@ -150,7 +150,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -249,7 +249,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -299,7 +299,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             bool isDeleted = await _shopkeeperService.DeleteProductFromShop(shopId, productId);
             if (!isDeleted)
