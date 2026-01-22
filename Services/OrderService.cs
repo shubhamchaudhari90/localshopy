@@ -139,7 +139,7 @@ namespace localshopyNew.Services
                     ShopName = shopGroup.Key.ShopName,
                     CreatedAt = now,
                     UpdatedAt = now,
-                    OrderNumber = $"{now:yyyyMMdd}-{shopGroup.Key.ShopNumber.ToString("D3")}-{count}",
+                    OrderNumber = $"{now:yyyyMMdd}-{shopGroup.Key.ShopNumber.ToString("D2")}-{count}",
 
                     Status = OrderStatus.ORDER_PLACED,
 

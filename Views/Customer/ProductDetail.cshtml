@@ -177,77 +177,78 @@
                         </div>
                     </div>
                 </div>
+                @if (TempData["Order"] != null)
+                {
+                    <!-- ================= Add Review ================= -->
+                    <div class="accordion-item shadow-sm">
+                        <h2 class="accordion-header" id="headingAddReview">
+                            <button class="accordion-button bg-warning text-dark fw-semibold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseAddReview"
+                                    aria-expanded="true"
+                                    aria-controls="collapseAddReview">
+                                Add Review
+                            </button>
+                        </h2>
 
-                <!-- ================= Add Review ================= -->
-                <div class="accordion-item shadow-sm">
-                    <h2 class="accordion-header" id="headingAddReview">
-                        <button class="accordion-button bg-warning text-dark fw-semibold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseAddReview"
-                                aria-expanded="true"
-                                aria-controls="collapseAddReview">
-                            Add Review
-                        </button>
-                    </h2>
+                        <div id="collapseAddReview"
+                             class="accordion-collapse collapse show"
+                             aria-labelledby="headingAddReview">
 
-                    <div id="collapseAddReview"
-                         class="accordion-collapse collapse show"
-                         aria-labelledby="headingAddReview">
+                            <div class="accordion-body alert alert-warning">
 
-                        <div class="accordion-body alert alert-warning">
+                                @if (User.Identity?.IsAuthenticated != true)
+                                {
+                                    <p class="text-muted mb-0">
+                                        Please login with Google to submit a review.
+                                    </p>
+                                }
+                                else if (User.Identity.IsAuthenticated && !Model.IsReviewed)
+                                {
+                                    <form asp-controller="Customer"
+                                          asp-action="AddReview"
+                                          method="post">
 
-                            @if (User.Identity?.IsAuthenticated != true)
-                            {
-                                <p class="text-muted mb-0">
-                                    Please login with Google to submit a review.
-                                </p>
-                            }
-                            else if (User.Identity.IsAuthenticated && !Model.IsReviewed)
-                            {
-                                <form asp-controller="Customer"
-                                      asp-action="AddReview"
-                                      method="post">
+                                        <input type="hidden" name="ProductId" value="@Model.Id" />
 
-                                    <input type="hidden" name="ProductId" value="@Model.Id" />
+                                        <!-- Rating Stars -->
+                                        <div id="ratingStars"
+                                             class="text-warning mb-2 fs-5"
+                                             style="cursor: pointer;">
+                                            <i class="bi bi-star" data-value="1"></i>
+                                            <i class="bi bi-star" data-value="2"></i>
+                                            <i class="bi bi-star" data-value="3"></i>
+                                            <i class="bi bi-star" data-value="4"></i>
+                                            <i class="bi bi-star" data-value="5"></i>
+                                        </div>
 
-                                    <!-- Rating Stars -->
-                                    <div id="ratingStars"
-                                         class="text-warning mb-2 fs-5"
-                                         style="cursor: pointer;">
-                                        <i class="bi bi-star" data-value="1"></i>
-                                        <i class="bi bi-star" data-value="2"></i>
-                                        <i class="bi bi-star" data-value="3"></i>
-                                        <i class="bi bi-star" data-value="4"></i>
-                                        <i class="bi bi-star" data-value="5"></i>
-                                    </div>
+                                        <input type="hidden" name="Rating" id="ratingValue" />
 
-                                    <input type="hidden" name="Rating" id="ratingValue" />
-
-                                    <div class="mb-2">
-                                        <label class="form-label">Comment</label>
-                                        <textarea name="Comment"
+                                        <div class="mb-2">
+                                            <label class="form-label">Comment</label>
+                                            <textarea name="Comment"
                                               class="form-control"
                                               rows="3"
                                               maxlength="200"
                                               placeholder="Write your review..."></textarea>
-                                    </div>
+                                        </div>
 
-                                    <button type="submit" class="btn btn-sm btn-warning">
-                                        Submit Review
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <p class="text-muted mb-0">
-                                    You have already submitted a review for this product.
-                                </p>
-                            }
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            Submit Review
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0">
+                                        You have already submitted a review for this product.
+                                    </p>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-
+                }
             </div>
 
         </div>

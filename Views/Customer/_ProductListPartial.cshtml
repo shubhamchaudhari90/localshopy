@@ -72,7 +72,7 @@
                                     <div class="card h-100 shadow-sm @cardClass">
                                         <div class="row g-0 h-100">
 
-                                            <div class="col-3 p-2">
+                                            <div class="col-4 p-2">
 
                                                 <!-- Product Card -->
                                                 <div class="ratio ratio-1x1">
@@ -98,41 +98,38 @@
                                                             @if (product.IsAddedToCart)
                                                             {
                                                                 <div role="button"
-                                                                     class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle div_@product.Id"
-                                                                     style="width:30px; height:30px; z-index:10; cursor:pointer;"
+                                                                     class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id"
                                                                      data-shop="@product.ShopName"
                                                                      data-product="@product.ProductMasterName"
                                                                      data-productid="@product.Id">
-                                                                    <i class="bi bi-check-circle-fill added-icon"></i>
+                                                                    <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
                                                                 </div>
 
                                                                 <button type="button"
-                                                                        class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle add-to-cart btn_@product.Id d-none"
-                                                                        style="width:30px; height:30px; z-index:10;"
+                                                                        class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id d-none"
+                                                                        style="width:60px; height:26px; z-index:10;"
                                                                         data-shop="@product.ShopName"
                                                                         data-product="@product.ProductMasterName"
                                                                         data-productid="@product.Id">
-                                                                    <i class="bi bi-cart-plus"></i>
+                                                                    <i class="bi bi-cart-plus icon-cart"></i>
                                                                 </button>
                                                             }
                                                             else
                                                             {
                                                                 <div role="button"
-                                                                     class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle div_@product.Id d-none"
-                                                                     style="width:30px; height:30px; z-index:10; cursor:pointer;"
+                                                                     class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id d-none"
                                                                      data-shop="@product.ShopName"
                                                                      data-product="@product.ProductMasterName"
                                                                      data-productid="@product.Id">
-                                                                    <i class="bi bi-check-circle-fill added-icon"></i>
+                                                                    <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
                                                                 </div>
 
                                                                 <button type="button"
-                                                                        class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle add-to-cart btn_@product.Id"
-                                                                        style="width:30px; height:30px; z-index:10;"
+                                                                        class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id"
                                                                         data-shop="@product.ShopName"
                                                                         data-product="@product.ProductMasterName"
                                                                         data-productid="@product.Id">
-                                                                    <i class="bi bi-cart-plus"></i>
+                                                                    <i class="bi bi-cart-plus icon-cart"></i>
                                                                 </button>
                                                             }
                                                         }
@@ -140,9 +137,8 @@
                                                         {
                                                             <a asp-controller="Account"
                                                                asp-action="Login"
-                                                               class="btn btn-warning btn-sm rounded-circle position-absolute top-100 start-50 translate-middle login-required-btn"
-                                                               style="width:30px; height:30px; z-index:10;">
-                                                                <i class="bi bi-lock-fill"></i>
+                                                               class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
+                                                                <i class="bi bi-lock-fill icon-cart"></i>
                                                             </a>
                                                         }
                                                     }
@@ -150,7 +146,7 @@
                                             </div>
 
                                             <!-- Product Data -->
-                                            <div class="col-9 d-flex flex-column p-2">
+                                            <div class="col d-flex flex-column p-2">
 
                                                 <!-- PRODUCT NAME (SINGLE LINE) -->
                                                 <a asp-controller="Customer"

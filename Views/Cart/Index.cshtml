@@ -36,7 +36,7 @@
                                         <div class="col-12 col-md-6 col-lg-4 product-card prd@(product.ProductId)">
                                             <div class="card h-100 shadow-sm">
                                                 <div class="row g-0 h-100">
-                                                    <div class="col-3 p-2">
+                                                    <div class="col-4 p-2">
                                                         <div class="ratio ratio-1x1">
                                                             @if (!string.IsNullOrEmpty(product.ImageFileName))
                                                             {
@@ -51,8 +51,7 @@
                                                             }
 
                                                             <span role="button"
-                                                                  class="cart-remove-icon position-absolute top-100 start-50 translate-middle bg-warning rounded"
-                                                                  style="width: 25px !important; height: 25px !important;"
+                                                                  class="cart-remove-icon position-absolute cart-options-icons translate-middle bg-warning rounded"
                                                                   data-id="@product.ProductId"
                                                                   aria-label="Remove item">
                                                                 <i class="bi bi-trash text-danger fs-5"></i>
@@ -60,7 +59,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-9 d-flex flex-column p-2">
+                                                    <div class="col d-flex flex-column p-2">
                                                         <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
                                                             @product.ProductName
                                                         </div>

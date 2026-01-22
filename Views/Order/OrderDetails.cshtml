@@ -1,10 +1,10 @@
 ﻿@using localshopyNew.Constants
 @model List<Order>
 @{
-    ViewData["Title"] = "My Orders";
+    ViewData["Title"] = "Order Details";
 }
 <div class="container mt-4">
-    <h3 class="mb-4">My Orders</h3>
+    <h3 class="mb-4">Order Details</h3>
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger">
@@ -156,7 +156,13 @@
                                                         </div>
                                                         <div class="col-9 d-flex flex-column p-2">
                                                             <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
-                                                                @item.ProductName
+                                                                <a asp-controller="Customer"
+                                                                   asp-action="ProductDetail"
+                                                                   asp-route-shopProductName="@order.ShopName.Replace("-", "--").Replace(" ", "-")_@item.ProductName.Replace("-", "--").Replace(" ", "-")"
+                                                                   class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
+                                                                   style="white-space: nowrap;">
+                                                                    @item.ProductName
+                                                                </a>
                                                             </div>
                                                             <div class="d-flex align-items-center justify-content-between mb-1">
                                                                 @{

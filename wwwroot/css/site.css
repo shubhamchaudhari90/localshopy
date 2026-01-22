@@ -20,43 +20,6 @@ html {
 body {
     margin-bottom: 60px;
 }
-/* Mobile first */
-.compact-btn {
-    padding: 6px 8px;
-    font-size: 12px;
-    min-height: 32px;
-}
-
-/* Tablets & above */
-@media (min-width: 576px) {
-    .compact-btn {
-        padding: 8px 12px;
-        font-size: 14px;
-        min-height: 38px;
-    }
-}
-
-.add-to-cart-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-    .add-to-cart-btn i {
-        font-size: 18px;
-    }
-
-/* Mobile smaller button */
-@media (max-width: 576px) {
-    .add-to-cart-btn {
-        width: 36px;
-        height: 36px;
-    }
-
-        .add-to-cart-btn i {
-            font-size: 16px;
-        }
-}
 
 .add-to-cart {
     display: flex;
@@ -157,8 +120,6 @@ body {
         transform: scale(0.9);
     }
 
-
-
 /* Cart container */
 .cart-container {
     position: relative; /* for absolute positioning of count */
@@ -201,6 +162,7 @@ body {
     box-shadow: 0 0 0 2px #fff; /* optional outline for contrast */
     transform: translate(-50%, -25%); /* fine-tuned center over cart */
 }
+
 .progress-slim {
     height: 6px !important; /* Slim height */
     border-radius: 10px;
@@ -218,3 +180,26 @@ body {
         height: 4px;
     }
 }
+
+.cart-options-icons {
+    top: 87% !important;
+    left: 50% !important;
+    width: 56px !important;
+    height: 20px !important;
+    background-color: white;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.icon-cart {
+    left: 36% !important;
+    top: -13% !important;
+    position: absolute !important;
+}
+
+.check-icon-cart {
+    left: 36% !important;
+    top: 0% !important;
+    position: absolute !important;
+}
+
