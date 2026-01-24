@@ -13,5 +13,7 @@
         public const string PROCESSING = "Processing";
         public const string OUT_FOR_DELIVERY = "Out for Delivery";
         public const string DELIVERED = "Delivered";
+
+        public const string PREORDER = "Pre-Order";
     }
 }

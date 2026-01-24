@@ -26,6 +26,8 @@ namespace localshopyNew.Models
         public string Status { get; set; } = "PENDING";
         // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REJECTED
 
+        public bool IsPreOrder { get; set; } = false;
+
         public int Subtotal { get; set; }
 
         public int Tax { get; set; }

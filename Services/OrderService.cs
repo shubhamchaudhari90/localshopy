@@ -336,5 +336,28 @@ namespace localshopyNew.Services
             int rowsUpdated = _context.SaveChanges();
             return rowsUpdated > 0;
         }
+
+        public async Task<bool> PreOrder(Guid id, Guid shopId)
+        {
+            Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
+            if (order == null)
+                return false;
+
+            order.UpdatedAt = DateTime.Now;
+            order.IsPreOrder = true;
+
+            OrderTracking tracking = new OrderTracking()
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                Status = OrderStatus.PREORDER,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.orderTrackings.Add(tracking);
+
+            int rowsUpdated = _context.SaveChanges();
+            return rowsUpdated > 0;
+        }
     }
 }

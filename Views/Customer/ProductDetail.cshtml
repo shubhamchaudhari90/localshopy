@@ -177,7 +177,7 @@
                         </div>
                     </div>
                 </div>
-                @if (TempData["Order"] != null)
+                @if (Model.CanReview)
                 {
                     <!-- ================= Add Review ================= -->
                     <div class="accordion-item shadow-sm">

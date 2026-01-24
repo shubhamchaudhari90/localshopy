@@ -209,5 +209,23 @@ namespace localshopyNew.Controllers
             return RedirectToAction(nameof(AllOrders));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PreOrder(Guid id)
+        {
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            TempData["ErrorMessage"] = null;
+            bool isAccepted = await _orderService.PreOrder(id, shopId);
+            if (!isAccepted)
+            {
+                TempData["ErrorMessage"] = "Order is able to PRE-ORDER";
+            }
+            return RedirectToAction(nameof(AllOrders));
+        }
     }
 }

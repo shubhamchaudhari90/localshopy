@@ -115,6 +115,21 @@ namespace localshopyNew.Controllers
             return RedirectToAction(nameof(ShopDetails), model);
         }
 
+        [HttpPost]
+        public async Task<bool> SwitchStatus()
+        {
+
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return false;
+            }
+            bool isSuccess = await _shopkeeperService.SwitchStatus(shopId);
+            if (isSuccess)
+                return true;
+            return false;
+        }
+
         public async Task<IActionResult> AddProduct()
         {
             var categoryList = await _categoryService.GetActiveCategories();

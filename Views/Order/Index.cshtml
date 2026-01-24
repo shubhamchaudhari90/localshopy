@@ -120,7 +120,14 @@
                                         <strong>Items:</strong> @order.OrderItems.Count |
                                         Qty: @order.OrderItems.Sum(x => x.Quantity)
                                     </div>
-                                    <div class="mb-1"><strong>Total:</strong> ₹@order.TotalAmount</div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <div><strong>Total:</strong> ₹@order.TotalAmount</div>
+                                        @if (order.IsPreOrder)
+                                        {
+                                            <span class="badge bg-secondary">@OrderStatus.PREORDER</span>
+                                        }
+                                    </div>
+
                                 </div>
                             </div>
                         </button>

@@ -205,6 +205,18 @@ namespace localshopyNew.Services
             return null;
         }
 
+        public async Task<bool> SwitchStatus(Guid shopId)
+        {
+            Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+            if (shop != null)
+            {
+                shop.IsOpen = !shop.IsOpen;
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
         public async Task<bool> DeleteProductFromShop(Guid shopId, Guid productId)
         {
             Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == shopId && x.Id == productId);

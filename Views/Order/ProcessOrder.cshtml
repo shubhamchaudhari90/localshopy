@@ -113,6 +113,13 @@
                                 <strong>Shipping Address:</strong><br />
                                 @order.ShippingAddress
                             </p>
+                            <div class="d-flex justify-content-end align-items-center mb-1">
+                                @if (order.IsPreOrder)
+                                {
+                                    <span class="badge bg-secondary">@OrderStatus.PREORDER</span>
+                                }
+                            </div>
+
                             <hr class="my-2" />
                             <div id="collapseOrderItems" class="accordion-collapse collapse show">
                                 <div class="accordion-body alert alert-warning">
@@ -210,6 +217,16 @@
 
                                 @if (order.Status == OrderStatus.ACCEPTED)
                                 {
+                                    if (!order.IsPreOrder)
+                                    {
+                                        <form asp-action="PreOrder" asp-controller="Order" method="post" class="flex-fill"
+                                              onsubmit="return confirm('Are you sure you want to PRE-ORDER this order?');">
+                                            <input type="hidden" name="id" value="@order.Id" />
+                                            <button type="submit" class="fw-bold btn btn-sm btn-danger w-100">
+                                                Pre-Order
+                                            </button>
+                                        </form>
+                                    }
                                     <a class="fw-bold btn btn-sm btn-secondary flex-fill"
                                        href="@Url.Action("OrdersToServe", "Order")">
                                         Back
@@ -224,6 +241,16 @@
 
                                 @if (order.Status == OrderStatus.PROCESSING)
                                 {
+                                    if (!order.IsPreOrder)
+                                    {
+                                        <form asp-action="PreOrder" asp-controller="Order" method="post" class="flex-fill"
+                                              onsubmit="return confirm('Are you sure you want to PRE-ORDER this order?');">
+                                            <input type="hidden" name="id" value="@order.Id" />
+                                            <button type="submit" class="fw-bold btn btn-sm btn-danger w-100">
+                                                Pre-Order
+                                            </button>
+                                        </form>
+                                    }
                                     <a class="fw-bold btn btn-sm btn-secondary flex-fill"
                                        href="@Url.Action("OrdersToServe", "Order")">
                                         Back
@@ -238,6 +265,16 @@
 
                                 @if (order.Status == OrderStatus.OUT_FOR_DELIVERY)
                                 {
+                                    if (!order.IsPreOrder)
+                                    {
+                                        <form asp-action="PreOrder" asp-controller="Order" method="post" class="flex-fill"
+                                              onsubmit="return confirm('Are you sure you want to PRE-ORDER this order?');">
+                                            <input type="hidden" name="id" value="@order.Id" />
+                                            <button type="submit" class="fw-bold btn btn-sm btn-danger w-100">
+                                                Pre-Order
+                                            </button>
+                                        </form>
+                                    }
                                     <a class="fw-bold btn btn-sm btn-secondary flex-fill"
                                        href="@Url.Action("OrdersToServe", "Order")">
                                         Back

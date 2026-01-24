@@ -203,3 +203,19 @@ body {
     position: absolute !important;
 }
 
+/* Bigger switch */
+.form-switch .form-check-input {
+    width: 4rem;
+    height: 2rem;
+    cursor: pointer;
+}
+
+/* Warning color */
+.form-check-input:checked {
+    background-color: #ffc107; /* Bootstrap warning */
+    border-color: #ffc107;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.4);
+}

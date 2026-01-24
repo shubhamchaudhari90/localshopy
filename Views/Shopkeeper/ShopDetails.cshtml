@@ -62,12 +62,16 @@
                     </div>
 
                     <!-- Right: Edit button -->
-                    <a href="@Url.Action("Edit", "Shopkeeper")"
-                       class="btn btn-sm btn-warning"
-                       title="Edit Shop Details">
-                        <i class="bi bi-pencil"></i>
-                    </a>
+                    <div class="form-check form-switch">
 
+                        <div class="form-check form-switch d-flex align-items-center gap-3">
+                            <input asp-for="@Model.Shop.IsOpen"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   id="isOpenSwitch"
+                                   onchange="switchStatus()" />
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-md-6">
@@ -92,9 +96,22 @@
                     <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 d-flex justify-content-between align-items-center">
+
+                    <!-- Left: Status -->
+                    <div class="d-flex align-items-center gap-1">
+                        <p>
+                            <strong>Locations:</strong> @string.Join(" | ", Model.Locations)
+                        </p>
+                    </div>
+
+                    <!-- Right: Edit button -->
                     <p>
-                        <strong>Locations:</strong> @string.Join(" | ", Model.Locations)
+                        <a href="@Url.Action("Edit", "Shopkeeper")"
+                           class="btn btn-sm btn-warning"
+                           title="Edit Shop Details">
+                            <i class="bi bi-pencil"></i>
+                        </a>
                     </p>
                 </div>
             </div>
@@ -219,18 +236,18 @@
                                                             <!-- Type Icon -->
                                                             <div title="@product.Type" class="d-inline-flex align-items-center justify-content-center"
                                                                  style="
-                                            width:18px;
-                                            height:18px;
-                                                        border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
-                                            border-radius:6px;
-                                            background-color:white;">
+                                                                                width:18px;
+                                                                                height:18px;
+                                                                                            border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
+                                                                                border-radius:6px;
+                                                                                background-color:white;">
 
                                                                 <!-- Inner Circle -->
                                                                 <div title="@product.Type" style="
-                                            width:10px;
-                                            height:10px;
-                                            border-radius:50%;
-                                                        background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                                                                                width:10px;
+                                                                                height:10px;
+                                                                                border-radius:50%;
+                                                                                            background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
                                                                 </div>
                                                             </div>
 
@@ -283,10 +300,7 @@
                         </div>
                     }
                 </div>
-
-
             }
-        
         </div>
     </div>
 </div>
@@ -330,4 +344,28 @@
 
     // Call the function immediately if elements already exist
     initializeAccordionPartial();
+    
+    function switchStatus() {
+        const toggle = document.getElementById("isOpenSwitch");
+
+        fetch('/Shopkeeper/SwitchStatus', {
+            method: 'POST'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Request failed");
+            return res.json();
+        })
+        .then(data => {
+            console.log("Saved");
+        })
+        .catch(err => {
+            console.error(err);
+            // rollback on failure
+            toggle.checked = !isChecked;
+        })
+        .finally(() => {
+            location.reload();
+        });
+    }
+
 </script>

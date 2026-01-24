@@ -122,13 +122,28 @@
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
                             </p>
+
+
+
                             <p class="mb-1">
-                                <strong>Last Updated at:</strong> @order.UpdatedAt.ToString("hh:mm tt") (@timeAgoUA)
+                                <strong>Last Updated at:</strong>
+                                @order.UpdatedAt.ToString("hh:mm tt") (@timeAgoUA)
                             </p>
+
+
+
+
+
                             <p class="mb-2">
                                 <strong>Shipping Address:</strong><br />
                                 @order.ShippingAddress
                             </p>
+                            <div class="d-flex justify-content-end align-items-center mb-1">
+                                @if (order.IsPreOrder)
+                                {
+                                    <span class="badge bg-secondary">@OrderStatus.PREORDER</span>
+                                }
+                            </div>
                             <hr class="my-2" />
                             <div id="collapseOrderItems" class="accordion-collapse collapse show">
                                 <div class="accordion-body alert alert-warning">

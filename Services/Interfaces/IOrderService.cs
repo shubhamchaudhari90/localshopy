@@ -25,5 +25,7 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> OutForDelivery(Guid id, Guid shopId);
 
         Task<bool> Delivered(Guid id, Guid shopId);
+
+        Task<bool> PreOrder(Guid id, Guid shopId);
     }
 }
