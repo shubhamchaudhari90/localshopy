@@ -1,5 +1,6 @@
 ﻿using localshopyNew.Constants;
 using localshopyNew.Models;
+using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,12 @@ namespace localshopyNew.Controllers
     {
         private readonly ISessionService _sessionService;
         private readonly IOrderService _orderService;
-
+        private readonly FirebaseNotificationService _notification;
         public OrderController(ISessionService sessionService, IOrderService orderService)
         {
             _sessionService = sessionService;
             _orderService = orderService;
+            _notification = new FirebaseNotificationService();
         }
 
         [HttpPost]
@@ -93,6 +95,15 @@ namespace localshopyNew.Controllers
                 if (locationId != Guid.Empty)
                 {
                     List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing);
+
+                    List<Guid> orderIds = orders.Select(x => x.Id).ToList();
+
+                    List<string> shopkeeperTokens = await _orderService.GetShopkeeperTokens(orderIds);
+
+                    foreach (string shopkeeperToken in shopkeeperTokens)
+                    {
+                        await _notification.SendNotificationAsync(shopkeeperToken, "New Order", "You have received a new order");
+                    }
                     _sessionService.SetCartCount(0);
                     return View("OrderDetails", orders);
                 }
@@ -125,11 +136,16 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isCancelled = await _orderService.Reject(id, shopId);
-            if (!isCancelled)
+            bool isRejected = await _orderService.Reject(id, shopId);
+            if (!isRejected)
             {
                 TempData["ErrorMessage"] = "Order is not Rejected";
             }
+            else
+            {
+                await SendUserNotification("Order Update", OrderStatus.REJECTED, id);
+            }
+
             return RedirectToAction(nameof(OrdersToServe));
         }
 
@@ -148,6 +164,10 @@ namespace localshopyNew.Controllers
             if (!isAccepted)
             {
                 TempData["ErrorMessage"] = "Order is not Accepted";
+            }
+            else
+            {
+                await SendUserNotification("Order Update", OrderStatus.ACCEPTED, id);
             }
             return RedirectToAction(nameof(OrdersToServe));
         }
@@ -168,6 +188,10 @@ namespace localshopyNew.Controllers
             {
                 TempData["ErrorMessage"] = "Order is not Processing";
             }
+            else
+            {
+                await SendUserNotification("Order Update", OrderStatus.PROCESSING, id);
+            }
             return RedirectToAction(nameof(OrdersToServe));
         }
 
@@ -187,6 +211,10 @@ namespace localshopyNew.Controllers
             {
                 TempData["ErrorMessage"] = "Order is not OutForDelivery";
             }
+            else
+            {
+                await SendUserNotification("Order Update", OrderStatus.OUT_FOR_DELIVERY, id);
+            }
             return RedirectToAction(nameof(OrdersToServe));
         }
 
@@ -205,6 +233,10 @@ namespace localshopyNew.Controllers
             if (!isAccepted)
             {
                 TempData["ErrorMessage"] = "Order is not Delivered";
+            }
+            else
+            {
+                await SendUserNotification("Order Update", OrderStatus.DELIVERED, id);
             }
             return RedirectToAction(nameof(AllOrders));
         }
@@ -227,5 +259,42 @@ namespace localshopyNew.Controllers
             }
             return RedirectToAction(nameof(AllOrders));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveFcmToken([FromBody] string token)
+        {
+            string emailId = User.FindFirst(ClaimTypes.Email)?.Value;
+            string role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (!string.IsNullOrEmpty(emailId) && !string.IsNullOrEmpty(token))
+            {
+                if (string.IsNullOrEmpty(role))
+                    role = "User";
+                bool isSaved = await _orderService.SaveToken(emailId, token, role);
+            }
+
+
+            return Ok();
+        }
+
+        public async Task SendUserNotification(string type, string orderStatus, Guid orderID)
+        {
+            try
+            {
+
+                List<string> userTokens = await _orderService.GetToken(orderID);
+
+                foreach (var userToken in userTokens)
+                {
+                    await _notification.SendNotificationAsync(userToken, type, $"Your order status is now {orderStatus}");
+                }
+
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+
     }
 }

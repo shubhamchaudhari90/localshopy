@@ -27,5 +27,11 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> Delivered(Guid id, Guid shopId);
 
         Task<bool> PreOrder(Guid id, Guid shopId);
+
+        Task<bool> SaveToken(string emailId, string token, string role);
+
+        Task<List<string>> GetToken(Guid orderID);
+
+        Task<List<string>> GetShopkeeperTokens(List<Guid> orderIds);
     }
 }

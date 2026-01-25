@@ -4,6 +4,7 @@ using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace localshopyNew.Services
 {
@@ -358,6 +359,63 @@ namespace localshopyNew.Services
 
             int rowsUpdated = _context.SaveChanges();
             return rowsUpdated > 0;
+        }
+
+        public async Task<bool> SaveToken(string emailId, string token, string role)
+        {
+
+            var alldevices = await _context.UserDevices.ToListAsync();
+
+            var existing = await _context.UserDevices
+                .FirstOrDefaultAsync(x => x.EmailId == emailId && x.FcmToken == token);
+
+            if (existing == null && !string.IsNullOrEmpty(emailId) && role != null && !string.IsNullOrEmpty(token))
+            {
+                _context.UserDevices.Add(new UserDevice
+                {
+                    EmailId = emailId,
+                    Role = role,
+                    FcmToken = token
+                });
+                int rowsUpdated = 0;
+                try
+                {
+                    rowsUpdated = _context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message;
+                }
+                return rowsUpdated > 0;
+            }
+            return false;
+        }
+
+        public async Task<List<string>> GetToken(Guid orderID)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == orderID);
+
+            var alldevices = await _context.UserDevices.ToListAsync();
+            var tokens = await _context.UserDevices
+                .Where(x => x.EmailId == order.EmailId)
+                .Select(x => x.FcmToken)
+                .ToListAsync();
+
+            return tokens;
+        }
+
+        public async Task<List<string>> GetShopkeeperTokens(List<Guid> orderIds)
+        {
+            List<Guid> shopIds = await _context.Orders.Where(x => orderIds.Contains(x.Id)).Select(x => x.ShopId).ToListAsync();
+
+            if (shopIds.Count == 0)
+                return [];
+
+            List<string> emailIds = await _context.Shops.Where(x => shopIds.Contains(x.Id)).Select(x => x.OwnerEmailId).ToListAsync();
+
+            var tokens = await _context.UserDevices.Where(x => emailIds.Contains(x.EmailId)).Select(x => x.FcmToken).ToListAsync();
+
+            return tokens;
         }
     }
 }
