@@ -127,6 +127,8 @@ namespace localshopyNew.Controllers
             bool isSuccess = await _shopkeeperService.SwitchStatus(shopId);
             if (isSuccess)
                 return true;
+
+            TempData["ErrorMessage"] = "Please complete all orders or mark them as pre - order before closing the shop.";
             return false;
         }
 

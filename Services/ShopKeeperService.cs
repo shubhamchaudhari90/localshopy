@@ -1,4 +1,5 @@
-﻿using localshopyNew.Data;
+﻿using localshopyNew.Constants;
+using localshopyNew.Data;
 using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
@@ -121,7 +122,7 @@ namespace localshopyNew.Services
                 return null;
             if (!string.IsNullOrEmpty(shop.Password))
                 existingShop.Password = shop.Password;
-            existingShop.IsOpen = shop.IsOpen;
+
             existingShop.ServedLocations = shop.ServedLocations;
 
             await _context.SaveChangesAsync();
@@ -208,13 +209,20 @@ namespace localshopyNew.Services
         public async Task<bool> SwitchStatus(Guid shopId)
         {
             Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
-            if (shop != null)
-            {
-                shop.IsOpen = !shop.IsOpen;
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
+            if (shop == null)
+                return false;
+
+            bool isOpenOrder = await _context.Orders.AnyAsync(x => x.ShopId == shopId && !x.IsPreOrder &&
+            (x.Status == OrderStatus.ORDER_PLACED || x.Status == OrderStatus.ACCEPTED
+            || x.Status == OrderStatus.PROCESSING || x.Status == OrderStatus.OUT_FOR_DELIVERY));
+
+            if (isOpenOrder)
+                return false;
+
+            shop.IsOpen = !shop.IsOpen;
+            _context.SaveChanges();
+
+            return true;
         }
 
         public async Task<bool> DeleteProductFromShop(Guid shopId, Guid productId)

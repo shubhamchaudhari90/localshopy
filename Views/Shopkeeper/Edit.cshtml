@@ -64,19 +64,6 @@
                            disabled />
                 </div>
 
-                <!-- Shop Open Toggle -->
-                <div class="mb-3 form-check form-switch">
-                    <input asp-for="IsOpen"
-                           class="form-check-input"
-                           type="checkbox"
-                           id="isOpenSwitch"
-                           onchange="updateStatusText()" />
-
-                    <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
-                        @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
-                    </label>
-                </div>
-
                 <!-- Locations Multi-select -->
                 <div class="mb-3">
                     <label class="form-label">Locations</label>
@@ -112,18 +99,7 @@
 </div>
 
 <script>
-    function updateStatusText() {
-        const checkbox = document.getElementById('isOpenSwitch');
-        const label = document.getElementById('isOpenLabel');
-
-        label.textContent = checkbox.checked
-            ? 'Shop is Open'
-            : 'Shop is Close';
-    }
-
-    // Run on page load to show correct status
-    document.addEventListener('DOMContentLoaded', updateStatusText);
-
+   
     let isEditingPassword = false;
     let oldPassword = "";
 
