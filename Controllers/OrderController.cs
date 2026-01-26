@@ -2,6 +2,7 @@
 using localshopyNew.Models;
 using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -98,11 +99,11 @@ namespace localshopyNew.Controllers
 
                     List<Guid> orderIds = orders.Select(x => x.Id).ToList();
 
-                    List<string> shopkeeperTokens = await _orderService.GetShopkeeperTokens(orderIds);
+                    List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
 
-                    foreach (string shopkeeperToken in shopkeeperTokens)
+                    foreach (ShopkeeperNotificationViewModel token in tokens)
                     {
-                        await _notification.SendNotificationAsync(shopkeeperToken, "New Order", "You have received a new order");
+                        await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
                     }
                     _sessionService.SetCartCount(0);
                     return View("OrderDetails", orders);
@@ -117,10 +118,21 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> Cancel(Guid id)
         {
             TempData["ErrorMessage"] = null;
-            bool isCancelled = await _orderService.Cancel(id);
-            if (!isCancelled)
+            string orderNumber = await _orderService.Cancel(id);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not cancelled";
+            }
+            else
+            {
+                List<Guid> orderIds = new List<Guid>();
+                orderIds.Add(id);
+                List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
+
+                foreach (ShopkeeperNotificationViewModel token in tokens)
+                {
+                    await _notification.SendNotificationAsync(token.FcmToken, "Cancel Order", $"Order no.: {token.OrderNumber} is {OrderStatus.CANCELLED.ToUpperInvariant()}");
+                }
             }
             return RedirectToAction(nameof(OrderDetails), new { id });
         }
@@ -136,14 +148,14 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isRejected = await _orderService.Reject(id, shopId);
-            if (!isRejected)
+            string orderNumber = await _orderService.Reject(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not Rejected";
             }
             else
             {
-                await SendUserNotification("Order Update", OrderStatus.REJECTED, id);
+                await SendUserNotification("Order Update", OrderStatus.REJECTED, id, orderNumber);
             }
 
             return RedirectToAction(nameof(OrdersToServe));
@@ -160,14 +172,14 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isAccepted = await _orderService.Accept(id, shopId);
-            if (!isAccepted)
+            string orderNumber = await _orderService.Accept(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not Accepted";
             }
             else
             {
-                await SendUserNotification("Order Update", OrderStatus.ACCEPTED, id);
+                await SendUserNotification("Order Update", OrderStatus.ACCEPTED, id, orderNumber);
             }
             return RedirectToAction(nameof(OrdersToServe));
         }
@@ -183,14 +195,14 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isAccepted = await _orderService.Processing(id, shopId);
-            if (!isAccepted)
+            string orderNumber = await _orderService.Processing(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not Processing";
             }
             else
             {
-                await SendUserNotification("Order Update", OrderStatus.PROCESSING, id);
+                await SendUserNotification("Order Update", OrderStatus.PROCESSING, id, orderNumber);
             }
             return RedirectToAction(nameof(OrdersToServe));
         }
@@ -206,14 +218,14 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isAccepted = await _orderService.OutForDelivery(id, shopId);
-            if (!isAccepted)
+            string orderNumber = await _orderService.OutForDelivery(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not OutForDelivery";
             }
             else
             {
-                await SendUserNotification("Order Update", OrderStatus.OUT_FOR_DELIVERY, id);
+                await SendUserNotification("Order Update", OrderStatus.OUT_FOR_DELIVERY, id, orderNumber);
             }
             return RedirectToAction(nameof(OrdersToServe));
         }
@@ -229,14 +241,14 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isAccepted = await _orderService.Delivered(id, shopId);
-            if (!isAccepted)
+            string orderNumber = await _orderService.Delivered(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is not Delivered";
             }
             else
             {
-                await SendUserNotification("Order Update", OrderStatus.DELIVERED, id);
+                await SendUserNotification("Order Update", OrderStatus.DELIVERED, id, orderNumber);
             }
             return RedirectToAction(nameof(AllOrders));
         }
@@ -252,8 +264,8 @@ namespace localshopyNew.Controllers
             }
 
             TempData["ErrorMessage"] = null;
-            bool isAccepted = await _orderService.PreOrder(id, shopId);
-            if (!isAccepted)
+            string orderNumber = await _orderService.PreOrder(id, shopId);
+            if (string.IsNullOrEmpty(orderNumber))
             {
                 TempData["ErrorMessage"] = "Order is able to PRE-ORDER";
             }
@@ -263,8 +275,8 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveFcmToken([FromBody] string token)
         {
-            string emailId = User.FindFirst(ClaimTypes.Email)?.Value;
-            string role = User.FindFirst(ClaimTypes.Role)?.Value;
+            string? emailId = User.FindFirst(ClaimTypes.Email)?.Value;
+            string? role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (!string.IsNullOrEmpty(emailId) && !string.IsNullOrEmpty(token))
             {
@@ -272,25 +284,21 @@ namespace localshopyNew.Controllers
                     role = "User";
                 bool isSaved = await _orderService.SaveToken(emailId, token, role);
             }
-
-
             return Ok();
         }
 
-        public async Task SendUserNotification(string type, string orderStatus, Guid orderID)
+        public async Task SendUserNotification(string type, string orderStatus, Guid orderID, string orderNumber)
         {
             try
             {
-
                 List<string> userTokens = await _orderService.GetToken(orderID);
 
                 foreach (var userToken in userTokens)
                 {
-                    await _notification.SendNotificationAsync(userToken, type, $"Your order status is now {orderStatus}");
+                    await _notification.SendNotificationAsync(userToken, type, $"Your order: {orderNumber}, is now {orderStatus}");
                 }
-
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
 
             }

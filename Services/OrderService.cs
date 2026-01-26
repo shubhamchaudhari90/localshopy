@@ -40,9 +40,9 @@ namespace localshopyNew.Services
 
         public async Task<Order?> GetOrderById(Guid id)
         {
-            Order? order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
-            return order;
+            return await _context.Orders.AsNoTracking().Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
         }
+
 
         public async Task<List<Order>> GetAllOrdersByShopId(Guid shopId)
         {
@@ -200,11 +200,11 @@ namespace localshopyNew.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> Cancel(Guid id)
+        public async Task<string> Cancel(Guid id)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id);
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.CANCELLED;
             order.UpdatedAt = DateTime.Now;
@@ -220,14 +220,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> Accept(Guid id, Guid shopId)
+        public async Task<string> Accept(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.ACCEPTED;
             order.UpdatedAt = DateTime.Now;
@@ -243,14 +243,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> Reject(Guid id, Guid shopId)
+        public async Task<string> Reject(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.REJECTED;
             order.UpdatedAt = DateTime.Now;
@@ -266,14 +266,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> Processing(Guid id, Guid shopId)
+        public async Task<string> Processing(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ACCEPTED)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.PROCESSING;
             order.UpdatedAt = DateTime.Now;
@@ -289,14 +289,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> OutForDelivery(Guid id, Guid shopId)
+        public async Task<string> OutForDelivery(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.PROCESSING)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.OUT_FOR_DELIVERY;
             order.UpdatedAt = DateTime.Now;
@@ -312,14 +312,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> Delivered(Guid id, Guid shopId)
+        public async Task<string> Delivered(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.OUT_FOR_DELIVERY)
-                return false;
+                return string.Empty;
 
             order.Status = OrderStatus.DELIVERED;
             order.UpdatedAt = DateTime.Now;
@@ -335,14 +335,14 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
-        public async Task<bool> PreOrder(Guid id, Guid shopId)
+        public async Task<string> PreOrder(Guid id, Guid shopId)
         {
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null)
-                return false;
+                return string.Empty;
 
             order.UpdatedAt = DateTime.Now;
             order.IsPreOrder = true;
@@ -358,7 +358,7 @@ namespace localshopyNew.Services
             _context.orderTrackings.Add(tracking);
 
             int rowsUpdated = _context.SaveChanges();
-            return rowsUpdated > 0;
+            return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
         public async Task<bool> SaveToken(string emailId, string token, string role)
@@ -393,29 +393,28 @@ namespace localshopyNew.Services
 
         public async Task<List<string>> GetToken(Guid orderID)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == orderID);
-
-            var alldevices = await _context.UserDevices.ToListAsync();
-            var tokens = await _context.UserDevices
-                .Where(x => x.EmailId == order.EmailId)
-                .Select(x => x.FcmToken)
-                .ToListAsync();
-
-            return tokens;
+            return await (
+                from o in _context.Orders.AsNoTracking()
+                join d in _context.UserDevices.AsNoTracking()
+                on o.EmailId equals d.EmailId
+                where o.Id == orderID
+                select d.FcmToken).ToListAsync();
         }
 
-        public async Task<List<string>> GetShopkeeperTokens(List<Guid> orderIds)
+        public async Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens(List<Guid> orderIds)
         {
-            List<Guid> shopIds = await _context.Orders.Where(x => orderIds.Contains(x.Id)).Select(x => x.ShopId).ToListAsync();
-
-            if (shopIds.Count == 0)
-                return [];
-
-            List<string> emailIds = await _context.Shops.Where(x => shopIds.Contains(x.Id)).Select(x => x.OwnerEmailId).ToListAsync();
-
-            var tokens = await _context.UserDevices.Where(x => emailIds.Contains(x.EmailId)).Select(x => x.FcmToken).ToListAsync();
-
-            return tokens;
+            return await (
+                from order in _context.Orders
+                join shop in _context.Shops
+                    on order.ShopId equals shop.Id
+                join device in _context.UserDevices
+                    on shop.OwnerEmailId equals device.EmailId
+                where orderIds.Contains(order.Id)
+                select new ShopkeeperNotificationViewModel
+                {
+                    FcmToken = device.FcmToken,
+                    OrderNumber = order.OrderNumber
+                }).ToListAsync();
         }
     }
 }

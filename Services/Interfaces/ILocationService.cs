@@ -1,4 +1,5 @@
 ﻿using localshopyNew.Models;
+using localshopyNew.ViewModel;
 
 namespace localshopyNew.Services.Interfaces
 {
@@ -11,5 +12,6 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> AddLocation(Location Location);
         Task<bool> UpdateLocation(Location Location);
         Task<bool> DeleteLocation(Guid id);
+        Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens();
     }
 }

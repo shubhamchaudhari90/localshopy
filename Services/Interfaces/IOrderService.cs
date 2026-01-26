@@ -1,4 +1,5 @@
 ﻿using localshopyNew.Models;
+using localshopyNew.ViewModel;
 
 namespace localshopyNew.Services.Interfaces
 {
@@ -14,24 +15,24 @@ namespace localshopyNew.Services.Interfaces
 
         Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing);
 
-        Task<bool> Cancel(Guid id);
+        Task<string> Cancel(Guid id);
 
-        Task<bool> Accept(Guid id, Guid shopId);
+        Task<string> Accept(Guid id, Guid shopId);
 
-        Task<bool> Reject(Guid id, Guid shopId);
+        Task<string> Reject(Guid id, Guid shopId);
 
-        Task<bool> Processing(Guid id, Guid shopId);
+        Task<string> Processing(Guid id, Guid shopId);
 
-        Task<bool> OutForDelivery(Guid id, Guid shopId);
+        Task<string> OutForDelivery(Guid id, Guid shopId);
 
-        Task<bool> Delivered(Guid id, Guid shopId);
+        Task<string> Delivered(Guid id, Guid shopId);
 
-        Task<bool> PreOrder(Guid id, Guid shopId);
+        Task<string> PreOrder(Guid id, Guid shopId);
 
         Task<bool> SaveToken(string emailId, string token, string role);
 
         Task<List<string>> GetToken(Guid orderID);
 
-        Task<List<string>> GetShopkeeperTokens(List<Guid> orderIds);
+        Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens(List<Guid> orderIds);
     }
 }
