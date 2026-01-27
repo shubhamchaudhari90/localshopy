@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Claims;
 
 
 namespace localshopyNew.Controllers
@@ -15,20 +14,14 @@ namespace localshopyNew.Controllers
     [Authorize(Roles = RoleConstants.Shopkeeper)]
     public class ShopkeeperController(
         IShopkeeperService shopkeeperService,
-        ILocationService locationService,
-        ICategoryService categoryService,
         IWebHostEnvironment env,
         IAdminService adminService,
         SignInManager<IdentityUser> signInManager,
         UserManager<IdentityUser> userManager,
-        ICartService cartService,
         ISessionService sessionService) : Controller
     {
         private readonly IShopkeeperService _shopkeeperService = shopkeeperService;
-        private readonly ILocationService _locationService = locationService;
-        private readonly ICategoryService _categoryService = categoryService;
         private readonly IAdminService _adminService = adminService;
-        private readonly ICartService _cartService = cartService;
         private readonly ISessionService _sessionService = sessionService;
         private readonly IWebHostEnvironment _env = env;
 
@@ -40,22 +33,12 @@ namespace localshopyNew.Controllers
             Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
 
-            Guid location = _sessionService.GetLocation();
-            if (location != Guid.Empty)
-            {
-                string? email = User.FindFirstValue(ClaimTypes.Email);
-
-                if (!string.IsNullOrEmpty(email))
-                {
-                    await SetCartCountInSession(email, location);
-                }
-            }
             return View(model);
         }
 
@@ -66,13 +49,13 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
             if (model == null || model.Shop == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
 
-            var locationList = await _locationService.GetActiveLocations();
+            var locationList = await _shopkeeperService.GetActiveLocations();
             if (locationList == null)
             {
                 ViewData["ErrorMessage"] = "Locations are not active";
@@ -92,7 +75,7 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Shop shop)
         {
-            var locationList = await _locationService.GetActiveLocations();
+            var locationList = await _shopkeeperService.GetActiveLocations();
             if (locationList == null)
             {
                 ViewData["ErrorMessage"] = "Locations are not active";
@@ -105,19 +88,43 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             shop.Id = shopId;
 
             ShopProductsViewModel? model = await _shopkeeperService.UpdateShopData(shop);
             if (model == null || model.Shop == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             return RedirectToAction(nameof(ShopDetails), model);
+        }
+
+        [HttpPost]
+        public async Task<bool> SwitchStatus()
+        {
+
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return false;
+            }
+            bool isSuccess = await _shopkeeperService.SwitchStatus(shopId);
+            if (isSuccess)
+                return true;
+
+            TempData["ErrorMessage"] = "Action Required Before Closing the Shop";
+
+            return false;
+        }
+
+        public async Task<IActionResult> CategoryList()
+        {
+            var categoryProductList = await _shopkeeperService.CategoryProductList();
+            return View(categoryProductList);
         }
 
         public async Task<IActionResult> AddProduct()
         {
-            var categoryList = await _categoryService.GetActiveCategories();
+            var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
                 ViewData["ErrorMessage"] = "Category not found";
@@ -150,7 +157,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -186,7 +193,7 @@ namespace localshopyNew.Controllers
                 }
             }
 
-            var categoryList = await _categoryService.GetActiveCategories();
+            var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
                 ViewData["ErrorMessage"] = "Category not found";
@@ -202,7 +209,7 @@ namespace localshopyNew.Controllers
         {
             _sessionService.SetProductId(productId);
 
-            var categoryList = await _categoryService.GetActiveCategories();
+            var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
                 ViewData["ErrorMessage"] = "Category not found";
@@ -222,7 +229,7 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> EditProduct(Product product)
         {
-            var categoryList = await _categoryService.GetActiveCategories();
+            var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
                 ViewData["ErrorMessage"] = "Category not found";
@@ -249,7 +256,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
@@ -299,7 +306,7 @@ namespace localshopyNew.Controllers
             if (shopId == Guid.Empty)
             {
                 ViewData["ErrorMessage"] = "Session Expired";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Logout", "Account");
             }
             bool isDeleted = await _shopkeeperService.DeleteProductFromShop(shopId, productId);
             if (!isDeleted)
@@ -314,8 +321,8 @@ namespace localshopyNew.Controllers
         {
             if (categoryId == Guid.Empty)
                 return BadRequest();
-
-            var products = await _categoryService.GetProductsByCategoryId(categoryId);
+            Guid shopId = _sessionService.GetShopId();
+            var products = await _shopkeeperService.GetProductsByCategoryId(categoryId, shopId);
 
             var result = products.Select(p => new
             {
@@ -324,15 +331,6 @@ namespace localshopyNew.Controllers
             });
 
             return Json(result);
-        }
-
-        private async Task SetCartCountInSession(string emailId, Guid location)
-        {
-            var cartProducts = await _cartService.GetCartDetails(emailId, location);
-            if (cartProducts != null && cartProducts.Count > 0)
-                _sessionService.SetCartCount(cartProducts.Sum(x => x.Quantity));
-            else
-                _sessionService.SetCartCount(0);
         }
 
         private async Task RemoveUnusedImages()

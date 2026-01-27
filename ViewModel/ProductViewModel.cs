@@ -39,6 +39,8 @@ namespace localshopyNew.ViewModel
 
         public List<Review>? Reviews { get; set; }
 
+        public bool CanReview { get; set; }
+
         public bool IsReviewed { get; set; }
 
         public int ReviewCount { get; set; }

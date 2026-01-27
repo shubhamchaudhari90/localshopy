@@ -1,3 +1,5 @@
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using localshopyNew.Data;
 using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
@@ -48,6 +50,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("firebase-service-account.json")
+});
 
 
 // Add session services
@@ -80,11 +86,29 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
+app.MapGet("/firebase-config.js", (IConfiguration config) =>
+{
+    var fcm = config.GetSection("Firebase");
+
+    return Results.Text($@"
+        window.firebaseConfig = {{
+            apiKey: '{fcm["ApiKey"]}',
+            authDomain: '{fcm["AuthDomain"]}',
+            projectId: '{fcm["ProjectId"]}',
+            storageBucket: '{fcm["StorageBucket"]}',
+            messagingSenderId: '{fcm["MessagingSenderId"]}',
+            appId: '{fcm["AppId"]}',
+            vapidKey: '{fcm["VapidPublicKey"]}'
+        }};
+    ", "application/javascript");
+});
+
+app.MapDefaultControllerRoute();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 if (!app.Environment.IsDevelopment())

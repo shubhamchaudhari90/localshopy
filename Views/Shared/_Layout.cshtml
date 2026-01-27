@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=1.0" />
     <title>@ViewData["Title"]</title>
 
     <!-- Site CSS (your custom styles) -->
@@ -83,7 +83,7 @@
     @using Microsoft.AspNetCore.Http
     @using localshopyNew.Constants
     @using System.Security.Claims
-@using localshopyNew.Services.Interfaces
+    @using localshopyNew.Services.Interfaces
 
     <header>
         <nav class="navbar navbar-dark navbar-custom shadow-sm">
@@ -115,6 +115,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link text-light" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
                                     </li>
+                                    <li>
+                                        <a class="nav-link text-light" asp-controller="Order" asp-action="AllOrders">All Orders</a>
+                                    </li>
                                 }
                                 @if (User.IsInRole(RoleConstants.Admin))
                                 {
@@ -125,7 +128,8 @@
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Category" asp-action="Index">Category</a></li>
                                     <li class="nav-item"><a class="nav-link text-light" asp-controller="Location" asp-action="Index">Location</a></li>
                                 }
-                                <li class="nav-item"><a class="nav-link text-light" asp-controller="Order" asp-action="Index">My Orders</a></li>
+                                <li class="nav-item"><a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a></li>
+
                             </ul>
                         </div>
                     }
@@ -135,15 +139,23 @@
                 <div class="d-flex align-items-center ms-auto">
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none">
-                            <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
-                            <span id="spnCartCount" style="font-size: 150%; top: 25% !important;" class="position-absolute top-0 start-50 translate-middle
-                                             badge">
-                                @(_sessionService.GetCartCount())
-                            </span>
-                        </a>
+                        @if (User.IsInRole(RoleConstants.Shopkeeper))
+                        {
+                            <a class="nav-link text-light" asp-controller="Order" asp-action="OrdersToServe">Orders To Serve</a>
+                        }
+                        else
+                        {
+                            <a class="nav-link text-light" asp-controller="Order" asp-action="Index" style="margin-right:15px;">Orders</a>
 
-                        <a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a>
+                            <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none" style="margin-right:30px;" >
+                                <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
+                                <span id="spnCartCount" style="font-size: 150%; top: 25% !important;"
+                                      class="position-absolute top-0 start-50 translate-middle badge">
+                                    @(_sessionService.GetCartCount())
+                                </span>
+                            </a>
+                        }
+
                     }
                     else
                     {
@@ -170,6 +182,11 @@
             &copy; @DateTime.Now.Year - localshopy
         </div>
     </footer>
+
+    <!-- Firebase config & FCM -->
+    <script src="~/firebase-config.js"></script>
+    <script type="module" src="~/js/fcm.js"></script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

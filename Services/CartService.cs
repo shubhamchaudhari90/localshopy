@@ -45,17 +45,17 @@ namespace localshopyNew.Services
 
         public async Task<bool> RemoveProductFromCart(Guid productId, string emailId)
         {
-            Cart? existingCart = await _context?.Carts?.FirstOrDefaultAsync(c => c.ProductId == productId && c.EmailId == emailId);
+            var existingCart = await _context.Carts
+                .FirstOrDefaultAsync(c => c.ProductId == productId && c.EmailId == emailId);
 
-            if (existingCart != null)
-            {
-                _context.Carts.Remove(existingCart);
-                int rows = _context.SaveChanges();
-                bool result = rows > 0 ? true : false;
-                return result;
-            }
-            return false;
+            if (existingCart == null)
+                return false;
+
+            _context.Carts.Remove(existingCart);
+            var rows = await _context.SaveChangesAsync();
+            return rows > 0;
         }
+
 
         public async Task<List<CartViewModel>> GetCartDetails(string emailId, Guid locationId)
         {

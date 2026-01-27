@@ -7,9 +7,8 @@ using System.Security.Claims;
 namespace localshopyNew.Controllers
 {
     [Authorize]
-    public class CartController(ICartService service, ICartService cartService, ISessionService sessionService) : Controller
+    public class CartController(ICartService cartService, ISessionService sessionService) : Controller
     {
-        private readonly ICartService _service = service;
         private readonly ICartService _cartService = cartService;
         private readonly ISessionService _sessionService = sessionService;
 
@@ -24,7 +23,7 @@ namespace localshopyNew.Controllers
                 {
                     return RedirectToAction("Location", "Customer");
                 }
-                List<CartViewModel> products = await _service.GetCartDetails(email, locationId);
+                List<CartViewModel> products = await _cartService.GetCartDetails(email, locationId);
                 if (products != null || products?.Count > 0)
                     _sessionService.SetCartCount(products.Sum(x => x.Quantity));
                 else

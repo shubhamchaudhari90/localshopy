@@ -1,4 +1,5 @@
-﻿using localshopyNew.Data;
+﻿using localshopyNew.Constants;
+using localshopyNew.Data;
 using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
@@ -23,7 +24,7 @@ namespace localshopyNew.Services
             {
                 return products;
             }
-            List<string> categoryList = categories.Split(", ").ToList();
+            List<string> categoryList = categories.Split(", ").Take(3).ToList();
 
             products = await (
                 from p in _context.Products
@@ -198,7 +199,6 @@ namespace localshopyNew.Services
             Category? category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == productMaster.CategoryId && x.IsActive);
             if (category == null) { return null; }
 
-
             Product? product = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == shop.Id && x.ProductMasterId == productMaster.Id && x.IsAvailable && x.IsActive);
             if (product == null) { return null; }
 
@@ -215,10 +215,12 @@ namespace localshopyNew.Services
             });
 
             bool isReviewed = false;
-
+            bool canReview = false;
             if (!string.IsNullOrEmpty(emailId))
             {
-                isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
+                canReview = await _context.Orders.AnyAsync(x => x.EmailId == emailId && x.Status == OrderStatus.DELIVERED && x.OrderItems.Any(it => it.ProductName == productName));
+                if (canReview)
+                    isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
             }
 
             ProductViewModel model = new ProductViewModel()
@@ -238,6 +240,7 @@ namespace localshopyNew.Services
                 ShopName = shop.Name,
                 Type = product.Type,
                 IsReviewed = isReviewed,
+                CanReview = canReview,
                 ReviewCount = reviewCount
             };
 
@@ -252,6 +255,9 @@ namespace localshopyNew.Services
 
         public async Task AddReview(Review review)
         {
+            bool isApproved = false;
+            if (string.IsNullOrEmpty(review.Comment))
+                isApproved = true;
 
             Review entity = new Review()
             {
@@ -259,7 +265,7 @@ namespace localshopyNew.Services
                 Comment = review.Comment,
                 CreatedAt = DateTime.Now,
                 Id = review.Id,
-                IsApproved = false,
+                IsApproved = isApproved,
                 IsRejected = false,
                 ProductId = review.ProductId,
                 Rating = review.Rating

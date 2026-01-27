@@ -21,5 +21,6 @@ namespace localshopyNew.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderTracking> orderTrackings { get; set; }
+        public DbSet<UserDevice> UserDevices { get; set; }
     }
 }

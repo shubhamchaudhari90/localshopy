@@ -1,6 +1,8 @@
 ﻿using localshopyNew.Constants;
 using localshopyNew.Models;
+using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +13,12 @@ namespace localshopyNew.Controllers
     public class LocationController : Controller
     {
         private readonly ILocationService _service;
+        private readonly FirebaseNotificationService _notification;
 
         public LocationController(ILocationService service)
         {
             _service = service;
+            _notification = new FirebaseNotificationService();
         }
 
         public async Task<IActionResult> Index()
@@ -44,6 +48,12 @@ namespace localshopyNew.Controllers
             bool isAdded = await _service.AddLocation(location);
             if (isAdded)
             {
+                List<ShopkeeperNotificationViewModel> tokens = await _service.GetShopkeeperTokens();
+
+                foreach (ShopkeeperNotificationViewModel token in tokens)
+                {
+                    await _notification.SendNotificationAsync(token.FcmToken, "New Location Added", $"New location: {location.Name} added.");
+                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ErrorMessage"] = "Location Not Added";

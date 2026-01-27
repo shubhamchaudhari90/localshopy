@@ -1,6 +1,7 @@
 ﻿using localshopyNew.Data;
 using localshopyNew.Models;
 using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Services
@@ -14,72 +15,78 @@ namespace localshopyNew.Services
             _context = context;
         }
 
+        // Check if location name exists (read-only, fast)
         public async Task<bool> IsLocationNameExists(string name)
         {
-            return await _context.Locations.AnyAsync(x => x.Name == name);
+            return await _context.Locations.AsNoTracking().AnyAsync(x => x.Name == name);
         }
 
+        // Get location by Id (read-only)
         public async Task<Location?> GetLocationById(Guid id)
         {
-            return await _context.Locations.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Locations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        // Get active locations
         public async Task<List<Location>> GetActiveLocations()
         {
-            var locations = await _context.Locations.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
-            return locations;
+            return await _context.Locations.AsNoTracking().Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
         }
 
+        // Get inactive locations
         public async Task<List<Location>> GetInActiveLocations()
         {
-            var locations = await _context.Locations.Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
-            return locations;
+            return await _context.Locations.AsNoTracking().Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
         }
 
+        // Add a new location
         public async Task<bool> AddLocation(Location location)
         {
             location.Id = Guid.NewGuid();
-            int count = _context.Locations.Any() ? _context.Locations.Max(x => x.SortOrder) : 0;
-
-            location.SortOrder = count + 1;
+            location.SortOrder = (_context.Locations.Max(x => (int?)x.SortOrder) ?? 0) + 1;
             location.IsActive = true;
-            await _context.AddAsync(location);
-            int rowsInserted = await _context.SaveChangesAsync();
-            if (rowsInserted > 0)
-            {
-                return true;
-            }
-            return false;
+
+            await _context.Locations.AddAsync(location);
+            var rowsInserted = await _context.SaveChangesAsync();
+            return rowsInserted > 0;
         }
 
+        // Update location
         public async Task<bool> UpdateLocation(Location model)
         {
             var location = await _context.Locations.FindAsync(model.Id);
-            if (location == null)
-                return false;
+            if (location == null) return false;
 
             location.Name = model.Name;
             location.SortOrder = model.SortOrder;
             location.IsActive = model.IsActive;
 
-            int rowsInserted = await _context.SaveChangesAsync();
-            if (rowsInserted > 0)
-                return true;
-            return false;
+            var rowsUpdated = await _context.SaveChangesAsync();
+            return rowsUpdated > 0;
         }
 
+        // Delete location
         public async Task<bool> DeleteLocation(Guid id)
         {
             var location = await _context.Locations.FirstOrDefaultAsync(x => x.Id == id);
-            if (location != null)
-            {
-                _context.Locations.Remove(location);
-                int rowsDeleted = await _context.SaveChangesAsync();
-                if (rowsDeleted > 0)
-                    return true;
-                return false;
-            }
-            return false;
+            if (location == null) return false;
+
+            _context.Locations.Remove(location);
+            var rowsDeleted = await _context.SaveChangesAsync();
+            return rowsDeleted > 0;
+        }
+
+        public async Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens()
+        {
+            return await (
+
+                from shop in _context.Shops
+                join device in _context.UserDevices
+                    on shop.OwnerEmailId equals device.EmailId
+                select new ShopkeeperNotificationViewModel
+                {
+                    FcmToken = device.FcmToken
+                }).Distinct().ToListAsync();
         }
     }
 }

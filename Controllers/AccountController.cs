@@ -76,7 +76,7 @@ namespace localshopyNew.Controllers
             {
                 _sessionService.SetString(RoleConstants.Admin, admin);
                 await SetRole(email, RoleConstants.Admin);
-                return RedirectToAction("Index", "Location");
+                return RedirectToAction("Index", "Review");
             }
 
             var shopDetails = await _shopkeeperService.GetShopDetailsByEmailId(email);
@@ -94,7 +94,7 @@ namespace localshopyNew.Controllers
                     _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
                     await SetRole(email, RoleConstants.Shopkeeper);
                 }
-                return RedirectToAction("ShopDetails", "Shopkeeper");
+                return RedirectToAction("OrdersToServe", "Shopkeeper");
             }
         }
 
@@ -119,7 +119,7 @@ namespace localshopyNew.Controllers
 
                 await SetRole(model.Email, RoleConstants.Admin);
 
-                return RedirectToAction("Index", "Location");
+                return RedirectToAction("Index", "Review");
             }
 
             Shop? shop = await _shopkeeperService.GetShopByLoginModel(model);
@@ -136,7 +136,7 @@ namespace localshopyNew.Controllers
                 _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
                 await SetRole(model.Email, RoleConstants.Shopkeeper);
             }
-            return RedirectToAction("ShopDetails", "Shopkeeper");
+            return RedirectToAction("OrdersToServe", "Order");
         }
 
         public async Task<IActionResult> Logout()
