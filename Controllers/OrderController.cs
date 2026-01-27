@@ -277,6 +277,7 @@ namespace localshopyNew.Controllers
             return RedirectToAction(nameof(OrdersToServe));
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> SaveFcmToken([FromBody] string token)
         {
