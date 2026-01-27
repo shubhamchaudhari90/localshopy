@@ -16,6 +16,18 @@ namespace localshopyNew.Services
             _context = context;
         }
 
+        // Get active categories
+        public async Task<List<Category>> GetActiveCategories()
+        {
+            return await _context.Categoties.AsNoTracking().Where(x => x.IsActive).OrderBy(x => x.Name).ToListAsync();
+        }
+
+        public async Task<List<ProductMaster>> GetProductsByCategoryId(Guid categoryId, Guid shopId)
+        {
+            List<Guid> existingProdutIds = await _context.Products.AsNoTracking().Where(x => x.ShopId == shopId).Select(x => x.ProductMasterId).Distinct().ToListAsync();
+            return await _context.ProductMasters.AsNoTracking().Where(x => x.CategoryId == categoryId && x.IsActive && !existingProdutIds.Contains(x.Id)).ToListAsync();
+        }
+
         public async Task<ShopProductsViewModel?> GetShopDetailsByEmailId(string emailId)
         {
             Shop? shop = await GetShopByEmailId(emailId);
@@ -149,6 +161,23 @@ namespace localshopyNew.Services
             return true;
         }
 
+        public async Task<List<CategoryProductViewModel>> CategoryProductList()
+        {
+            List<CategoryProductViewModel> products = new List<CategoryProductViewModel>();
+            var categories = await _context.Categoties.OrderBy(x => x.Name).ToListAsync();
+            if (categories != null)
+            {
+                foreach (var category in categories)
+                {
+                    CategoryProductViewModel categoryProduct = new CategoryProductViewModel();
+                    categoryProduct.Categoty = category;
+                    categoryProduct.ProductMasters.AddRange(await _context.ProductMasters.Where(x => x.IsActive && x.CategoryId == category.Id).OrderBy(x => x.ProductName).ToListAsync());
+                    products.Add(categoryProduct);
+                }
+            }
+            return products;
+        }
+
         public async Task<bool> AddProductInShop(Product product)
         {
             Product? existing = await _context.Products.FirstOrDefaultAsync(x => x.ShopId == product.ShopId
@@ -239,7 +268,7 @@ namespace localshopyNew.Services
         }
         public async Task<ProductViewModel?> GetProductById(Guid id)
         {
-            Product? product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
+            Product? product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (product == null) return null;
             var model = new ProductViewModel
             {
@@ -269,8 +298,13 @@ namespace localshopyNew.Services
 
         public async Task<List<string?>> GetAllImageNames()
         {
-            List<string?> names = await _context.Products.Select(x => x.ImageFileName).ToListAsync();
+            List<string?> names = await _context.Products.AsNoTracking().Select(x => x.ImageFileName).ToListAsync();
             return names;
+        }
+
+        public async Task<List<Location>> GetActiveLocations()
+        {
+            return await _context.Locations.AsNoTracking().Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
         }
     }
 }

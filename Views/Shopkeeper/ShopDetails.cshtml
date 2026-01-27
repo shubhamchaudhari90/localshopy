@@ -39,7 +39,21 @@
                     @Model.Shop.Name
                 </div>
             </div>
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <div style="border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; font-family: Arial, sans-serif; background-color: #fafafa;">
+                        <p style="margin: 0 0 8px 0; font-weight: bold; color: #333;">
+                            ⚠️ @TempData["ErrorMessage"]
+                        </p>
+                        <ul style="margin: 0; padding-left: 20px; color: #555;">
+                            <li><strong>Deliver</strong> all orders</li>
+                            <li>OR mark them as <strong>Pre-Order</strong></li>
+                        </ul>
+                    </div>
 
+                </div>
+            }
             <!-- Shop Details -->
             <div class="row mb-4">
 

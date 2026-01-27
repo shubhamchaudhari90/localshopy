@@ -23,7 +23,16 @@
 
                 <!-- Category Dropdown -->
                 <div class="mb-3">
-                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="form-label mb-0">
+                            Category <span class="text-danger">*</span>
+                        </label>
+                        <a asp-controller="Shopkeeper" asp-action="CategoryList"
+                           class="text-warning fw-bold text-decoration-none">
+                            View Catalog
+                        </a>
+                    </div>
+
                     <select id="ddlCategory" class="form-select" asp-items="ViewBag.Categories" required>
                         <option value="">-- Select Category --</option>
                     </select>

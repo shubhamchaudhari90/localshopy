@@ -16,5 +16,9 @@ namespace localshopyNew.Services.Interfaces
         Task<bool> DeleteProductFromShop(Guid shopId, Guid productId);
         Task<List<string?>> GetAllImageNames();
         Task<bool> SwitchStatus(Guid shopId);
+        Task<List<CategoryProductViewModel>> CategoryProductList();
+        Task<List<Category>> GetActiveCategories();
+        Task<List<ProductMaster>> GetProductsByCategoryId(Guid categoryId, Guid shopId);
+        Task<List<Location>> GetActiveLocations();
     }
 }

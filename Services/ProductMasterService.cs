@@ -28,14 +28,14 @@ namespace localshopyNew.Services
         public async Task<List<CategoryProductViewModel>> GetActiveProducts()
         {
             List<CategoryProductViewModel> products = new List<CategoryProductViewModel>();
-            var categories = await _context.Categoties.OrderBy(x => x.SortOrder).ToListAsync();
+            var categories = await _context.Categoties.OrderBy(x => x.Name).ToListAsync();
             if (categories != null)
             {
                 foreach (var category in categories)
                 {
                     CategoryProductViewModel categoryProduct = new CategoryProductViewModel();
                     categoryProduct.Categoty = category;
-                    categoryProduct.ProductMasters.AddRange(await _context.ProductMasters.Where(x => x.IsActive && x.CategoryId == category.Id).OrderBy(x => x.SortOrder).ToListAsync());
+                    categoryProduct.ProductMasters.AddRange(await _context.ProductMasters.Where(x => x.IsActive && x.CategoryId == category.Id).OrderBy(x => x.ProductName).ToListAsync());
                     products.Add(categoryProduct);
                 }
             }

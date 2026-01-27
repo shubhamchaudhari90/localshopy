@@ -89,6 +89,11 @@ namespace localshopyNew.Controllers
         public async Task<IActionResult> PlaceOrder(string wing, string flatNumber)
         {
             TempData["ErrorMessage"] = null;
+            if (string.IsNullOrEmpty(wing) || string.IsNullOrEmpty(flatNumber))
+            {
+                TempData["ErrorMessage"] = "Please check wing and flat number";
+                return RedirectToAction("Index", "Cart");
+            }
             string? email = User.FindFirstValue(ClaimTypes.Email);
             if (!string.IsNullOrEmpty(email))
             {
@@ -269,7 +274,7 @@ namespace localshopyNew.Controllers
             {
                 TempData["ErrorMessage"] = "Order is able to PRE-ORDER";
             }
-            return RedirectToAction(nameof(AllOrders));
+            return RedirectToAction(nameof(OrdersToServe));
         }
 
         [HttpPost]
