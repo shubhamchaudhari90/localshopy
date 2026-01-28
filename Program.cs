@@ -10,126 +10,123 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register SQLite DB 
+// =======================
+// DATABASE (SQLite)
+// =======================
 builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
+// =======================
+// IDENTITY
+// =======================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDBContext>()
     .AddDefaultTokenProviders();
 
-// Google Authentication
+// =======================
+// GOOGLE AUTH
+// =======================
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:client_id"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:client_secret"];
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 
         options.Scope.Add("profile");
         options.Scope.Add("email");
-
-        // Map claims
 
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
         options.ClaimActions.MapJsonKey("given_name", "given_name");
         options.ClaimActions.MapJsonKey("family_name", "family_name");
-
-
-
     });
 
-// Redirect unauthorized users to Login
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Shopkeeper/Login";
 });
 
-
-// Add services to the container.
+// =======================
+// MVC
+// =======================
 builder.Services.AddControllersWithViews();
 
-FirebaseApp.Create(new AppOptions()
-{
-    Credential = GoogleCredential.FromFile("firebase-service-account.json")
-});
-
-
-// Add session services
-builder.Services.AddDistributedMemoryCache(); // required for session storage
+// =======================
+// SESSION
+// =======================
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(30); // session timeout
+    options.IdleTimeout = TimeSpan.FromDays(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
+// =======================
+// DEPENDENCY INJECTION
+// =======================
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 
 builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<CustomerService>();
-builder.Services.AddScoped<ILocationService, LocationService>();
-builder.Services.AddScoped<IProductMasterService, ProductMasterService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IShopkeeperService, ShopkeeperService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IEncodingService, EncodingService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IProductMasterService, ProductMasterService>();
 builder.Services.AddScoped<IShopProductService, ShopProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IEncodingService, EncodingService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 
-app.MapGet("/firebase-config.js", (IConfiguration config) =>
+// =======================
+// APPLY MIGRATIONS (SAFE)
+// =======================
+using (var scope = app.Services.CreateScope())
 {
-    var fcm = config.GetSection("Firebase");
+    var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+    db.Database.Migrate();
+}
 
-    return Results.Text($@"
-        window.firebaseConfig = {{
-            apiKey: '{fcm["ApiKey"]}',
-            authDomain: '{fcm["AuthDomain"]}',
-            projectId: '{fcm["ProjectId"]}',
-            storageBucket: '{fcm["StorageBucket"]}',
-            messagingSenderId: '{fcm["MessagingSenderId"]}',
-            appId: '{fcm["AppId"]}',
-            vapidKey: '{fcm["VapidPublicKey"]}'
-        }};
-    ", "application/javascript");
-});
+// =======================
+// FIREBASE (SAFE INIT)
+// =======================
+if (FirebaseApp.DefaultInstance == null)
+{
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.GetApplicationDefault()
+    });
+}
 
-app.MapDefaultControllerRoute();
+// =======================
+// ERROR HANDLING + STATIC FILES
+// =======================
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
-//// Configure the HTTP request pipeline.
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Home/Error");
-//    app.UseHsts();
-//}
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Error/500");
-//}
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-//app.UseHttpsRedirection();
-//app.UseStaticFiles();
-
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseStatusCodePagesWithReExecute("/Error/{0}");
-//}
-
-
+// =======================
+// PIPELINE
+// =======================
 app.UseRouting();
 app.UseSession();
-app.UseAuthentication(); // Enables login
+app.UseAuthentication();
 app.UseAuthorization();
 
+// =======================
+// ROUTING
+// =======================
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Customer}/{action=Location}/{id?}");
