@@ -105,24 +105,24 @@ app.MapGet("/firebase-config.js", (IConfiguration config) =>
 
 app.MapDefaultControllerRoute();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error/500");
-}
+//// Configure the HTTP request pipeline.
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseExceptionHandler("/Home/Error");
+//    app.UseHsts();
+//}
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseExceptionHandler("/Error/500");
+//}
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+//app.UseHttpsRedirection();
+//app.UseStaticFiles();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseStatusCodePagesWithReExecute("/Error/{0}");
-}
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+//}
 
 
 app.UseRouting();
