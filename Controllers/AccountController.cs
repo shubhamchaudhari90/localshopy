@@ -94,7 +94,7 @@ namespace localshopyNew.Controllers
                     _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
                     await SetRole(email, RoleConstants.Shopkeeper);
                 }
-                return RedirectToAction("OrdersToServe", "Shopkeeper");
+                return RedirectToAction("OrdersToServe", "Order");
             }
         }
 
