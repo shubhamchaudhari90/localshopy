@@ -22,15 +22,19 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Database\" />
-		<Folder Include="home\uploads\products\" />
-		<Folder Include="wwwroot\images\products\" />
-	</ItemGroup>
+	<!-- Prevent SQLite DB from being published -->
 	<ItemGroup>
 		<Content Update="app.db">
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 	</ItemGroup>
+
+	<!-- Prevent uploads folder from being published -->
+	<ItemGroup>
+		<Content Remove="wwwroot\uploads\**" />
+		<None Include="wwwroot\uploads\**" CopyToPublishDirectory="Never" />
+		<None Include="home\uploads\**" CopyToPublishDirectory="Never" />
+	</ItemGroup>
+
 
 </Project>
