@@ -9,7 +9,6 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize]
     public class OrderController : Controller
     {
         private readonly ISessionService _sessionService;
