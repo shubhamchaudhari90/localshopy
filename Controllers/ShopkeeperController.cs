@@ -170,21 +170,26 @@ namespace localshopyNew.Controllers
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                // Persistent folder in Azure App Service
-                var uploadsRoot = Path.Combine("/home/site/wwwroot/uploads/products");
+                // 1. Determine uploads folder dynamically
+                // Works both on Windows and Azure Linux
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
+
+                // Ensure the folder exists
                 Directory.CreateDirectory(uploadsRoot);
 
+                // 2. Generate unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
                 var fileName = Guid.NewGuid() + extension;
                 var filePath = Path.Combine(uploadsRoot, fileName);
 
-                // Save file
+                // 3. Save the file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await product.ProductImage.CopyToAsync(stream);
 
-                // Store filename in DB
+                // 4. Store filename in DB
                 product.ImageFileName = fileName;
             }
+
 
 
             bool isProductValid = await _shopkeeperService.IsProductValid(product);
@@ -271,40 +276,50 @@ namespace localshopyNew.Controllers
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                // 1. Persistent folder in Azure
-                var uploadsRoot = Path.Combine("/home/site/wwwroot/uploads/products");
-                Directory.CreateDirectory(uploadsRoot);
+                // 1. Determine the uploads folder in a cross-platform way
+                // Uses wwwroot/uploads/products on both Windows and Linux
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
 
-                // 2. Generate unique filename
+                // Ensure the folder exists
+                if (!Directory.Exists(uploadsRoot))
+                {
+                    Directory.CreateDirectory(uploadsRoot);
+                }
+
+                // 2. Generate a unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
                 var fileName = Guid.NewGuid() + extension;
                 var filePath = Path.Combine(uploadsRoot, fileName);
 
-                // 3. Save file
+                // 3. Save the file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await product.ProductImage.CopyToAsync(stream);
 
-                // 4. Store filename in DB
+                // 4. Store filename in the database
                 product.ImageFileName = fileName;
+
+
             }
+
 
 
             product.ShopId = shopId;
 
             string? oldImageName = await _shopkeeperService.UpdateProductInShop(product);
-            if (oldImageName != null && product.ProductImage != null && product.ProductImage.Length > 0)
+            if (!string.IsNullOrEmpty(oldImageName) && product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                // Delete old image
-                if (!string.IsNullOrEmpty(oldImageName))
-                {
-                    var oldImagePath = Path.Combine("/home/site/wwwroot/uploads/products", oldImageName);
+                // Determine uploads folder dynamically
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
 
-                    if (System.IO.File.Exists(oldImagePath))
-                    {
-                        System.IO.File.Delete(oldImagePath);
-                    }
+                // Full path to the old image
+                var oldImagePath = Path.Combine(uploadsRoot, oldImageName);
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
                 }
             }
+
             return RedirectToAction(nameof(ShopDetails));
         }
 
@@ -348,7 +363,7 @@ namespace localshopyNew.Controllers
             List<string?> imagesInDB = await _shopkeeperService.GetAllImageNames();
 
             // Path to the persistent product images folder
-            string imageFolder = Path.Combine("/home/site/wwwroot/uploads/products");
+            string imageFolder = Path.Combine(_env.WebRootPath, "uploads", "products");
 
             if (Directory.Exists(imageFolder))
             {
@@ -362,10 +377,19 @@ namespace localshopyNew.Controllers
                     // If file is not in DB, delete it
                     if (!imagesInDB.Contains(fileName))
                     {
-                        System.IO.File.Delete(filePath);
+                        try
+                        {
+                            System.IO.File.Delete(filePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the error if needed
+                            Console.WriteLine($"Failed to delete {fileName}: {ex.Message}");
+                        }
                     }
                 }
             }
         }
+
     }
 }
