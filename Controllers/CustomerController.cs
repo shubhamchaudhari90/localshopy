@@ -118,7 +118,7 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> ShopDetails(string shopName)
         {
-            if (string.IsNullOrEmpty(shopName)) { return RedirectToAction("NotFound404", "Error"); }
+            //if (string.IsNullOrEmpty(shopName)) { return RedirectToAction("NotFound404", "Error"); }
 
             string? email = User.FindFirstValue(ClaimTypes.Email);
 
@@ -140,24 +140,24 @@ namespace localshopyNew.Controllers
 
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
 
-            if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains('_'))
-            {
-                return RedirectToAction("NotFound404", "Error");
-            }
+            //if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains('_'))
+            //{
+            //    return RedirectToAction("NotFound404", "Error");
+            //}
 
             string[] names = shopProductName.Split("_");
 
-            if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
+            //if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
 
             string decodedShopName = names[0].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
             string decodedProductName = names[1].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
 
             var productDetails = await _customerService.GetProductDetailsByName(decodedShopName, decodedProductName, email);
 
-            if (productDetails == null)
-            {
-                return RedirectToAction("NotFound404", "Error");
-            }
+            //if (productDetails == null)
+            //{
+            //    return RedirectToAction("NotFound404", "Error");
+            //}
             TempData["shopProductName"] = shopProductName;
             return View(productDetails);
         }
