@@ -170,18 +170,22 @@ namespace localshopyNew.Controllers
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                var uploads = Path.Combine(_env.WebRootPath, "images", "products");
-                Directory.CreateDirectory(uploads);
+                // Persistent folder in Azure App Service
+                var uploadsRoot = Path.Combine("/home/site/wwwroot/uploads/products");
+                Directory.CreateDirectory(uploadsRoot);
 
                 var extension = Path.GetExtension(product.ProductImage.FileName);
                 var fileName = Guid.NewGuid() + extension;
-                var filePath = Path.Combine(uploads, fileName);
+                var filePath = Path.Combine(uploadsRoot, fileName);
 
+                // Save file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await product.ProductImage.CopyToAsync(stream);
 
+                // Store filename in DB
                 product.ImageFileName = fileName;
             }
+
 
             bool isProductValid = await _shopkeeperService.IsProductValid(product);
             if (isProductValid)
@@ -267,18 +271,23 @@ namespace localshopyNew.Controllers
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                var uploads = Path.Combine(_env.WebRootPath, "images", "products");
-                Directory.CreateDirectory(uploads);
+                // 1. Persistent folder in Azure
+                var uploadsRoot = Path.Combine("/home/site/wwwroot/uploads/products");
+                Directory.CreateDirectory(uploadsRoot);
 
+                // 2. Generate unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
                 var fileName = Guid.NewGuid() + extension;
-                var filePath = Path.Combine(uploads, fileName);
+                var filePath = Path.Combine(uploadsRoot, fileName);
 
+                // 3. Save file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await product.ProductImage.CopyToAsync(stream);
 
+                // 4. Store filename in DB
                 product.ImageFileName = fileName;
             }
+
 
             product.ShopId = shopId;
 
@@ -288,7 +297,7 @@ namespace localshopyNew.Controllers
                 // Delete old image
                 if (!string.IsNullOrEmpty(oldImageName))
                 {
-                    var oldImagePath = Path.Combine(_env.WebRootPath, "images", "products", oldImageName);
+                    var oldImagePath = Path.Combine("/home/site/wwwroot/uploads/products", oldImageName);
 
                     if (System.IO.File.Exists(oldImagePath))
                     {
@@ -338,8 +347,8 @@ namespace localshopyNew.Controllers
             // Get all image names in DB
             List<string?> imagesInDB = await _shopkeeperService.GetAllImageNames();
 
-            // Path to the product images folder
-            string imageFolder = Path.Combine(_env.WebRootPath, "images", "products");
+            // Path to the persistent product images folder
+            string imageFolder = Path.Combine("/home/site/wwwroot/uploads/products");
 
             if (Directory.Exists(imageFolder))
             {
