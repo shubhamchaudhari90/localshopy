@@ -13,6 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 // =======================
 // DATABASE (SQLite)
 // =======================
+// Use a writable path on Azure Linux: /home/Data
+var dbPath = "/home/Data";
+if (!Directory.Exists(dbPath))
+    Directory.CreateDirectory(dbPath);
+
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={Path.Combine(dbPath, "app.db")}";
+
 builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -96,11 +103,13 @@ using (var scope = app.Services.CreateScope())
 // =======================
 // FIREBASE (SAFE INIT)
 // =======================
-if (FirebaseApp.DefaultInstance == null)
+// Load Firebase credentials from /home/Data/firebase-service-account.json
+var firebasePath = "/home/Data/firebase-service-account.json";
+if (FirebaseApp.DefaultInstance == null && File.Exists(firebasePath))
 {
     FirebaseApp.Create(new AppOptions
     {
-        Credential = GoogleCredential.GetApplicationDefault()
+        Credential = GoogleCredential.FromFile(firebasePath)
     });
 }
 
