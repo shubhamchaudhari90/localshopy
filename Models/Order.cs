@@ -41,7 +41,15 @@ namespace localshopyNew.Models
 
         [MaxLength(20)]
         public string PaymentStatus { get; set; } = "UNPAID";
-        // UNPAID, PAID, REFUNDED
+
+        [StringLength(10, MinimumLength = 10)]
+        public string CustomerMobileNumber { get; set; }
+
+        public string FlatNumber { get; set; }
+
+        public string Wing { get; set; }
+
+        public string Society { get; set; }
 
         [Required]
         public string ShippingAddress { get; set; }

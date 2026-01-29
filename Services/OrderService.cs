@@ -65,7 +65,7 @@ namespace localshopyNew.Services
             return orders;
         }
 
-        public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing)
+        public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber)
         {
             var location = await _context.Locations
                 .AsNoTracking()
@@ -143,6 +143,11 @@ namespace localshopyNew.Services
                     OrderNumber = $"{now:yyyyMMdd}-{shopGroup.Key.ShopNumber.ToString("D2")}-{count}",
 
                     Status = OrderStatus.ORDER_PLACED,
+
+                    CustomerMobileNumber = mobileNumber,
+                    Wing = wing,
+                    FlatNumber = flatNumber,
+                    Society = location.Name,
 
                     BillingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {location.Name}, {location.Address}",
                     ShippingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {location.Name}, {location.Address}",

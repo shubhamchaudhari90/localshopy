@@ -56,7 +56,6 @@ namespace localshopyNew.Services
             return rows > 0;
         }
 
-
         public async Task<List<CartViewModel>> GetCartDetails(string emailId, Guid locationId)
         {
             List<CartViewModel> products = new List<CartViewModel>();
@@ -150,6 +149,13 @@ namespace localshopyNew.Services
             _context.SaveChanges();
 
             return true;
+        }
+
+        public async Task<string> GetSocietyName(Guid locationId)
+        {
+            Location? location = await _context.Locations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == locationId);
+            if (location == null) return string.Empty;
+            return location.Name;
         }
     }
 }

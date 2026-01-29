@@ -26,6 +26,7 @@ namespace localshopyNew.Controllers
                     _sessionService.SetCartCount(products.Sum(x => x.Quantity));
                 else
                     _sessionService.SetCartCount(0);
+                ViewBag.SocietyName = await _cartService.GetSocietyName(locationId);
                 return View(products);
             }
             return RedirectToAction("Login", "Account");

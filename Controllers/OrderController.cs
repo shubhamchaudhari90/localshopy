@@ -85,36 +85,36 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(string wing, string flatNumber)
+        public async Task<IActionResult> PlaceOrder(string wing, string flatNumber, string mobileNumber)
         {
             TempData["ErrorMessage"] = null;
-            if (string.IsNullOrEmpty(wing) || string.IsNullOrEmpty(flatNumber))
+            if (string.IsNullOrEmpty(wing) || string.IsNullOrEmpty(flatNumber) || string.IsNullOrEmpty(mobileNumber))
             {
-                TempData["ErrorMessage"] = "Please check wing and flat number";
+                TempData["ErrorMessage"] = "Please check wing, flat number and mobile number";
                 return RedirectToAction("Index", "Cart");
             }
             string? email = User.FindFirstValue(ClaimTypes.Email);
-            if (!string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
-                Guid locationId = _sessionService.GetLocation();
-                if (locationId != Guid.Empty)
-                {
-                    List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing);
-
-                    List<Guid> orderIds = orders.Select(x => x.Id).ToList();
-
-                    List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
-
-                    foreach (ShopkeeperNotificationViewModel token in tokens)
-                    {
-                        await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
-                    }
-                    _sessionService.SetCartCount(0);
-                    return View("OrderDetails", orders);
-                }
+                return RedirectToAction("Login", "Account");
             }
+            Guid locationId = _sessionService.GetLocation();
+            if (locationId == Guid.Empty)
+            {
+                return RedirectToAction("Location", "Customer");
+            }
+            List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing, mobileNumber);
 
-            return RedirectToAction("Index", "Cart");
+            List<Guid> orderIds = orders.Select(x => x.Id).ToList();
+
+            List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
+
+            foreach (ShopkeeperNotificationViewModel token in tokens)
+            {
+                await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
+            }
+            _sessionService.SetCartCount(0);
+            return View("OrderDetails", orders);
         }
 
         [HttpPost]
