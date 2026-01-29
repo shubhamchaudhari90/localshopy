@@ -74,6 +74,8 @@ builder.Services.AddSession(options =>
 // =======================
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
+// Register your FirebaseNotificationService
+builder.Services.AddScoped<FirebaseNotificationService>();
 
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -103,14 +105,15 @@ using (var scope = app.Services.CreateScope())
 // =======================
 // FIREBASE (SAFE INIT)
 // =======================
-// Load Firebase credentials from /home/Data/firebase-service-account.json
-var firebasePath = "/home/Data/firebase-service-account.json";
+// Initialize Firebase here
+var firebasePath = "/home/site/wwwroot/firebase-service-account.json";
 if (FirebaseApp.DefaultInstance == null && File.Exists(firebasePath))
 {
     FirebaseApp.Create(new AppOptions
     {
         Credential = GoogleCredential.FromFile(firebasePath)
     });
+    Console.WriteLine("Firebase initialized.");
 }
 
 // =======================

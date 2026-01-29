@@ -368,33 +368,46 @@ namespace localshopyNew.Services
 
         public async Task<bool> SaveToken(string emailId, string token, string role)
         {
+            if (string.IsNullOrEmpty(emailId) || string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role))
+                return false;
 
-            var alldevices = await _context.UserDevices.ToListAsync();
+            token = token.Trim(); // Remove accidental whitespace
 
             var existing = await _context.UserDevices
                 .FirstOrDefaultAsync(x => x.EmailId == emailId && x.FcmToken == token);
 
-            if (existing == null && !string.IsNullOrEmpty(emailId) && role != null && !string.IsNullOrEmpty(token))
+            if (existing != null)
+                return false; // Token already exists
+
+            // Remove all old tokens for this user
+            var oldTokens = await _context.UserDevices
+                .Where(x => x.EmailId == emailId)
+                .ToListAsync();
+
+            _context.UserDevices.RemoveRange(oldTokens);
+
+            // Add the new token
+            _context.UserDevices.Add(new UserDevice
             {
-                _context.UserDevices.Add(new UserDevice
-                {
-                    EmailId = emailId,
-                    Role = role,
-                    FcmToken = token
-                });
-                int rowsUpdated = 0;
-                try
-                {
-                    rowsUpdated = _context.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    string msg = ex.Message;
-                }
-                return rowsUpdated > 0;
+                EmailId = emailId,
+                Role = role,
+                FcmToken = token
+            });
+
+            int rowsUpdated = 0;
+            try
+            {
+                rowsUpdated = await _context.SaveChangesAsync();
+                Console.WriteLine($"FCM token saved for {emailId}: {token}");
             }
-            return false;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving FCM token: {ex.Message}");
+            }
+
+            return rowsUpdated > 0;
         }
+
 
         public async Task<List<string>> GetToken(Guid orderID)
         {
