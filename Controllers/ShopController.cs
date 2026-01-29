@@ -128,6 +128,17 @@ namespace localshopyNew.Controllers
             return View(shop);
         }
 
+        public async Task<IActionResult> ExtendValidity1M(Guid id)
+        {
+            Shop? shop = await _shopService.GetShopById(id);
+
+            if (shop != null && shop.AccountValidTill < DateTime.Now.AddMonths(1))
+            {
+                await _shopService.ExtendValidity1M(id);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> Delete(Guid id)
         {
             Shop? shop = await _shopService.GetShopById(id);

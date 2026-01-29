@@ -116,6 +116,12 @@
 
                             <!-- Actions -->
                             <div class="mt-auto d-flex gap-2">
+                                <a class="btn btn-sm btn-success flex-fill"
+                                   href="@Url.Action("ExtendValidity1M", new { id = shop.Id })"
+                                   onclick="return confirm('Are you sure you want to extend the validity by 1 month?');">
+                                    Extend Validity +1 Month
+                                </a>
+
                                 <a class="btn btn-sm btn-warning flex-fill"
                                    href="@Url.Action("Edit", new { id = shop.Id })">Edit</a>
                                 <a class="btn btn-sm btn-danger flex-fill"

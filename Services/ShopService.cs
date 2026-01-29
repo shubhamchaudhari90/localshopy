@@ -132,5 +132,21 @@ namespace localshopyNew.Services
             var shops = await _context.Shops.OrderBy(x => x.Name).ToListAsync();
             return shops;
         }
+
+        public async Task ExtendValidity1M(Guid shopId)
+        {
+            Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+            if (shop == null)
+                return;
+            if (shop.AccountValidTill <= DateTime.Now.Date)
+            {
+                shop.AccountValidTill = DateTime.Now.AddMonths(1);
+            }
+            else
+            {
+                shop.AccountValidTill = shop.AccountValidTill.AddMonths(1);
+            }
+            await _context.SaveChangesAsync();
+        }
     }
 }
