@@ -13,12 +13,12 @@ namespace localshopyNew.Controllers
     {
         private readonly ISessionService _sessionService;
         private readonly IOrderService _orderService;
-        private readonly FirebaseNotificationService _firebaseService;
-        public OrderController(ISessionService sessionService, IOrderService orderService, FirebaseNotificationService firebaseService)
+        private readonly FirebaseNotificationService _notification;
+        public OrderController(ISessionService sessionService, IOrderService orderService)
         {
             _sessionService = sessionService;
             _orderService = orderService;
-            _firebaseService = firebaseService;
+            _notification = new FirebaseNotificationService();
         }
 
         [HttpPost]
@@ -111,7 +111,7 @@ namespace localshopyNew.Controllers
 
             foreach (ShopkeeperNotificationViewModel token in tokens)
             {
-                await _firebaseService.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
+                await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
             }
             _sessionService.SetCartCount(0);
             return View("OrderDetails", orders);
@@ -135,7 +135,7 @@ namespace localshopyNew.Controllers
 
                 foreach (ShopkeeperNotificationViewModel token in tokens)
                 {
-                    await _firebaseService.SendNotificationAsync(token.FcmToken, "Cancel Order", $"Order no.: {token.OrderNumber} is {OrderStatus.CANCELLED.ToUpperInvariant()}");
+                    await _notification.SendNotificationAsync(token.FcmToken, "Cancel Order", $"Order no.: {token.OrderNumber} is {OrderStatus.CANCELLED.ToUpperInvariant()}");
                 }
             }
             return RedirectToAction(nameof(OrderDetails), new { id });
@@ -299,7 +299,7 @@ namespace localshopyNew.Controllers
 
             foreach (var userToken in userTokens)
             {
-                await _firebaseService.SendNotificationAsync(userToken, type, $"Your order: {orderNumber}, is now {orderStatus}");
+                await _notification.SendNotificationAsync(userToken, type, $"Your order: {orderNumber}, is now {orderStatus}");
             }
         }
     }

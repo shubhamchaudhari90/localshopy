@@ -58,6 +58,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 // =======================
 builder.Services.AddControllersWithViews();
 
+// ?? FIREBASE INIT — ONLY ONCE
+if (FirebaseApp.DefaultInstance == null)
+{
+    var firebasePath = Path.Combine(AppContext.BaseDirectory, "firebase-service-account.json");
+
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromFile(firebasePath)
+    });
+}
 // =======================
 // SESSION
 // =======================
@@ -93,6 +103,23 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 
+app.MapGet("/firebase-config.js", (IConfiguration config) =>
+{
+    var fcm = config.GetSection("Firebase");
+
+    return Results.Text($@"
+        window.firebaseConfig = {{
+            apiKey: '{fcm["ApiKey"]}',
+            authDomain: '{fcm["AuthDomain"]}',
+            projectId: '{fcm["ProjectId"]}',
+            storageBucket: '{fcm["StorageBucket"]}',
+            messagingSenderId: '{fcm["MessagingSenderId"]}',
+            appId: '{fcm["AppId"]}',
+            vapidKey: '{fcm["VapidPublicKey"]}'
+        }};
+    ", "application/javascript");
+});
+
 // =======================
 // APPLY MIGRATIONS (SAFE)
 // =======================
@@ -100,20 +127,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
     db.Database.Migrate();
-}
-
-// =======================
-// FIREBASE (SAFE INIT)
-// =======================
-// Initialize Firebase here
-var firebasePath = "/home/site/wwwroot/firebase-service-account.json";
-if (FirebaseApp.DefaultInstance == null && File.Exists(firebasePath))
-{
-    FirebaseApp.Create(new AppOptions
-    {
-        Credential = GoogleCredential.FromFile(firebasePath)
-    });
-    Console.WriteLine("Firebase initialized.");
 }
 
 // =======================

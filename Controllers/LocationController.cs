@@ -13,12 +13,12 @@ namespace localshopyNew.Controllers
     public class LocationController : Controller
     {
         private readonly ILocationService _service;
-        private readonly FirebaseNotificationService _firebaseService;
+        private readonly FirebaseNotificationService _notification;
 
-        public LocationController(ILocationService service, FirebaseNotificationService firebaseService)
+        public LocationController(ILocationService service)
         {
             _service = service;
-            _firebaseService = firebaseService;
+            _notification = new FirebaseNotificationService();
         }
 
         public async Task<IActionResult> Index()
@@ -52,7 +52,7 @@ namespace localshopyNew.Controllers
 
                 foreach (ShopkeeperNotificationViewModel token in tokens)
                 {
-                    await _firebaseService.SendNotificationAsync(token.FcmToken, "New Location Added", $"New location: {location.Name} added.");
+                    await _notification.SendNotificationAsync(token.FcmToken, "New Location Added", $"New location: {location.Name} added.");
                 }
                 return RedirectToAction(nameof(Index));
             }
