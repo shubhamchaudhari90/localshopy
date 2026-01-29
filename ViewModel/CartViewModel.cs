@@ -7,7 +7,7 @@
         public Guid ProductMasterId { get; set; }
         public Guid CategoryId { get; set; }
 
-
+        public string ShopContactNumber { get; set; }
         public string ShopName { get; set; }
         public string ProductName { get; set; }
         public string? ImageFileName { get; set; }

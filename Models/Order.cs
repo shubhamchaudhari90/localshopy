@@ -21,6 +21,10 @@ namespace localshopyNew.Models
         [MaxLength(200)]
 
         public string ShopName { get; set; }
+
+        [StringLength(10, MinimumLength = 10)]
+        public string ShopContactNumber { get; set; }
+
         [Required]
         [MaxLength(20)]
         public string Status { get; set; } = "PENDING";

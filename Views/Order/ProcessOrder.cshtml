@@ -90,9 +90,7 @@
                                      aria-valuemax="100">
                                 </div>
                             </div>
-
                             <hr class="my-2" />
-
                             @{
                                 var duration = DateTime.Now - order.CreatedAt;
                                 int hours = (int)duration.TotalHours;
@@ -106,6 +104,14 @@
                                 else
                                     timeAgo = "Just now";
                             }
+
+                            <p class="mb-1">
+                                <strong>Ordered By:</strong> @order.EmailId
+                            </p>
+                            <p class="mb-1">
+                                <strong>Contact No.:</strong> @order.CustomerMobileNumber
+                            </p>
+
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
                             </p>
@@ -119,7 +125,6 @@
                                     <span class="badge bg-secondary">@OrderStatus.PREORDER</span>
                                 }
                             </div>
-
                             <hr class="my-2" />
                             <div id="collapseOrderItems" class="accordion-collapse collapse show">
                                 <div class="accordion-body alert alert-warning">
@@ -135,7 +140,6 @@
                                                                 {
                                                                     <img src="~/uploads/products/@item.ImageFileName"
                                                                          class="card-img-top img-fluid" />
-
                                                                 }
                                                                 else
                                                                 {
@@ -215,7 +219,6 @@
                                         </button>
                                     </form>
                                 }
-
                                 @if (order.Status == OrderStatus.ACCEPTED)
                                 {
                                     if (!order.IsPreOrder)
@@ -239,7 +242,6 @@
                                         </button>
                                     </form>
                                 }
-
                                 @if (order.Status == OrderStatus.PROCESSING)
                                 {
                                     if (!order.IsPreOrder)
@@ -263,7 +265,6 @@
                                         </button>
                                     </form>
                                 }
-
                                 @if (order.Status == OrderStatus.OUT_FOR_DELIVERY)
                                 {
                                     if (!order.IsPreOrder)

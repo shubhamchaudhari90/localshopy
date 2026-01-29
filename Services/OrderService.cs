@@ -103,7 +103,8 @@ namespace localshopyNew.Services
                     Discount = p.Discount,
                     DiscountValidFrom = p.DiscountValidFrom,
                     DiscountValidTill = p.DiscountValidTill,
-                    Type = p.Type
+                    Type = p.Type,
+                    ShopContactNumber = shop.PhoneNo
                 }
             )
             .AsNoTracking()
@@ -125,7 +126,7 @@ namespace localshopyNew.Services
             var orderTracking = new List<OrderTracking>();
             var orderItems = new List<OrderItem>();
 
-            foreach (var shopGroup in products.GroupBy(x => new { x.ShopId, x.ShopName, x.ShopNumber }))
+            foreach (var shopGroup in products.GroupBy(x => new { x.ShopId, x.ShopName, x.ShopNumber, x.ShopContactNumber }))
             {
                 var count = orderCountByShop.GetValueOrDefault(shopGroup.Key.ShopName, 0) + 1;
 
@@ -138,6 +139,7 @@ namespace localshopyNew.Services
                     EmailId = emailId,
                     ShopId = shopGroup.Key.ShopId,
                     ShopName = shopGroup.Key.ShopName,
+                    ShopContactNumber = shopGroup.Key.ShopContactNumber,
                     CreatedAt = now,
                     UpdatedAt = now,
                     OrderNumber = $"{now:yyyyMMdd}-{shopGroup.Key.ShopNumber.ToString("D2")}-{count}",

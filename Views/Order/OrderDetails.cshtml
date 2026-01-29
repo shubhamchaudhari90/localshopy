@@ -47,7 +47,6 @@
                                 </span>
                             </div>
                             <hr class="my-2" />
-
                             @{
                                 int progress = 0;
                                 string progressClass = "bg-warning";
@@ -80,7 +79,6 @@
                                         break;
                                 }
                             }
-
                             <div class="progress progress-slim">
                                 <div class="progress-bar @progressClass progress-bar-animated progress-bar-striped"
                                      role="progressbar"
@@ -90,9 +88,7 @@
                                      aria-valuemax="100">
                                 </div>
                             </div>
-
                             <hr class="my-2" />
-
                             <p class="mb-1">
                                 <strong>Shop:</strong> @order.ShopName
                             </p>
@@ -122,18 +118,14 @@
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
                             </p>
-
-
-
+                            <p class="mb-1">
+                                <strong>Shop Contact No.:</strong>
+                                @order.ShopContactNumber
+                            </p>
                             <p class="mb-1">
                                 <strong>Last Updated at:</strong>
                                 @order.UpdatedAt.ToString("hh:mm tt") (@timeAgoUA)
                             </p>
-
-
-
-
-
                             <p class="mb-2">
                                 <strong>Shipping Address:</strong><br />
                                 @order.ShippingAddress
@@ -160,7 +152,6 @@
                                                                 {
                                                                     <img src="~/uploads/products/@item.ImageFileName"
                                                                          class="card-img-top img-fluid" />
-
                                                                 }
                                                                 else
                                                                 {
