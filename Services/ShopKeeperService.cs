@@ -24,7 +24,7 @@ namespace localshopyNew.Services
 
         public async Task<List<ProductMaster>> GetProductsByCategoryId(Guid categoryId, Guid shopId)
         {
-            List<Guid> existingProdutIds = await _context.Products.AsNoTracking().Where(x => x.ShopId == shopId).Select(x => x.ProductMasterId).Distinct().ToListAsync();
+            List<Guid> existingProdutIds = await _context.Products.AsNoTracking().Where(x => x.ShopId == shopId && x.IsActive).Select(x => x.ProductMasterId).Distinct().ToListAsync();
             return await _context.ProductMasters.AsNoTracking().Where(x => x.CategoryId == categoryId && x.IsActive && !existingProdutIds.Contains(x.Id)).ToListAsync();
         }
 

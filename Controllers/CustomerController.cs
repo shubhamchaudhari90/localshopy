@@ -125,7 +125,7 @@ namespace localshopyNew.Controllers
 
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
 
-            string decodedName = shopName.Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
+            string decodedName = shopName.Replace("--", "'").Replace("_", " ");
 
             var shopDetails = await _customerService.GetShopDetailsByName(decodedName, email);
             if (shopDetails == null || shopDetails.Shop == null)
@@ -146,19 +146,19 @@ namespace localshopyNew.Controllers
             //    return RedirectToAction("NotFound404", "Error");
             //}
 
-            string[] names = shopProductName.Split("_");
+            string[] names = shopProductName.Split("~");
 
-            //if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
+            if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
 
-            string decodedShopName = names[0].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
-            string decodedProductName = names[1].Replace("--", "\u0000").Replace("-", " ").Replace("\u0000", "-");
+            string decodedShopName = names[0].Replace("--", "'").Replace("_", " ");
+            string decodedProductName = names[1].Replace("--", "'").Replace("_", " ");
 
             var productDetails = await _customerService.GetProductDetailsByName(decodedShopName, decodedProductName, email);
 
-            //if (productDetails == null)
-            //{
-            //    return RedirectToAction("NotFound404", "Error");
-            //}
+            if (productDetails == null)
+            {
+                return RedirectToAction("NotFound404", "Error");
+            }
             TempData["shopProductName"] = shopProductName;
             return View(productDetails);
         }

@@ -165,7 +165,7 @@
                                                             <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
                                                                 <a asp-controller="Customer"
                                                                    asp-action="ProductDetail"
-                                                                   asp-route-shopProductName="@order.ShopName.Replace("-", "--").Replace(" ", "-")_@item.ProductName.Replace("-", "--").Replace(" ", "-")"
+                                                                   asp-route-shopProductName="@order.ShopName.Replace("'", "--").Replace(" ", "_")~@item.ProductName.Replace("'", "--").Replace(" ", "_")"
                                                                    class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
                                                                    style="white-space: nowrap;">
                                                                     @item.ProductName

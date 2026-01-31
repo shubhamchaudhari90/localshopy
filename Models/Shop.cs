@@ -9,7 +9,7 @@ namespace localshopyNew.Models
         public int ShopNumber { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
-        [RegularExpression(@"^[a-zA-Z0-9 ]+$",
+        [RegularExpression(@"^[a-zA-Z0-9 \-']+$",
         ErrorMessage = "Name can only contain letters, numbers and spaces.")]
         public required string Name { get; set; }
 

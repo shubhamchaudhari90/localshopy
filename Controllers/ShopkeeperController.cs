@@ -28,6 +28,8 @@ namespace localshopyNew.Controllers
         private readonly SignInManager<IdentityUser> _signInManager = signInManager;
         private readonly UserManager<IdentityUser> _userManager = userManager;
 
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+
         public async Task<IActionResult> ShopDetails()
         {
             Guid shopId = _sessionService.GetShopId();
@@ -146,6 +148,15 @@ namespace localshopyNew.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProduct(Product product)
         {
+            var categoryList = await _shopkeeperService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
+            {
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
             if (Guid.Empty == product.ProductMasterId ||
                 string.IsNullOrEmpty(product.Description) ||
                 product.Price <= 0 ||
@@ -179,6 +190,11 @@ namespace localshopyNew.Controllers
 
                 // 2. Generate unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    ViewData["ErrorMessage"] = "Image is not valid";
+                    return View(product);
+                }
                 var fileName = Guid.NewGuid() + extension;
                 var filePath = Path.Combine(uploadsRoot, fileName);
 
@@ -190,8 +206,6 @@ namespace localshopyNew.Controllers
                 product.ImageFileName = fileName;
             }
 
-
-
             bool isProductValid = await _shopkeeperService.IsProductValid(product);
             if (isProductValid)
             {
@@ -201,14 +215,6 @@ namespace localshopyNew.Controllers
                     return RedirectToAction(nameof(ShopDetails));
                 }
             }
-
-            var categoryList = await _shopkeeperService.GetActiveCategories();
-            if (categoryList == null || categoryList.Count <= 0)
-            {
-                ViewData["ErrorMessage"] = "Category not found";
-                return RedirectToAction(nameof(ShopDetails));
-            }
-            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
             ViewData["ErrorMessage"] = "Product already exist or any requied field is missing";
             await RemoveUnusedImages();
             return View(product);
@@ -216,12 +222,22 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> EditProduct(Guid productId)
         {
+            if (productId == Guid.Empty)
+            {
+                productId = _sessionService.GetProductId();
+            }
+
+            if (productId == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Product not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
             _sessionService.SetProductId(productId);
 
             var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
-                ViewData["ErrorMessage"] = "Category not found";
+                TempData["ErrorMessage"] = "Category not found";
                 return RedirectToAction(nameof(ShopDetails));
             }
 
@@ -241,7 +257,7 @@ namespace localshopyNew.Controllers
             var categoryList = await _shopkeeperService.GetActiveCategories();
             if (categoryList == null || categoryList.Count <= 0)
             {
-                ViewData["ErrorMessage"] = "Category not found";
+                TempData["ErrorMessage"] = "Category not found";
                 return RedirectToAction(nameof(ShopDetails));
             }
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
@@ -249,7 +265,7 @@ namespace localshopyNew.Controllers
             Guid productId = _sessionService.GetProductId();
             if (productId == Guid.Empty)
             {
-                ViewData["ErrorMessage"] = "Product not found";
+                TempData["ErrorMessage"] = "Product not found";
                 return RedirectToAction(nameof(ShopDetails));
             }
 
@@ -257,21 +273,21 @@ namespace localshopyNew.Controllers
 
             if (product.Price <= 0)
             {
-                ViewData["ErrorMessage"] = "Mandatory field missing";
-                return View(product);
+                TempData["ErrorMessage"] = "Mandatory field missing";
+                return RedirectToAction("EditProduct", product.Id);
             }
 
             Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
-                ViewData["ErrorMessage"] = "Session Expired";
+                TempData["ErrorMessage"] = "Session Expired";
                 return RedirectToAction("Logout", "Account");
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
             {
-                ViewData["ErrorMessage"] = "Image must be less than 1 MB";
-                return View(product);
+                TempData["ErrorMessage"] = "Image must be less than 1 MB";
+                return RedirectToAction("EditProduct", product.Id);
             }
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
@@ -288,6 +304,12 @@ namespace localshopyNew.Controllers
 
                 // 2. Generate a unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    TempData["ErrorMessage"] = "Image is not valid";
+                    return RedirectToAction("EditProduct", product.Id);
+                }
+
                 var fileName = Guid.NewGuid() + extension;
                 var filePath = Path.Combine(uploadsRoot, fileName);
 
@@ -297,12 +319,7 @@ namespace localshopyNew.Controllers
 
                 // 4. Store filename in the database
                 product.ImageFileName = fileName;
-
-
             }
-
-
-
             product.ShopId = shopId;
 
             string? oldImageName = await _shopkeeperService.UpdateProductInShop(product);
