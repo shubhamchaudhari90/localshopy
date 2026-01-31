@@ -6,6 +6,7 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
+
     public class CustomerController(ILocationService locationService, ICustomerService customerService, ICartService cartService, ISessionService sessionService) : Controller
     {
         private readonly ILocationService _locationService = locationService;

@@ -122,7 +122,7 @@
                     <!-- Right: Edit button -->
                     <p>
                         <a href="@Url.Action("Edit", "Shopkeeper")"
-                           class="btn btn-sm btn-warning"
+                           class="btn  border-dark btn-sm btn-warning"
                            title="Edit Shop Details">
                             <i class="bi bi-pencil"></i>
                         </a>
@@ -147,14 +147,14 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
 
                 <!-- Left: Add Product -->
-                <a class="btn btn-warning btn-sm fw-semibold"
+                <a class="btn  border-dark btn-warning btn-sm fw-semibold"
                    href="@Url.Action("AddProduct", "Shopkeeper")">
                     <i class="bi bi-plus-circle me-1"></i> Add Product
                 </a>
                 @if (Model.Products.Any())
                 {
                     <!-- Right: Collapse / Expand -->
-                    <button id="toggleAllBtn" class="btn btn-outline-warning btn-sm">
+                    <button id="toggleAllBtn" class="btn  border-dark btn-outline-warning btn-sm">
                         <i class="bi bi-arrows-collapse"></i> Collapse All
                     </button>
                 }
@@ -286,7 +286,7 @@
                                                                 </div>
 
                                                                 <div class="d-flex align-items-center gap-2">
-                                                                    <a class="btn btn-sm btn-warning p-1"
+                                                                    <a class="btn  border-dark btn-sm btn-warning p-1"
                                                                        href="@Url.Action("EditProduct", "Shopkeeper", new { productId = product.Id })"
                                                                        title="Edit">
                                                                         <i class="bi bi-pencil"></i>
@@ -297,7 +297,7 @@
                                                                           class="m-0">
                                                                         <input type="hidden" name="productId" value="@product.Id" />
                                                                         <button type="submit"
-                                                                                class="btn btn-sm btn-danger p-1"
+                                                                                class="btn  border-dark btn-sm btn-danger p-1"
                                                                                 title="Delete">
                                                                             <i class="bi bi-trash"></i>
                                                                         </button>

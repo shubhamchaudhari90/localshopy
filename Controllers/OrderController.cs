@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ISessionService _sessionService;
@@ -138,7 +139,7 @@ namespace localshopyNew.Controllers
                     await _notification.SendNotificationAsync(token.FcmToken, "Cancel Order", $"Order no.: {token.OrderNumber} is {OrderStatus.CANCELLED.ToUpperInvariant()}");
                 }
             }
-            return RedirectToAction(nameof(OrderDetails), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

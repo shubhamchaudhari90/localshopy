@@ -132,19 +132,19 @@
                                                                     @if (product.IsAddedToCart)
                                                                     {
                                                                         <div role="button"
-                                                                             class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle"
+                                                                             class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle"
                                                                              data-shop="@product.ShopName"
                                                                              data-product="@product.ProductMasterName">
-                                                                            <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
+                                                                            <i class="bi bi-cart-check-fill check-icon-cart added-icon"></i>
                                                                         </div>
                                                                     }
                                                                     else
                                                                     {
                                                                         <button type="button"
-                                                                                class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart"
+                                                                                class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart"
                                                                                 data-shop="@product.ShopName"
                                                                                 data-product="@product.ProductMasterName">
-                                                                            <i class="bi bi-cart-plus icon-cart"></i>
+                                                                            <i class="bi bi-cart-plus icon-cart fs-4"></i>
                                                                         </button>
                                                                     }
                                                                 }
@@ -152,8 +152,8 @@
                                                                 {
                                                                     <a asp-controller="Account"
                                                                        asp-action="Login"
-                                                                       class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
-                                                                        <i class="bi bi-lock-fill icon-cart"></i>
+                                                                       class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
+                                                                        <i class="bi bi-cart-x icon-cart fs-4"></i>
                                                                     </a>
                                                                 }
 
@@ -300,10 +300,10 @@
                     if (response === true) {
                         const successHtml = `
                         <div role="button"
-                            class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle added-to-cart"
+                            class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle added-to-cart"
                             data-shop="${$btn.data('shop')}"
                             data-product="${$btn.data('product')}">
-                            <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
+                            <i class="bi bi-cart-check-fill check-icon-cart added-icon"></i>
                         </div>`;
                         
                         $btn.replaceWith(successHtml);

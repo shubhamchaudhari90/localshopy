@@ -89,7 +89,7 @@
 
         // Reset all buttons
         buttons.forEach(btn => {
-            btn.classList.remove('border','border-2','border-dark');
+            btn.classList.remove('border','','border-dark');
             const filter = btn.dataset.filter;
             btn.classList.remove('btn-success','btn-warning','btn-danger','btn-secondary');
             if(filter === 'more5') btn.classList.add('btn-outline-success');
@@ -99,7 +99,7 @@
         });
 
         // Highlight clicked button
-        button.classList.add('border','border-2','border-dark');
+        button.classList.add('border','','border-dark');
         const activeFilter = button.dataset.filter;
         button.classList.remove(`btn-outline-${activeFilter==='more5'?'success':activeFilter==='less5'?'warning':activeFilter==='expired'?'danger':'secondary'}`);
         button.classList.add(activeFilter==='more5'?'btn-success':activeFilter==='less5'?'btn-warning':activeFilter==='expired'?'btn-danger':'btn-secondary');

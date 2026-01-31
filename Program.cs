@@ -36,16 +36,41 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
+        // OAuth client credentials from Google Cloud Console
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 
+        // ---- Scopes ----
+        // Required for OpenID Connect (user identity)
+        options.Scope.Add("openid");
+
+        // Basic profile info (name, picture, locale, etc.)
         options.Scope.Add("profile");
+
+        // Email address and verification status
         options.Scope.Add("email");
 
+        // ---- Claim mappings ----
+        // Unique, stable identifier for the Google user
+        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
+
+        // Primary email address
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+
+        // Whether the email is verified by Google
+        options.ClaimActions.MapJsonKey("email_verified", "email_verified");
+
+        // Full display name (e.g., "John Doe")
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-        options.ClaimActions.MapJsonKey("given_name", "given_name");
-        options.ClaimActions.MapJsonKey("family_name", "family_name");
+
+        // First name (given name)
+        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+
+        // Last name (family name)
+        options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+
+        // Profile photo URL
+        options.ClaimActions.MapJsonKey("picture", "picture");
     });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -140,6 +165,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
+app.UseExceptionHandler("/Error/500");
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 // =======================
 // PIPELINE

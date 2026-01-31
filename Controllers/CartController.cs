@@ -1,10 +1,12 @@
 ﻿using localshopyNew.Services.Interfaces;
 using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize]
     public class CartController(ICartService cartService, ISessionService sessionService) : Controller
     {
         private readonly ICartService _cartService = cartService;

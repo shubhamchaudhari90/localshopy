@@ -23,13 +23,6 @@
 
 @if (groupedProducts.Any())
 {
-    <!-- Toggle Button -->
-    <div class="d-flex justify-content-end mb-3">
-        <button id="toggleAllBtn" class="btn btn-warning btn-sm">
-            <i class="bi bi-arrows-collapse"></i> Collapse All
-        </button>
-    </div>
-
     <div class="accordion" id="productCategoryAccordion">
 
         @foreach (var group in groupedProducts.Select((g, idx) => new { g, idx }))
@@ -82,7 +75,6 @@
                                                     {
                                                         <img src="~/uploads/products/@product.ImageFileName"
                                                              class="card-img-top img-fluid" />
-
                                                     }
                                                     else
                                                     {
@@ -99,38 +91,38 @@
                                                             @if (product.IsAddedToCart)
                                                             {
                                                                 <div role="button"
-                                                                     class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id"
+                                                                     class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id"
                                                                      data-shop="@product.ShopName"
                                                                      data-product="@product.ProductMasterName"
                                                                      data-productid="@product.Id">
-                                                                    <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
+                                                                    <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
                                                                 </div>
 
                                                                 <button type="button"
-                                                                        class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id d-none"
+                                                                        class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id d-none"
                                                                         style="width:60px; height:26px; z-index:10;"
                                                                         data-shop="@product.ShopName"
                                                                         data-product="@product.ProductMasterName"
                                                                         data-productid="@product.Id">
-                                                                    <i class="bi bi-cart-plus icon-cart"></i>
+                                                                    <i class="bi bi-cart-plus icon-cart fs-4"></i>
                                                                 </button>
                                                             }
                                                             else
                                                             {
                                                                 <div role="button"
-                                                                     class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id d-none"
+                                                                     class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id d-none"
                                                                      data-shop="@product.ShopName"
                                                                      data-product="@product.ProductMasterName"
                                                                      data-productid="@product.Id">
-                                                                    <i class="bi bi-check-circle-fill check-icon-cart added-icon"></i>
+                                                                    <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
                                                                 </div>
 
                                                                 <button type="button"
-                                                                        class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id"
+                                                                        class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id"
                                                                         data-shop="@product.ShopName"
                                                                         data-product="@product.ProductMasterName"
                                                                         data-productid="@product.Id">
-                                                                    <i class="bi bi-cart-plus icon-cart"></i>
+                                                                    <i class="bi bi-cart-plus icon-cart fs-4"></i>
                                                                 </button>
                                                             }
                                                         }
@@ -138,8 +130,8 @@
                                                         {
                                                             <a asp-controller="Account"
                                                                asp-action="Login"
-                                                               class="btn btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
-                                                                <i class="bi bi-lock-fill icon-cart"></i>
+                                                               class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
+                                                                <i class="bi bi-cart-x icon-cart fs-4"></i>
                                                             </a>
                                                         }
                                                     }

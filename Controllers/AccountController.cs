@@ -83,6 +83,7 @@ namespace localshopyNew.Controllers
 
             if (shopDetails == null || shopDetails.Shop == null)
             {
+                await SetRole(email, RoleConstants.User);
                 return RedirectToAction("Products", "Customer");
             }
             else

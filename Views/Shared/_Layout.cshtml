@@ -109,27 +109,40 @@
                         <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-center" id="mobileMenu">
 
                             <!-- Left nav items -->
-                            <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-center">
+                            <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
                                 @if (User.IsInRole(RoleConstants.Shopkeeper))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-light" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
+                                        <a class="nav-link text-light fw-bold" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
                                     </li>
-                                    <li>
-                                        <a class="nav-link text-light" asp-controller="Order" asp-action="AllOrders">All Orders</a>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="AllOrders">All Orders</a>
                                     </li>
                                 }
                                 @if (User.IsInRole(RoleConstants.Admin))
                                 {
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Review" asp-action="Index">Review</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Shop" asp-action="Index">All Shops</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="ShopProduct" asp-action="ShopList">Shop Products</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="ProductMaster" asp-action="Index">Product Master</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Category" asp-action="Index">Category</a></li>
-                                    <li class="nav-item"><a class="nav-link text-light" asp-controller="Location" asp-action="Index">Location</a></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Review" asp-action="Index">Review</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Shop" asp-action="Index">All Shops</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="ShopProduct" asp-action="ShopList">Shop Products</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="ProductMaster" asp-action="Index">Product Master</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Category" asp-action="Index">Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
+                                    </li>
                                 }
-                                <li class="nav-item"><a class="nav-link text-light" asp-controller="Account" asp-action="Logout">Logout</a></li>
-
+                                <li class="nav-item">
+                                    <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
                             </ul>
                         </div>
                     }
@@ -171,7 +184,7 @@
         </nav>
     </header>
 
-    <main role="main" class="flex-shrink-0 alert alert-warning ">
+    <main role="main" class="flex-shrink-0 alert alert-warning p-0 m-0">
         <div class="container">
             @RenderBody()
         </div>
@@ -179,7 +192,7 @@
 
     <footer class="footer text-muted bg-light py- mt-auto">
         <div class="container text-center">
-            &copy; @DateTime.Now.Year - localshopy
+            &copy; @DateTime.Now.Year All rights reserved to Shubham Rajendra Chaudhari
         </div>
     </footer>
 
