@@ -101,6 +101,7 @@
 
                         <!-- Brand -->
                         <a class="navbar-brand mb-0" asp-controller="Customer" asp-action="Products">LocalShopy</a>
+                        <a class="nav-link text-light fw-bold" asp-controller="Home" asp-action="Instructions">Instructions</a>
                     </div>
 
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
@@ -140,6 +141,7 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
                                     </li>
                                 }
+
                                 <li class="nav-item">
                                     <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
@@ -160,7 +162,7 @@
                         {
                             <a class="nav-link text-light" asp-controller="Order" asp-action="Index" style="margin-right:15px;">Orders</a>
 
-                            <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none" style="margin-right:30px;" >
+                            <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none" style="margin-right:30px;">
                                 <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
                                 <span id="spnCartCount" style="font-size: 150%; top: 25% !important;"
                                       class="position-absolute top-0 start-50 translate-middle badge">
@@ -192,7 +194,7 @@
 
     <footer class="footer text-muted bg-light py- mt-auto">
         <div class="container text-center">
-            &copy; @DateTime.Now.Year All rights reserved to Shubham Rajendra Chaudhari
+            &copy; @DateTime.Now.Year All rights reserved by Shubham Rajendra Chaudhari
         </div>
     </footer>
 
