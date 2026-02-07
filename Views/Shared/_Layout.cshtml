@@ -100,8 +100,15 @@
                         </button>
 
                         <!-- Brand -->
-                        <a class="navbar-brand mb-0" asp-controller="Customer" asp-action="Products">LocalShopy</a>
-                        <a class="nav-link text-light fw-bold" asp-controller="Home" asp-action="Instructions">Instructions</a>
+                        <a class="navbar-brand mb-0 me-4" asp-controller="Customer" asp-action="Products">
+                            LocalShopy
+                        </a>
+                        <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="Instructions">
+                            Instructions
+                        </a>
+                        <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="ContactUs">
+                            Contact Us
+                        </a>
                     </div>
 
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
@@ -141,9 +148,6 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
                                     </li>
                                 }
-                                <li class="nav-item">
-                                    <a class="nav-link text-light fw-bold" asp-controller="Home" asp-action="ContactUs">Contact Us</a>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
