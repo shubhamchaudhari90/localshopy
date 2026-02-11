@@ -87,7 +87,7 @@
 
     <header>
         <nav class="navbar navbar-dark navbar-custom shadow-sm">
-            <div class="container d-flex justify-content-between align-items-center">
+            <div class="container d-flex justify-content-between align-items-start">
 
                 <!-- Left: Brand + Hamburger + Menu -->
                 <div class="d-flex flex-column flex-lg-row align-items-center">
@@ -103,21 +103,17 @@
                         <a class="navbar-brand mb-0 me-4" asp-controller="Customer" asp-action="Products">
                             LocalShopy
                         </a>
-                        <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="Instructions">
-                            Instructions
-                        </a>
-                        <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="ContactUs">
-                            Contact Us
-                        </a>
+                        
+                        
                     </div>
+                    <!-- Menu: collapsible on mobile, inline on lg+ -->
+                    <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-start" id="mobileMenu">
 
-                    @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
-                    {
-                        <!-- Menu: collapsible on mobile, inline on lg+ -->
-                        <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-center" id="mobileMenu">
+                        <!-- Left nav items -->
+                        <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
+                            @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                            {
 
-                            <!-- Left nav items -->
-                            <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
                                 @if (User.IsInRole(RoleConstants.Shopkeeper))
                                 {
                                     <li class="nav-item">
@@ -127,6 +123,7 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="AllOrders">All Orders</a>
                                     </li>
                                 }
+
                                 @if (User.IsInRole(RoleConstants.Admin))
                                 {
                                     <li class="nav-item">
@@ -148,16 +145,28 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
                                     </li>
                                 }
+
                                 <li class="nav-item">
                                     <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
-                            </ul>
-                        </div>
-                    }
+
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="Instructions">
+                                    Instructions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="ContactUs">
+                                    Contact Us
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Right: Login/Logout with Email -->
-                <div class="d-flex align-items-center ms-auto">
+                <div class="d-flex align-items-start ms-auto mt-2">
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         @if (User.IsInRole(RoleConstants.Shopkeeper))
