@@ -171,9 +171,9 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("Logout", "Account");
             }
 
-            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 2 * 1024 * 1024)
             {
-                ViewData["ErrorMessage"] = "Image must be less than 1 MB";
+                ViewData["ErrorMessage"] = "Image must be less than 2 MB";
                 return View(product);
             }
 
@@ -284,9 +284,9 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("Logout", "Account");
             }
 
-            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 1 * 1024 * 1024)
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 2 * 1024 * 1024)
             {
-                TempData["ErrorMessage"] = "Image must be less than 1 MB";
+                TempData["ErrorMessage"] = "Image must be less than 2 MB";
                 return RedirectToAction("EditProduct", product.Id);
             }
 
