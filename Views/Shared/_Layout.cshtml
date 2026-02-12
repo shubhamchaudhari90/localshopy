@@ -88,23 +88,18 @@
     <header>
         <nav class="navbar navbar-dark navbar-custom shadow-sm">
             <div class="container d-flex justify-content-between align-items-start">
-
                 <!-- Left: Brand + Hamburger + Menu -->
                 <div class="d-flex flex-column flex-lg-row align-items-center">
-
                     <!-- Brand + Hamburger (row on mobile, same on lg) -->
                     <div class="d-flex align-items-center">
                         <!-- Hamburger for mobile -->
                         <button class="btn btn-outline-light me-2 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
-
                         <!-- Brand -->
                         <a class="navbar-brand mb-0 me-4" asp-controller="Customer" asp-action="Products">
                             LocalShopy
                         </a>
-                        
-                        
                     </div>
                     <!-- Menu: collapsible on mobile, inline on lg+ -->
                     <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-start" id="mobileMenu">
@@ -113,7 +108,6 @@
                         <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
                             @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                             {
-
                                 @if (User.IsInRole(RoleConstants.Shopkeeper))
                                 {
                                     <li class="nav-item">
@@ -145,11 +139,6 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
                                     </li>
                                 }
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
-                                </li>
-
                             }
                             <li class="nav-item">
                                 <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="Instructions">
@@ -161,6 +150,12 @@
                                     Contact Us
                                 </a>
                             </li>
+                            @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>

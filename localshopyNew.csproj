@@ -35,6 +35,9 @@
 		<None Include="wwwroot\uploads\**" CopyToPublishDirectory="Never" />
 		<None Include="home\uploads\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\images\products\" />
+	</ItemGroup>
 
 
 </Project>
