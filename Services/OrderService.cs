@@ -11,7 +11,7 @@ namespace localshopyNew.Services
     public class OrderService : IOrderService
     {
         private readonly AppDBContext _context;
-        private readonly int _oldOrdersDays = -62;
+        private readonly int _oldOrdersDays = -60;
 
         public OrderService(AppDBContext context)
         {
