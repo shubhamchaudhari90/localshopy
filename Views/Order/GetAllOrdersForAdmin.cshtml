@@ -29,10 +29,8 @@
                 <tr>
                     <th>Order Number</th>
                     <th>Shop Name</th>
-                    <th>Customer Email</th>
-                    <th>Customer Phone</th>
                     <th>Price</th>
-                    <th style="width: 140px;">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,8 +39,6 @@
                     <tr>
                         <td>@item.OrderNumber</td>
                         <td>@item.ShopName</td>
-                        <td>@item.EmailId</td>
-                        <td>@item.CustomerMobileNumber</td>
                         <td>₹ @item.Subtotal.ToString("0.00")</td>
                         <td>
                             <form asp-action="DeleteOrder"
@@ -51,7 +47,7 @@
                                   onsubmit="return confirmDeleteSingle();">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-danger w-100">
-                                    Delete
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </form>
                         </td>
