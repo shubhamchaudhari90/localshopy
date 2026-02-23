@@ -11,6 +11,7 @@ namespace localshopyNew.Services
     public class OrderService : IOrderService
     {
         private readonly AppDBContext _context;
+        private readonly int _oldOrdersDays = -62;
 
         public OrderService(AppDBContext context)
         {
@@ -67,6 +68,13 @@ namespace localshopyNew.Services
 
         public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber)
         {
+            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(_oldOrdersDays)).ToListAsync();
+
+            if (oldOrders.Any())
+            {
+                _context.Orders.RemoveRange(oldOrders);
+            }
+
             var location = await _context.Locations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == locationId);
@@ -456,7 +464,7 @@ namespace localshopyNew.Services
 
         public async Task DeleteOlderOrders()
         {
-            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(-50)).ToListAsync();
+            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(_oldOrdersDays)).ToListAsync();
 
             if (oldOrders.Any())
             {
