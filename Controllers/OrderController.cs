@@ -303,5 +303,29 @@ namespace localshopyNew.Controllers
                 await _notification.SendNotificationAsync(userToken, type, $"Your order: {orderNumber}, is now {orderStatus}");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrdersForAdmin()
+        {
+            List<Order> orders = await _orderService.GetAllOrdersForAdmin();
+            return View(orders);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteOrder(Guid orderId)
+        {
+            await _orderService.DeleteOrder(orderId);
+            return RedirectToAction("GetAllOrdersForAdmin");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteOlderOrders()
+        {
+            await _orderService.DeleteOlderOrders();
+            return RedirectToAction("GetAllOrdersForAdmin");
+        }
     }
 }

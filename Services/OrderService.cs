@@ -436,5 +436,33 @@ namespace localshopyNew.Services
                     OrderNumber = order.OrderNumber
                 }).ToListAsync();
         }
+
+        public async Task<List<Order>> GetAllOrdersForAdmin()
+        {
+            List<Order> orders = new List<Order>();
+            orders = await _context.Orders.Include(x => x.OrderItems).OrderBy(x => x.CreatedAt).ToListAsync();
+            return orders;
+        }
+
+        public async Task DeleteOrder(Guid orderId)
+        {
+            Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                _context.SaveChanges();
+            }
+        }
+
+        public async Task DeleteOlderOrders()
+        {
+            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(-50)).ToListAsync();
+
+            if (oldOrders.Any())
+            {
+                _context.Orders.RemoveRange(oldOrders);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -1,0 +1,76 @@
+﻿@using localshopyNew.ViewModel
+@model IEnumerable<Order>
+
+@{
+    ViewData["Title"] = "All Orders Admin";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="animate__animated animate__fadeInDown">Orders</h2>
+    </div>
+
+    <!-- Delete Older Orders Button -->
+    <form asp-action="DeleteOlderOrders"
+          method="post"
+          onsubmit="return confirmDeleteOldOrders();"
+          class="mb-3">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-warning w-100 w-md-auto">
+            Delete Orders Older Than 50 Days
+        </button>
+    </form>
+
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover animate__animated animate__fadeInUp">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order Number</th>
+                    <th>Shop Name</th>
+                    <th>Customer Email</th>
+                    <th>Customer Phone</th>
+                    <th>Price</th>
+                    <th style="width: 140px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.OrderNumber</td>
+                        <td>@item.ShopName</td>
+                        <td>@item.EmailId</td>
+                        <td>@item.CustomerMobileNumber</td>
+                        <td>₹ @item.Subtotal.ToString("0.00")</td>
+                        <td>
+                            <form asp-action="DeleteOrder"
+                                  asp-route-orderId="@item.Id"
+                                  method="post"
+                                  onsubmit="return confirmDeleteSingle();">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-danger w-100">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDeleteSingle() {
+            return confirm("Are you sure you want to delete this order?");
+        }
+
+        function confirmDeleteOldOrders() {
+            return confirm("This will permanently delete ALL orders older than 50 days. Continue?");
+        }
+    </script>
+}

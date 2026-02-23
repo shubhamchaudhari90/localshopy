@@ -34,5 +34,11 @@ namespace localshopyNew.Services.Interfaces
         Task<List<string>> GetToken(Guid orderID);
 
         Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens(List<Guid> orderIds);
+
+        Task<List<Order>> GetAllOrdersForAdmin();
+
+        Task DeleteOrder(Guid orderId);
+
+        Task DeleteOlderOrders();
     }
 }
