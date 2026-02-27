@@ -108,9 +108,11 @@
                             <p class="mb-1">
                                 <strong>Ordered By:</strong> @order.EmailId
                             </p>
-                            <p class="mb-1">
-                                <strong>Contact No.:</strong> @order.CustomerMobileNumber
-                            </p>
+                            <a href="https://wa.me/@order.CustomerMobileNumber"
+                               target="_blank"
+                               class="text-decoration-none fw-semibold">
+                                @order.CustomerMobileNumber
+                            </a>
 
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
