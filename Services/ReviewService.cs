@@ -143,5 +143,21 @@ namespace localshopyNew.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> DeleteReview(Guid reviewId)
+        {
+            var review = await _context.Reviews.FindAsync(reviewId);
+
+            if (review == null)
+                return false;
+
+            if (review.IsRejected)
+            {
+                _context.Reviews.Remove(review);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }

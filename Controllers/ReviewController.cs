@@ -51,5 +51,14 @@ namespace localshopyNew.Controllers
             await _service.RejectReview(id);
             return Redirect(Request.Headers["Referer"].ToString());
         }
+
+        // Delete
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _service.DeleteReview(id);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

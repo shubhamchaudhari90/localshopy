@@ -72,6 +72,13 @@
                                         Approve
                                     </button>
                                 </form>
+                                <form asp-action="Delete" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this rejected review?');">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button class="btn btn-danger btn-sm">
+                                        Delete
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }

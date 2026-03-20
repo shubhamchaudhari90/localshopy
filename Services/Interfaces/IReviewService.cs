@@ -9,5 +9,6 @@ namespace localshopyNew.Services.Interfaces
         Task<List<ReviewViewModel>?> GetRejectedReviews();
         Task<bool> ApproveReview(Guid reviewId);
         Task<bool> RejectReview(Guid reviewId);
+        Task<bool> DeleteReview(Guid reviewId);
     }
 }

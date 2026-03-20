@@ -255,7 +255,7 @@ namespace localshopyNew.Controllers
             {
                 await SendUserNotification("Order Update", OrderStatus.DELIVERED, id, orderNumber);
             }
-            return RedirectToAction(nameof(AllOrders));
+            return RedirectToAction(nameof(OrdersToServe));
         }
 
         [HttpPost]
