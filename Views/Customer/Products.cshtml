@@ -107,12 +107,12 @@
 
                         <p class="fw-semibold mb-1">Choose categories</p>
                         <small class="text-muted d-block mb-3">
-                            Maximum <strong>3 categories</strong> allowed
+                            Maximum <strong>5 categories</strong> allowed
                         </small>
 
                         <div id="categoryLimitWarning"
                              class="alert alert-danger py-1 px-2 d-none">
-                            Maximum 3 categories allowed
+                            Maximum 5 categories allowed
                         </div>
 
                         <form id="categoryModalForm">
@@ -187,7 +187,7 @@
     <script>
         $(document).ready(function () {
 
-            const maxSelection = 3;
+            const maxSelection = 5;
 
             $("#openCategoryModal").click(function () {
                 $("#categoryModal").modal("show");

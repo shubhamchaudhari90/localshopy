@@ -24,7 +24,7 @@ namespace localshopyNew.Services
             {
                 return products;
             }
-            List<string> categoryList = categories.Split(", ").Take(3).ToList();
+            List<string> categoryList = categories.Split(", ").Take(5).ToList();
 
             products = await (
                 from p in _context.Products

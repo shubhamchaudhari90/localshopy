@@ -141,11 +141,6 @@ namespace localshopyNew.Controllers
 
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
 
-            //if (string.IsNullOrEmpty(shopProductName) || !shopProductName.Contains('_'))
-            //{
-            //    return RedirectToAction("NotFound404", "Error");
-            //}
-
             string[] names = shopProductName.Split("~");
 
             if (names == null || names.Length != 2) { return RedirectToAction("NotFound404", "Error"); }
@@ -213,10 +208,5 @@ namespace localshopyNew.Controllers
             else
                 _sessionService.SetCartCount(0);
         }
-
-
-
-
-
     }
 }
