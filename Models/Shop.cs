@@ -30,9 +30,9 @@ namespace localshopyNew.Models
 
         public List<Guid> ServedLocations { get; set; } = [];
 
-        public DateTime AccountValidTill { get; set; } = DateTime.Now;
+        public DateTime AccountValidTill { get; set; } = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"));
 
-        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"));
 
         public bool IsActive { get; set; } = true;
     }

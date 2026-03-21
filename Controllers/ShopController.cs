@@ -132,7 +132,10 @@ namespace localshopyNew.Controllers
         {
             Shop? shop = await _shopService.GetShopById(id);
 
-            if (shop != null && shop.AccountValidTill < DateTime.Now.AddMonths(1))
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+            if (shop != null && shop.AccountValidTill < now.AddMonths(1))
             {
                 await _shopService.ExtendValidity1M(id);
             }

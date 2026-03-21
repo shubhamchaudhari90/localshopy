@@ -27,7 +27,8 @@ namespace localshopyNew.Models
 
         public DateTime? DiscountValidTill { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public required DateTime CreatedAt { get; set; } =
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"));
 
         public DateTime UpdatedAt { get; set; }
 

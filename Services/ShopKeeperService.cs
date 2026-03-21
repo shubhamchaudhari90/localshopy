@@ -194,7 +194,7 @@ namespace localshopyNew.Services
                 existing.Discount = product.Discount;
                 existing.DiscountValidFrom = product.DiscountValidFrom;
                 existing.DiscountValidTill = product.DiscountValidTill;
-                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
                 existing.IsActive = true;
                 await _context.SaveChangesAsync();
                 return true;
@@ -202,8 +202,8 @@ namespace localshopyNew.Services
             else
             {
                 product.Id = Guid.NewGuid();
-                product.CreatedAt = DateTime.Now;
-                product.UpdatedAt = DateTime.Now;
+                product.CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
+                product.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
                 product.IsActive = true;
                 int count = _context.Products.Any(x => x.ShopId == product.ShopId) ? _context.Products.Where(x => x.ShopId == product.ShopId).Max(x => x.SortOrder) : 0;
                 product.SortOrder = count + 1;
@@ -228,7 +228,7 @@ namespace localshopyNew.Services
                 existing.Discount = product.Discount;
                 existing.DiscountValidFrom = product.DiscountValidFrom;
                 existing.DiscountValidTill = product.DiscountValidTill;
-                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
                 await _context.SaveChangesAsync();
                 return oldImageFileName;
             }
@@ -260,7 +260,7 @@ namespace localshopyNew.Services
             if (existing != null)
             {
                 existing.IsActive = false;
-                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -284,7 +284,8 @@ namespace localshopyNew.Services
                 DiscountValidFrom = product.DiscountValidFrom,
                 DiscountValidTill = product.DiscountValidTill,
                 IsActive = product.IsActive,
-                Type = product.Type
+                Type = product.Type,
+                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")),
             };
             ProductMaster? productMaster = await _context.ProductMasters.FirstOrDefaultAsync(x => x.Id == product.ProductMasterId);
             if (productMaster == null) return null;

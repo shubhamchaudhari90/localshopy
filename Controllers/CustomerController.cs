@@ -183,6 +183,10 @@ namespace localshopyNew.Controllers
             }
 
             string reviewer = User.Identity!.Name!;
+
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             // Save review to database
             var review = new Review
             {
@@ -191,7 +195,7 @@ namespace localshopyNew.Controllers
                 Rating = model.Rating,
                 Comment = model.Comment,
                 Reviewer = reviewer,
-                CreatedAt = DateTime.Now,
+                CreatedAt = now,
                 IsApproved = false
             };
 

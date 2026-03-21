@@ -127,7 +127,7 @@ namespace localshopyNew.Services
             existing.DiscountValidFrom = product.DiscountValidFrom;
             existing.DiscountValidTill = product.DiscountValidTill;
             existing.Type = product.Type;
-            existing.UpdatedAt = DateTime.Now;
+            existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
 
             await _context.SaveChangesAsync();
         }

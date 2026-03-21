@@ -134,13 +134,19 @@ namespace localshopyNew.Controllers
             }
 
             ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Product product = new Product()
             {
                 Type = ProductTypeConstants.Veg,
                 IsAvailable = true,
                 Price = 100,
-                DiscountValidFrom = DateTime.Today,
-                DiscountValidTill = DateTime.Today
+                DiscountValidFrom = today,
+                DiscountValidTill = today,
+                CreatedAt = now,
             };
             return View(product);
         }

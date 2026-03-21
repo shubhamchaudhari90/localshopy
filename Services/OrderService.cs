@@ -26,11 +26,15 @@ namespace localshopyNew.Services
             if (location == null)
                 return new List<Order>();
 
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             // Fetch orders
-            var last50Days = DateTime.Now.Date.AddDays(-50);
+            var last60Days = today.AddDays(-60);
 
             var orders = await _context.Orders.AsNoTracking()
-                .Where(o => o.EmailId == emailId && o.CreatedAt >= last50Days &&
+                .Where(o => o.EmailId == emailId && o.CreatedAt >= last60Days &&
                             EF.Functions.Like(o.ShippingAddress, $"%{location.Name}%"))
                 .Include(o => o.OrderItems)
                 .OrderByDescending(o => o.CreatedAt)
@@ -47,17 +51,18 @@ namespace localshopyNew.Services
 
         public async Task<List<Order>> GetAllOrdersByShopId(Guid shopId)
         {
-            var last50Days = DateTime.Now.Date.AddDays(-50);
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
 
-            List<Order> orders = await _context.Orders.Where(x => x.ShopId == shopId && x.CreatedAt >= last50Days)
+            var last60Days = today.AddDays(-60);
+
+            List<Order> orders = await _context.Orders.Where(x => x.ShopId == shopId && x.CreatedAt >= last60Days)
                 .AsNoTracking().Include(x => x.OrderItems).OrderBy(x => x.CreatedAt).ToListAsync();
             return orders;
         }
 
         public async Task<List<Order>> OrdersToServe(Guid shopId)
         {
-            var last50Days = DateTime.Now.Date.AddDays(-50);
-
             List<Order> orders = await _context.Orders.Where(x => x.ShopId == shopId &&
             (x.Status == OrderStatus.ORDER_PLACED || x.Status == OrderStatus.ACCEPTED
             || x.Status == OrderStatus.PROCESSING || x.Status == OrderStatus.OUT_FOR_DELIVERY
@@ -68,7 +73,11 @@ namespace localshopyNew.Services
 
         public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber)
         {
-            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(_oldOrdersDays)).ToListAsync();
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < today.AddDays(_oldOrdersDays)).ToListAsync();
 
             if (oldOrders.Any())
             {
@@ -120,9 +129,6 @@ namespace localshopyNew.Services
 
             if (!products.Any())
                 return new();
-
-            var today = DateTime.Today;
-            var now = DateTime.Now;
 
             var orderCountByShop = await _context.Orders
                 .Where(x => x.CreatedAt.Date == today)
@@ -221,15 +227,18 @@ namespace localshopyNew.Services
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
                 return string.Empty;
 
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             order.Status = OrderStatus.CANCELLED;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.CANCELLED,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -240,19 +249,22 @@ namespace localshopyNew.Services
 
         public async Task<string> Accept(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
                 return string.Empty;
 
             order.Status = OrderStatus.ACCEPTED;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.ACCEPTED,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -263,19 +275,23 @@ namespace localshopyNew.Services
 
         public async Task<string> Reject(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ORDER_PLACED)
                 return string.Empty;
 
             order.Status = OrderStatus.REJECTED;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.REJECTED,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -286,19 +302,24 @@ namespace localshopyNew.Services
 
         public async Task<string> Processing(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.ACCEPTED)
                 return string.Empty;
 
             order.Status = OrderStatus.PROCESSING;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.PROCESSING,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -309,19 +330,22 @@ namespace localshopyNew.Services
 
         public async Task<string> OutForDelivery(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.PROCESSING)
                 return string.Empty;
 
             order.Status = OrderStatus.OUT_FOR_DELIVERY;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.OUT_FOR_DELIVERY,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -332,19 +356,22 @@ namespace localshopyNew.Services
 
         public async Task<string> Delivered(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null || order.Status != OrderStatus.OUT_FOR_DELIVERY)
                 return string.Empty;
 
             order.Status = OrderStatus.DELIVERED;
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
 
             OrderTracking tracking = new OrderTracking()
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.DELIVERED,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -355,11 +382,14 @@ namespace localshopyNew.Services
 
         public async Task<string> PreOrder(Guid id, Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Order? order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id && x.ShopId == shopId);
             if (order == null)
                 return string.Empty;
 
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = now;
             order.IsPreOrder = true;
 
             OrderTracking tracking = new OrderTracking()
@@ -367,7 +397,7 @@ namespace localshopyNew.Services
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
                 Status = OrderStatus.PREORDER,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.orderTrackings.Add(tracking);
@@ -464,7 +494,10 @@ namespace localshopyNew.Services
 
         public async Task DeleteOlderOrders()
         {
-            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < DateTime.Now.AddDays(_oldOrdersDays)).ToListAsync();
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+            var oldOrders = await _context.Orders.Where(o => o.CreatedAt < now.AddDays(_oldOrdersDays)).ToListAsync();
 
             if (oldOrders.Any())
             {

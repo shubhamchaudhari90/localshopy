@@ -92,7 +92,11 @@
                             </div>
                             <hr class="my-2" />
                             @{
-                                var duration = DateTime.Now - order.CreatedAt;
+                                TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+                                // DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+                                DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+                                var duration = now - order.CreatedAt;
                                 int hours = (int)duration.TotalHours;
                                 int minutes = duration.Minutes;
                                 string timeAgo;

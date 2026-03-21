@@ -241,7 +241,8 @@ namespace localshopyNew.Services
                 Type = product.Type,
                 IsReviewed = isReviewed,
                 CanReview = canReview,
-                ReviewCount = reviewCount
+                ReviewCount = reviewCount,
+                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"))
             };
 
             var reviewRatings = await AverageRatingsForProducts(product.Id.ToString());
@@ -259,11 +260,14 @@ namespace localshopyNew.Services
             if (string.IsNullOrEmpty(review.Comment))
                 isApproved = true;
 
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Review entity = new Review()
             {
                 Reviewer = review.Reviewer,
                 Comment = review.Comment,
-                CreatedAt = DateTime.Now,
+                CreatedAt = now,
                 Id = review.Id,
                 IsApproved = isApproved,
                 IsRejected = false,

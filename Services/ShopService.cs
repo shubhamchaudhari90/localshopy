@@ -61,7 +61,7 @@ namespace localshopyNew.Services
                 return false;
             }
             shop.Id = Guid.NewGuid();
-            shop.CreatedAt = DateTime.Now;
+            shop.CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
             shop.IsActive = true;
             shop.AccountValidTill = DateTime.Today.AddMonths(1);
             shop.OwnerEmailId = shop.OwnerEmailId.ToLower();
@@ -135,12 +135,16 @@ namespace localshopyNew.Services
 
         public async Task ExtendValidity1M(Guid shopId)
         {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
             Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
             if (shop == null)
                 return;
-            if (shop.AccountValidTill <= DateTime.Now.Date)
+            if (shop.AccountValidTill <= today)
             {
-                shop.AccountValidTill = DateTime.Now.AddMonths(1);
+                shop.AccountValidTill = now.AddMonths(1);
             }
             else
             {
