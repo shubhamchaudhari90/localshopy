@@ -1,0 +1,153 @@
+﻿@model List<BlockedUser>
+
+@{
+    ViewData["Title"] = "Blocked Users";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-4">
+
+    <h3 class="mb-3 text-center">Blocked Users</h3>
+
+    <!-- Add User Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Add Blocked User</h5>
+
+            <form id="addUserForm">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <input type="email" id="emailId" class="form-control" placeholder="Email" required />
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="text" id="reason" class="form-control" placeholder="Reason" />
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="text" id="suggestedBy" class="form-control" placeholder="Suggested By" />
+                    </div>
+                    <div class="col-12 col-md-2 d-grid">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0" id="usersTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Email</th>
+                            <th class="d-none d-md-table-cell">Reason</th>
+                            <th class="d-none d-md-table-cell">Suggested By</th>
+                            <th class="d-none d-md-table-cell">Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr id="row-@user.Id">
+                                <td>@user.EmailId</td>
+                                <td class="d-none d-md-table-cell">@user.Reason</td>
+                                <td class="d-none d-md-table-cell">@user.SuggestedBy</td>
+                                <td class="d-none d-md-table-cell">@user.CreatedAt.ToString("g")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger delete-btn"
+                                            data-id="@user.Id"
+                                            data-email="@user.EmailId">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="toastMsg" class="toast align-items-center text-bg-success border-0">
+        <div class="d-flex">
+            <div class="toast-body" id="toastText">
+                Success
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showToast(message, isError = false) {
+            var toastEl = document.getElementById('toastMsg');
+            var toastText = document.getElementById('toastText');
+
+            toastText.innerText = message;
+
+            toastEl.classList.remove('text-bg-success', 'text-bg-danger');
+            toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        // ADD USER
+        $("#addUserForm").submit(function (e) {
+            e.preventDefault();
+
+            var userData = {
+                EmailId: $("#emailId").val(),
+                Reason: $("#reason").val(),
+                SuggestedBy: $("#suggestedBy").val()
+            };
+
+            $.ajax({
+                url: '/BlockedUser/Add',
+                type: 'POST',
+                data: JSON.stringify(userData),
+                contentType: 'application/json',
+                success: function (response) {
+                    location.reload(); // 🔥 reload Index        
+                },
+                error: function () {
+                    showToast("Failed to add user", true);
+                }
+            });
+        });
+
+        // DELETE USER
+                $(document).on("click", ".delete-btn", function () {
+
+            var userId = $(this).data("id");
+            var emailId = $(this).data("email");
+
+            if (!confirm("Delete this user?")) return;
+
+            $.ajax({
+                url: '/BlockedUser/Delete',
+                type: 'POST',
+                data: { emailId: emailId },
+                success: function (response) {
+                    location.reload(); // 🔥 reload Index
+                },
+                error: function () {
+                    showToast("Failed to delete", true);
+                }
+            });
+        });
+
+    </script>
+}

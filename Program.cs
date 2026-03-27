@@ -125,6 +125,7 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IBlockedUserService, BlockedUserService>();
 
 var app = builder.Build();
 
