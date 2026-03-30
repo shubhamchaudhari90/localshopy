@@ -121,7 +121,7 @@ namespace localshopyNew.Services
                     DiscountValidFrom = p.DiscountValidFrom,
                     DiscountValidTill = p.DiscountValidTill,
                     Type = p.Type,
-                    ShopContactNumber = shop.PhoneNo
+                    ShopContactNumber = $"{shop.PhoneNo}, {shop.AlternateNumber}"
                 }
             )
             .AsNoTracking()

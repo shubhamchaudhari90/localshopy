@@ -44,12 +44,19 @@
                 // DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
                 DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
 
-                // Duration in hours & minutes
                 var duration = now - order.CreatedAt;
-                int hours = (int)duration.TotalHours;
+
+                int days = (int)duration.TotalDays;
+                int hours = duration.Hours;
                 int minutes = duration.Minutes;
-                string timeAgo = hours > 0
-                ? $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")}"
+
+                string timeAgo =
+                days > 0
+                ? $"{days} day{(days > 1 ? "s" : "")} " +
+                $"{hours} hour{(hours != 1 ? "s" : "")}"
+                : hours > 0
+                ? $"{hours} hour{(hours > 1 ? "s" : "")} " +
+                $"{minutes} min{(minutes != 1 ? "s" : "")}"
                 : minutes > 0
                 ? $"{minutes} min{(minutes != 1 ? "s" : "")}"
                 : "Just now";

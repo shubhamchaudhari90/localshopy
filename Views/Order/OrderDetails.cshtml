@@ -98,26 +98,43 @@
                                 DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
 
                                 var duration = now - order.CreatedAt;
-                                int hours = (int)duration.TotalHours;
+
+                                int days = (int)duration.TotalDays;
+                                int hours = duration.Hours;
                                 int minutes = duration.Minutes;
-                                string timeAgo;
-                                if (hours > 0)
-                                    timeAgo = $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")}";
-                                else if (minutes > 0)
-                                    timeAgo = $"{minutes} min{(minutes != 1 ? "s" : "")}";
-                                else
-                                    timeAgo = "Just now";
+
+                                string timeAgo =
+                                days > 0
+                                ? $"{days} day{(days > 1 ? "s" : "")} " +
+                                $"{hours} hour{(hours != 1 ? "s" : "")}"
+                                : hours > 0
+                                ? $"{hours} hour{(hours > 1 ? "s" : "")} " +
+                                $"{minutes} min{(minutes != 1 ? "s" : "")}"
+                                : minutes > 0
+                                ? $"{minutes} min{(minutes != 1 ? "s" : "")}"
+                                : "Just now";
 
                                 var durationUA = now - order.UpdatedAt;
                                 int hoursUA = (int)durationUA.TotalHours;
                                 int minutesUA = durationUA.Minutes;
                                 string timeAgoUA;
-                                if (hoursUA > 0)
-                                    timeAgoUA = $"{hoursUA} hour{(hoursUA > 1 ? "s" : "")} {minutesUA} min{(minutesUA != 1 ? "s" : "")}";
+
+                                if (hoursUA >= 24)
+                                {
+                                    timeAgoUA = $"{days} day{(days > 1 ? "s" : "")} ago";
+                                }
+                                else if (hoursUA > 0)
+                                {
+                                    timeAgoUA = $"{hoursUA} hour{(hoursUA > 1 ? "s" : "")} {minutesUA} min{(minutesUA != 1 ? "s" : "")} ago";
+                                }
                                 else if (minutesUA > 0)
-                                    timeAgoUA = $"{minutesUA} min{(minutesUA != 1 ? "s" : "")}";
+                                {
+                                    timeAgoUA = $"{minutesUA} min{(minutesUA != 1 ? "s" : "")} ago";
+                                }
                                 else
+                                {
                                     timeAgoUA = "Just now";
+                                }
                             }
                             <p class="mb-1">
                                 <strong>Ordered at:</strong> @order.CreatedAt.ToString("hh:mm tt") (@timeAgo)
@@ -125,11 +142,26 @@
                             <p class="mb-1">
                                 <strong>Shop Contact No.:</strong>
 
-                                <a href="https://wa.me/@order.ShopContactNumber"
-                                   target="_blank"
-                                   class="text-decoration-none fw-semibold">
-                                    @order.ShopContactNumber
-                                </a>
+                                @{
+                                    var numbers = (order.ShopContactNumber ?? "")
+                                    .Split(',')
+                                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                                    .ToList();
+                                }
+
+                                @for (int i = 0; i < numbers.Count; i++)
+                                {
+                                    <a href="https://wa.me/@numbers[i]"
+                                       target="_blank"
+                                       class="text-decoration-none fw-semibold">
+                                        @numbers[i]
+                                    </a>
+
+                                    @if (i < numbers.Count - 1)
+                                    {
+                                        <span>, </span>
+                                    }
+                                }
                             </p>
                             <p class="mb-1">
                                 <strong>Last Updated at:</strong>

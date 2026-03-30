@@ -97,16 +97,21 @@
                                 DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
 
                                 var duration = now - order.CreatedAt;
-                                int hours = (int)duration.TotalHours;
-                                int minutes = duration.Minutes;
-                                string timeAgo;
 
-                                if (hours > 0)
-                                    timeAgo = $"{hours} hour{(hours > 1 ? "s" : "")} {minutes} min{(minutes != 1 ? "s" : "")}";
-                                else if (minutes > 0)
-                                    timeAgo = $"{minutes} min{(minutes != 1 ? "s" : "")}";
-                                else
-                                    timeAgo = "Just now";
+                                int days = (int)duration.TotalDays;
+                                int hours = duration.Hours;
+                                int minutes = duration.Minutes;
+
+                                string timeAgo =
+                                days > 0
+                                ? $"{days} day{(days > 1 ? "s" : "")} " +
+                                $"{hours} hour{(hours != 1 ? "s" : "")}"
+                                : hours > 0
+                                ? $"{hours} hour{(hours > 1 ? "s" : "")} " +
+                                $"{minutes} min{(minutes != 1 ? "s" : "")}"
+                                : minutes > 0
+                                ? $"{minutes} min{(minutes != 1 ? "s" : "")}"
+                                : "Just now";
                             }
 
                             <p class="mb-1">

@@ -7,9 +7,10 @@
         public Guid ProductMasterId { get; set; }
         public Guid CategoryId { get; set; }
 
-        public string ShopContactNumber { get; set; }
-        public string ShopName { get; set; }
-        public string ProductName { get; set; }
+        public string ShopContactNumber { get; set; } = "";
+        public string ShopALternateNumber { get; set; } = "";
+        public string ShopName { get; set; } = "";
+        public string ProductName { get; set; } = "";
         public string? ImageFileName { get; set; }
         public int Quantity { get; set; }
         public int Price { get; set; }
@@ -34,8 +35,8 @@
         public double Discount { get; set; }
         public DateTime? DiscountValidFrom { get; set; }
         public DateTime? DiscountValidTill { get; set; }
-        public string CategoryName { get; set; }
-        public string Type { get; set; }
+        public string CategoryName { get; set; } = "Other";
+        public string Type { get; set; } = "";
 
         public int ShopNumber { get; set; }
     }

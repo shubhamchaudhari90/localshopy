@@ -18,6 +18,8 @@ namespace localshopyNew.Models
         ErrorMessage = "Phone number must be exactly 10 digits.")]
         public required string PhoneNo { get; set; }
 
+        public string AlternateNumber { get; set; } = "";
+
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         public required string OwnerEmailId { get; set; }

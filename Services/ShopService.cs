@@ -101,6 +101,7 @@ namespace localshopyNew.Services
 
             existingShop.Name = shop.Name;
             existingShop.PhoneNo = shop.PhoneNo;
+            existingShop.AlternateNumber = shop.AlternateNumber;
             existingShop.Address = shop.Address;
             existingShop.OwnerEmailId = shop.OwnerEmailId.ToLower();
             if (!string.IsNullOrEmpty(shop.Password))
