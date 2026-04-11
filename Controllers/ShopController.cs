@@ -44,43 +44,51 @@ namespace localshopyNew.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Shop shop)
         {
-            var locationList = await _locationService.GetActiveLocations();
-
-            if (locationList == null || locationList.Count <= 0)
+            try
             {
-                return RedirectToAction("Index", "Location");
-            }
-            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
-
-            if (!ModelState.IsValid)
-            {
-                string allErrors = string.Join("; ",
-                    ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                );
-
-                ViewData["ErrorMessage"] = allErrors;
-
-                return View(shop);
-            }
-
-            bool isNameExists = await _shopService.IsShopNameExists(shop.Name);
-            if (isNameExists)
-            {
-                ViewData["ErrorMessage"] = "Shop Name already exists";
+                var locationList = await _locationService.GetActiveLocations();
 
                 if (locationList == null || locationList.Count <= 0)
                 {
                     return RedirectToAction("Index", "Location");
                 }
                 ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
-                return View(shop);
+
+                if (!ModelState.IsValid)
+                {
+                    string allErrors = string.Join("; ",
+                        ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                    );
+
+                    ViewData["ErrorMessage"] = allErrors;
+
+                    return View(shop);
+                }
+
+                bool isNameExists = await _shopService.IsShopNameExists(shop.Name);
+                if (isNameExists)
+                {
+                    ViewData["ErrorMessage"] = "Shop Name already exists";
+
+                    if (locationList == null || locationList.Count <= 0)
+                    {
+                        return RedirectToAction("Index", "Location");
+                    }
+                    ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+                    return View(shop);
+                }
+
+                bool isAdded = await _shopService.AddShop(shop);
+                if (isAdded)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            bool isAdded = await _shopService.AddShop(shop);
-            if (isAdded)
+            catch (Exception ex)
             {
-                return RedirectToAction(nameof(Index));
+                throw ex;
             }
             ViewData["ErrorMessage"] = "Shop Not Added";
             if (locationList == null || locationList.Count <= 0)
