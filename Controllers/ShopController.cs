@@ -116,24 +116,18 @@ namespace localshopyNew.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Shop shop)
         {
-            try
-            {
-                var locationList = await _locationService.GetActiveLocations();
-                if (locationList == null || locationList.Count <= 0)
-                    return RedirectToAction("Index", "Location");
+            var locationList = await _locationService.GetActiveLocations();
+            if (locationList == null || locationList.Count <= 0)
+                return RedirectToAction("Index", "Location");
 
-                ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
-                if (string.IsNullOrEmpty(shop.Name))
-                    return View(shop);
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+            if (string.IsNullOrEmpty(shop.Name))
+                return View(shop);
 
-                bool isUpdated = await _shopService.UpdateShop(shop);
-                if (isUpdated)
-                    return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            bool isUpdated = await _shopService.UpdateShop(shop);
+            if (isUpdated)
+                return RedirectToAction(nameof(Index));
+
             return View(shop);
         }
 

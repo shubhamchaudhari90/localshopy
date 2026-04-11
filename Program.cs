@@ -158,19 +158,19 @@ using (var scope = app.Services.CreateScope())
 // =======================
 // ERROR HANDLING + STATIC FILES
 // =======================
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Home/Error");
-//    app.UseHsts();
-//}
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
-//app.UseHttpsRedirection();
-//app.UseStaticFiles();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-//app.UseExceptionHandler("/Home/Error");
-//app.UseHsts();
-//app.UseExceptionHandler("/Error/500");
-//app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
+app.UseExceptionHandler("/Error/500");
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 // =======================
 // PIPELINE
