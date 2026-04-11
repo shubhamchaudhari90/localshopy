@@ -85,17 +85,18 @@ namespace localshopyNew.Controllers
                 {
                     return RedirectToAction(nameof(Index));
                 }
+
+                ViewData["ErrorMessage"] = "Shop Not Added";
+                if (locationList == null || locationList.Count <= 0)
+                {
+                    return RedirectToAction("Index", "Location");
+                }
+                ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            ViewData["ErrorMessage"] = "Shop Not Added";
-            if (locationList == null || locationList.Count <= 0)
-            {
-                return RedirectToAction("Index", "Location");
-            }
-            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
             return View(shop);
         }
 
