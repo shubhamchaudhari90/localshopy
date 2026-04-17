@@ -249,7 +249,7 @@ namespace localshopyNew.Services
                 return false;
 
             shop.IsOpen = !shop.IsOpen;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }

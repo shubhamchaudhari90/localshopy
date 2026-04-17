@@ -122,13 +122,13 @@ namespace localshopyNew.Controllers
 
             ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
             if (string.IsNullOrEmpty(shop.Name))
-                return View(shop);
+                return View(shop.Id);
 
             bool isUpdated = await _shopService.UpdateShop(shop);
             if (isUpdated)
                 return RedirectToAction(nameof(Index));
 
-            return View(shop);
+            return View(shop.Id);
         }
 
         public async Task<IActionResult> ExtendValidity1M(Guid id)

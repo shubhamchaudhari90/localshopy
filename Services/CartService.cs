@@ -33,7 +33,7 @@ namespace localshopyNew.Services
                         {
                             Cart cart = new Cart() { EmailId = emailId, ProductId = product.Id, Quantity = 1 };
                             await _context.Carts.AddAsync(cart);
-                            int rows = _context.SaveChanges();
+                            int rows = await _context.SaveChangesAsync();
                             bool result = rows > 0 ? true : false;
                             return result;
                         }
@@ -146,7 +146,7 @@ namespace localshopyNew.Services
                 return false;
 
             cartItem.Quantity = quantity;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }

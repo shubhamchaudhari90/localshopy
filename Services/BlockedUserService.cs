@@ -26,7 +26,7 @@ namespace localshopyNew.Services
                 return false;
 
             await _context.BlockedUsers.AddAsync(blockedUser);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }
@@ -41,7 +41,7 @@ namespace localshopyNew.Services
             if (blockedUser == null) return false;
 
             _context.BlockedUsers.Remove(blockedUser);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }

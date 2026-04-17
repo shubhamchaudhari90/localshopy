@@ -243,7 +243,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -269,7 +269,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -296,7 +296,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -324,7 +324,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -350,7 +350,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -376,7 +376,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -402,7 +402,7 @@ namespace localshopyNew.Services
 
             _context.orderTrackings.Add(tracking);
 
-            int rowsUpdated = _context.SaveChanges();
+            int rowsUpdated = await _context.SaveChangesAsync();
             return rowsUpdated > 0 ? order.OrderNumber : string.Empty;
         }
 
@@ -488,7 +488,7 @@ namespace localshopyNew.Services
             if (order != null)
             {
                 _context.Orders.Remove(order);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 

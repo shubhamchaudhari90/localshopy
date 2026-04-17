@@ -23,5 +23,6 @@ namespace localshopyNew.Data
         public DbSet<OrderTracking> orderTrackings { get; set; }
         public DbSet<UserDevice> UserDevices { get; set; }
         public DbSet<BlockedUser> BlockedUsers { get; set; }
+        public DbSet<ErrorLog> ErrorLogs { get; set; }
     }
 }
