@@ -1,85 +1,86 @@
-﻿using localshopyNew.Models;
-using System.Text.Json;
+﻿using localshopyNew.Data;
+using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
-        private readonly string _filePath;
+        private readonly AppDBContext _context;
 
-        public CategoryService(IWebHostEnvironment env)
+        public CategoryService(AppDBContext context)
         {
-            _filePath = Path.Combine(env.ContentRootPath, "App_Data", "Products.json");
+            _context = context;
         }
 
-        private List<Category> ReadFile()
+        // Check if category name exists (read-only, fast)
+        public async Task<bool> IsCategoryNameExists(string name)
         {
-            if (!File.Exists(_filePath))
-                return new List<Category>();
-
-            var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<List<Category>>(json) ?? new();
+            return await _context.Categoties.AsNoTracking().AnyAsync(x => x.Name == name);
         }
 
-        private void WriteFile(List<Category> categories)
+        // Get category by Id (read-only)
+        public async Task<Category?> GetCategoryById(Guid id)
         {
-            var json = JsonSerializer.Serialize(categories, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            File.WriteAllText(_filePath, json);
+            return await _context.Categoties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        // READ
-        public List<Category> GetAll() => ReadFile();
-
-        public List<string> GetAllProducts()
+        // Get products in a category (read-only)
+        public async Task<List<ProductMaster>> GetProductsByCategoryId(Guid id)
         {
-            var categories = GetAll();
-
-            var products = categories
-                .SelectMany(c => c.ProductName)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            return products;
+            return await _context.ProductMasters.AsNoTracking().Where(x => x.CategoryId == id && x.IsActive).ToListAsync();
         }
 
-        public Category? GetById(int id) =>
-            ReadFile().FirstOrDefault(c => c.Id == id);
-
-        // CREATE
-        public void Add(Category category)
+        // Get active categories
+        public async Task<List<Category>> GetActiveCategories()
         {
-            var categories = ReadFile();
-            category.Id = categories.Any() ? categories.Max(c => c.Id) + 1 : 1;
-            categories.Add(category);
-            WriteFile(categories);
+            return await _context.Categoties.AsNoTracking().Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
         }
 
-        // UPDATE
-        public void Update(Category category)
+        // Get inactive categories
+        public async Task<List<Category>> GetInActiveCategories()
         {
-            var categories = ReadFile();
-            var existing = categories.FirstOrDefault(c => c.Id == category.Id);
-            if (existing == null) return;
-
-            existing.CategoryName = category.CategoryName;
-            existing.ProductName = category.ProductName;
-
-            WriteFile(categories);
+            return await _context.Categoties.AsNoTracking().Where(x => !x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
         }
 
-        // DELETE
-        public void Delete(int id)
+        // Add category
+        public async Task<bool> AddCategory(Category category)
         {
-            var categories = ReadFile();
-            var category = categories.FirstOrDefault(c => c.Id == id);
-            if (category == null) return;
+            category.Id = Guid.NewGuid();
+            category.SortOrder = (_context.Categoties.Max(x => (int?)x.SortOrder) ?? 0) + 1;
+            category.IsActive = true;
 
-            categories.Remove(category);
-            WriteFile(categories);
+            await _context.Categoties.AddAsync(category);
+            var rowsInserted = await _context.SaveChangesAsync();
+            return rowsInserted > 0;
+        }
+
+        // Update category
+        public async Task<bool> UpdateCategory(Category model)
+        {
+            var category = await _context.Categoties.FindAsync(model.Id);
+            if (category == null)
+                return false;
+
+            category.Name = model.Name;
+            category.SortOrder = model.SortOrder;
+            category.IsActive = model.IsActive;
+
+            var rowsUpdated = await _context.SaveChangesAsync();
+            return rowsUpdated > 0;
+        }
+
+        // Delete category
+        public async Task<bool> DeleteCategory(Guid id)
+        {
+            var category = await _context.Categoties.FirstOrDefaultAsync(x => x.Id == id);
+            if (category == null) return false;
+
+            _context.Categoties.Remove(category);
+            var rowsDeleted = await _context.SaveChangesAsync();
+            return rowsDeleted > 0;
+
         }
     }
 }

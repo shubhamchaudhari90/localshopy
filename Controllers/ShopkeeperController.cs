@@ -1,237 +1,418 @@
-﻿using localshopyNew.Models;
-using localshopyNew.Services;
+﻿using localshopyNew.Constants;
+using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace localshopyNew.Controllers
 {
-    public class ShopkeeperController : Controller
+
+    [Authorize(Roles = RoleConstants.Shopkeeper)]
+    public class ShopkeeperController(
+        IShopkeeperService shopkeeperService,
+        IWebHostEnvironment env,
+        IAdminService adminService,
+        SignInManager<IdentityUser> signInManager,
+        UserManager<IdentityUser> userManager,
+        ISessionService sessionService) : Controller
     {
-        private readonly ShopkeeperService _service;
-        private readonly CategoryService _categoryService;
-        private readonly LocationService _locationService;
+        private readonly IShopkeeperService _shopkeeperService = shopkeeperService;
+        private readonly IAdminService _adminService = adminService;
+        private readonly ISessionService _sessionService = sessionService;
+        private readonly IWebHostEnvironment _env = env;
 
-        public ShopkeeperController(ShopkeeperService service, CategoryService categoryService, LocationService locationService)
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
+
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+
+        public async Task<IActionResult> ShopDetails()
         {
-            _service = service;
-            _categoryService = categoryService;
-            _locationService = locationService;
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                return RedirectToAction("Logout", "Account");
+            }
+            ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
+            if (model == null)
+                return RedirectToAction("Logout", "Account");
+
+            return View(model);
         }
 
-        [HttpGet]
-        public IActionResult Login() => View();
+        public async Task<IActionResult> Edit()
+        {
+
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction("Logout", "Account");
+            }
+            ShopProductsViewModel? model = await _shopkeeperService.GetShopDetailsById(shopId);
+            if (model == null || model.Shop == null)
+                return RedirectToAction("Logout", "Account");
+
+            var locationList = await _shopkeeperService.GetActiveLocations();
+            if (locationList == null)
+            {
+                ViewData["ErrorMessage"] = "Locations are not active";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+
+            if (model?.Shop == null)
+            {
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            return View(model.Shop);
+        }
 
         [HttpPost]
-        public IActionResult Login(string email, string password)
+        public async Task<IActionResult> Edit(Shop shop)
         {
-            Shop? shop = _service.IsShopExists(email, password);
-            if (shop != null && shop.Id != null)
+            var locationList = await _shopkeeperService.GetActiveLocations();
+            if (locationList == null)
             {
-                HttpContext.Session.SetString("ShopLoggedIn", shop.Id);
-                return RedirectToAction("Products");
+                ViewData["ErrorMessage"] = "Locations are not active";
+                return RedirectToAction(nameof(ShopDetails));
             }
-            ModelState.AddModelError("", "Invalid email or password");
-            return View();
-        }
 
-        // Index of Products
-        public IActionResult Products()
-        {
-            var shop = GetLoggedInShop();
-            if (shop == null)
+            ViewBag.LocationList = new SelectList(locationList, "Id", "Name");
+
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
             {
-                // If session expired or not logged in, redirect to login
-                return RedirectToAction("Login");
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction("Logout", "Account");
             }
-            // Pass list of products to the view
-            return View(shop.Products);
-        }
+            shop.Id = shopId;
 
-        [HttpGet]
-        public IActionResult AddProduct()
-        {
-            var products = _categoryService.GetAllProducts();
-
-            ViewBag.Products = products;
-
-            return View();
+            ShopProductsViewModel? model = await _shopkeeperService.UpdateShopData(shop);
+            if (model == null || model.Shop == null)
+                return RedirectToAction("Logout", "Account");
+            return RedirectToAction(nameof(ShopDetails), model);
         }
 
         [HttpPost]
-        public IActionResult AddProduct(Product product, IFormFile? ProductImage)
+        public async Task<bool> SwitchStatus()
         {
-            var shop = GetLoggedInShop();
-            if (shop == null) return RedirectToAction("Login");
 
-            if (!ModelState.IsValid) return View(product);
-
-            try
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
             {
-                // Handle image upload
-                if (ProductImage != null && ProductImage.Length > 0)
-                {
-                    var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products");
-                    if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProductImage.FileName);
-                    var filePath = Path.Combine(uploads, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        ProductImage.CopyTo(stream);
-                    }
-
-                    product.ImageFileName = fileName;
-                }
-
-                _service.AddProduct(shop, product);
-                return RedirectToAction("Products");
+                return false;
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                return View(product);
-            }
+            bool isSuccess = await _shopkeeperService.SwitchStatus(shopId);
+            if (isSuccess)
+                return true;
+
+            TempData["ErrorMessage"] = "Action Required Before Closing the Shop";
+
+            return false;
         }
 
-        [HttpGet]
-        public IActionResult EditProduct(string name)
+        public async Task<IActionResult> CategoryList()
         {
-            var shop = GetLoggedInShop();
-            if (shop == null)
-                return RedirectToAction("Login");
+            var categoryProductList = await _shopkeeperService.CategoryProductList();
+            return View(categoryProductList);
+        }
 
-            var product = shop.Products.FirstOrDefault(p => p.Name == name);
-            if (product == null)
-                return NotFound();
+        public async Task<IActionResult> AddProduct()
+        {
+            var categoryList = await _shopkeeperService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
+            {
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
 
-            var products = _categoryService.GetAllProducts();
-            ViewBag.Products = products;
-            HttpContext.Session.SetString("ProductName", name);
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+            Product product = new Product()
+            {
+                Type = ProductTypeConstants.Veg,
+                IsAvailable = true,
+                Price = 100,
+                DiscountValidFrom = today,
+                DiscountValidTill = today,
+                CreatedAt = now,
+            };
             return View(product);
         }
 
         [HttpPost]
-        public IActionResult EditProduct(Product product, IFormFile? ProductImage)
+        public async Task<IActionResult> AddProduct(Product product)
         {
-            var shop = GetLoggedInShop();
-            if (shop == null) return RedirectToAction("Login");
-
-            if (!ModelState.IsValid) return View(product);
-
-            try
+            var categoryList = await _shopkeeperService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
             {
-                if (ProductImage != null && ProductImage.Length > 0)
-                {
-                    var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products");
-                    if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProductImage.FileName);
-                    var filePath = Path.Combine(uploads, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        ProductImage.CopyTo(stream);
-                    }
-
-                    product.ImageFileName = fileName;
-                }
-                string? productName = GetProductNameForEdit();
-                if (productName == null) return NotFound();
-                product.Name = productName;
-                _service.UpdateProduct(shop, product);
-                return RedirectToAction("Products");
+                ViewData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
             }
-            catch (Exception ex)
+
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            if (Guid.Empty == product.ProductMasterId ||
+                string.IsNullOrEmpty(product.Description) ||
+                product.Price <= 0 ||
+                string.IsNullOrEmpty(product.ImageFileName))
             {
-                ModelState.AddModelError("", ex.Message);
+                ViewData["ErrorMessage"] = "Mandatory field missing";
+            }
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction("Logout", "Account");
+            }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 2 * 1024 * 1024)
+            {
+                ViewData["ErrorMessage"] = "Image must be less than 2 MB";
                 return View(product);
             }
+
+            product.ShopId = shopId;
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0)
+            {
+                // 1. Determine uploads folder dynamically
+                // Works both on Windows and Azure Linux
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
+
+                // Ensure the folder exists
+                Directory.CreateDirectory(uploadsRoot);
+
+                // 2. Generate unique filename
+                var extension = Path.GetExtension(product.ProductImage.FileName);
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    ViewData["ErrorMessage"] = "Image is not valid";
+                    return View(product);
+                }
+                var fileName = Guid.NewGuid() + extension;
+                var filePath = Path.Combine(uploadsRoot, fileName);
+
+                // 3. Save the file
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await product.ProductImage.CopyToAsync(stream);
+
+                // 4. Store filename in DB
+                product.ImageFileName = fileName;
+            }
+
+            bool isProductValid = await _shopkeeperService.IsProductValid(product);
+            if (isProductValid)
+            {
+                bool isAdded = await _shopkeeperService.AddProductInShop(product);
+                if (isAdded)
+                {
+                    return RedirectToAction(nameof(ShopDetails));
+                }
+            }
+            ViewData["ErrorMessage"] = "Product already exist or any requied field is missing";
+            await RemoveUnusedImages();
+            return View(product);
         }
 
-        public IActionResult DeleteProduct(string name)
+        public async Task<IActionResult> EditProduct(Guid productId)
         {
-            var shop = GetLoggedInShop();
-            if (shop == null) return RedirectToAction("Login");
-
-            try
+            if (productId == Guid.Empty)
             {
-                _service.DeleteProduct(shop, name);
-                return RedirectToAction("Products");
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = ex.Message;
-                return RedirectToAction("Products");
+                productId = _sessionService.GetProductId();
             }
 
-        }
+            if (productId == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Product not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+            _sessionService.SetProductId(productId);
 
-        [HttpGet]
-        public IActionResult Edit()
-        {
-            try
+            var categoryList = await _shopkeeperService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
             {
-                var shopId = HttpContext.Session.GetString("ShopLoggedIn");
-                if (shopId == null)
-                    return NotFound();
-                var shop = _service.GetShopById(shopId);
-                if (shop == null)
-                    return NotFound();
-                ViewBag.Locations = _locationService.GetAllLocations();
-                return View(shop);
+                TempData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
             }
-            catch
+
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            ProductViewModel? product = await _shopkeeperService.GetProductById(productId);
+            if (product == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(ShopDetails));
             }
+            return View(product);
         }
 
         [HttpPost]
-        public IActionResult Edit(Shop shop)
+        public async Task<IActionResult> EditProduct(Product product)
         {
-            if (!ModelState.IsValid)
-                return View(shop);
-
-            try
+            var categoryList = await _shopkeeperService.GetActiveCategories();
+            if (categoryList == null || categoryList.Count <= 0)
             {
-                var shopId = HttpContext.Session.GetString("ShopLoggedIn");
-                if (shopId == null)
-                    return NotFound();
-                var existing = _service.GetShopById(shopId);
+                TempData["ErrorMessage"] = "Category not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
 
-                if (existing != null
-                    && existing.Id == shopId
-                    && existing.Name == shop.Name
-                    && existing.OwnerEmailId == shop.OwnerEmailId
-                    && existing.PhoneNo == shop.PhoneNo
-                    )
+            Guid productId = _sessionService.GetProductId();
+            if (productId == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Product not found";
+                return RedirectToAction(nameof(ShopDetails));
+            }
+
+            product.Id = productId;
+
+            if (product.Price <= 0)
+            {
+                TempData["ErrorMessage"] = "Mandatory field missing";
+                return RedirectToAction("EditProduct", product.Id);
+            }
+
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction("Logout", "Account");
+            }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0 && product.ProductImage.Length > 2 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "Image must be less than 2 MB";
+                return RedirectToAction("EditProduct", product.Id);
+            }
+
+            if (product.ProductImage != null && product.ProductImage.Length > 0)
+            {
+                // 1. Determine the uploads folder in a cross-platform way
+                // Uses wwwroot/uploads/products on both Windows and Linux
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
+
+                // Ensure the folder exists
+                if (!Directory.Exists(uploadsRoot))
                 {
-                    _service.UpdateFromShopkeeper(shop);
-                    return RedirectToAction("Products");
+                    Directory.CreateDirectory(uploadsRoot);
                 }
-                ViewBag.Locations = _locationService.GetAllLocations();
-                return View(shop);
+
+                // 2. Generate a unique filename
+                var extension = Path.GetExtension(product.ProductImage.FileName);
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    TempData["ErrorMessage"] = "Image is not valid";
+                    return RedirectToAction("EditProduct", product.Id);
+                }
+
+                var fileName = Guid.NewGuid() + extension;
+                var filePath = Path.Combine(uploadsRoot, fileName);
+
+                // 3. Save the file
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await product.ProductImage.CopyToAsync(stream);
+
+                // 4. Store filename in the database
+                product.ImageFileName = fileName;
             }
-            catch (Exception ex)
+            product.ShopId = shopId;
+
+            string? oldImageName = await _shopkeeperService.UpdateProductInShop(product);
+            if (!string.IsNullOrEmpty(oldImageName) && product.ProductImage != null && product.ProductImage.Length > 0)
             {
-                ModelState.AddModelError("", ex.Message);
-                return View(shop);
+                // Determine uploads folder dynamically
+                var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "products");
+
+                // Full path to the old image
+                var oldImagePath = Path.Combine(uploadsRoot, oldImageName);
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+            return RedirectToAction(nameof(ShopDetails));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid productId)
+        {
+            Guid shopId = _sessionService.GetShopId();
+            if (shopId == Guid.Empty)
+            {
+                ViewData["ErrorMessage"] = "Session Expired";
+                return RedirectToAction("Logout", "Account");
+            }
+            bool isDeleted = await _shopkeeperService.DeleteProductFromShop(shopId, productId);
+            if (!isDeleted)
+            {
+                ViewData["ErrorMessage"] = "Product Not Deleted.";
+            }
+            return RedirectToAction(nameof(ShopDetails));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductsByCategory(Guid categoryId)
+        {
+            if (categoryId == Guid.Empty)
+                return BadRequest();
+            Guid shopId = _sessionService.GetShopId();
+            var products = await _shopkeeperService.GetProductsByCategoryId(categoryId, shopId);
+
+            var result = products.Select(p => new
+            {
+                id = p.Id,
+                productName = p.ProductName
+            });
+
+            return Json(result);
+        }
+
+        private async Task RemoveUnusedImages()
+        {
+            // Get all image names in DB
+            List<string?> imagesInDB = await _shopkeeperService.GetAllImageNames();
+
+            // Path to the persistent product images folder
+            string imageFolder = Path.Combine(_env.WebRootPath, "uploads", "products");
+
+            if (Directory.Exists(imageFolder))
+            {
+                // Get all files in folder
+                var allFiles = Directory.GetFiles(imageFolder);
+
+                foreach (var filePath in allFiles)
+                {
+                    string fileName = Path.GetFileName(filePath);
+
+                    // If file is not in DB, delete it
+                    if (!imagesInDB.Contains(fileName))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(filePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the error if needed
+                            Console.WriteLine($"Failed to delete {fileName}: {ex.Message}");
+                        }
+                    }
+                }
             }
         }
 
-        // Helper: Get logged-in shop from session
-        private Shop? GetLoggedInShop()
-        {
-            var shopId = HttpContext.Session.GetString("ShopLoggedIn");
-            if (string.IsNullOrEmpty(shopId))
-                return null;
-            return _service.GetShopById(shopId);
-        }
-
-        private string? GetProductNameForEdit()
-        {
-            var productName = HttpContext.Session.GetString("ProductName");
-            return productName;
-        }
     }
 }

@@ -1,0 +1,150 @@
+﻿@model IEnumerable<localshopyNew.ViewModel.CategoryProductViewModel>
+
+@{
+    ViewData["Title"] = "Active Products";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Products</h4>
+
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-warning"
+                       href="@Url.Action("Create")">
+                        + Add Product
+                    </a>
+
+                    <a class="btn btn-sm btn-secondary"
+                       href="@Url.Action("Deleted")">
+                        Removed
+                    </a>
+                </div>
+            </div>
+
+            <!-- Expand / Collapse -->
+            <div class="d-flex gap-2 mb-3">
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        onclick="expandAllCategories()">
+                    Expand All
+                </button>
+
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        onclick="collapseAllCategories()">
+                    Collapse All
+                </button>
+            </div>
+
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger py-2">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info py-2">
+                    No product found.
+                </div>
+            }
+            else
+            {
+                <!-- Category Accordion -->
+                <div class="accordion accordion-flush" id="categoryAccordion">
+
+                    @foreach (var category in Model)
+                    {
+                        var collapseId = $"collapse_{category.Categoty.Id}";
+
+                        <div class="accordion-item border rounded mb-2">
+
+                            <!-- Category Header -->
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-warning text-dark fw-bold"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId"
+                                        aria-expanded="true">
+                                    @category.Categoty.Name
+                                    <span class="badge bg-primary ms-2">
+                                        @category.ProductMasters.Count()
+                                    </span>
+                                </button>
+                            </h2>
+                                
+                            <!-- Products -->
+                            <div id="@collapseId" class="accordion-collapse collapse show">
+                                <div class="accordion-body alert alert-warning py-2">
+
+                                    <div class="row g-2">
+                                        @foreach (var product in category.ProductMasters)
+                                        {
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <div class="card h-100 border shadow-sm">
+                                                    <div class="card-body p-2 d-flex flex-column">
+
+                                                        <div class="d-flex justify-content-between align-items-center">
+
+                                                            <!-- Left: Product Name -->
+                                                            <strong class="small text-truncate">
+                                                                @product.ProductName
+                                                            </strong>
+
+                                                            <!-- Right: Status + Actions -->
+                                                            <div class="d-flex align-items-center gap-1">
+                                                                <span class="badge @(product.IsActive ? "bg-success" : "bg-secondary")">
+                                                                    @(product.IsActive ? "Active" : "Inactive")
+                                                                </span>
+
+                                                                <a class="btn btn-xs btn-warning"
+                                                                   href="@Url.Action("Edit", new { id = product.Id })"
+                                                                   title="Edit">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </a>
+
+                                                                <a class="btn btn-xs btn-danger"
+                                                                   href="@Url.Action("Delete", new { id = product.Id })"
+                                                                   title="Delete">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function expandAllCategories() {
+        document
+            .querySelectorAll('#categoryAccordion .accordion-collapse')
+            .forEach(el => bootstrap.Collapse.getOrCreateInstance(el).show());
+    }
+
+    function collapseAllCategories() {
+        document
+            .querySelectorAll('#categoryAccordion .accordion-collapse')
+            .forEach(el => bootstrap.Collapse.getOrCreateInstance(el).hide());
+    }
+</script>

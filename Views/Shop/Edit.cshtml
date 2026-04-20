@@ -1,87 +1,152 @@
-﻿@model localshopyNew.Models.Shop
+﻿@model Shop
+@{
+    ViewData["Title"] = "Edit Shop";
+}
 
-<h2>Edit Shop</h2>
-<button type="button" id="UpdatePassword" class="btn btn-primary mt-2">Update Password</button>
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Name" />
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Edit Shop</h2>
+        </div>
 
-    <div class="form-group">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
+        <div class="card-body animate__animated animate__fadeInUp">
+
+            <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
+
+                @if (ViewData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @ViewData["ErrorMessage"]
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNo" class="form-label"></label>
+                    <input asp-for="PhoneNo" class="form-control" maxlength="10" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AlternateNumber" class="form-label"></label>
+                    <input asp-for="AlternateNumber" class="form-control" maxlength="10" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="OwnerEmailId" class="form-label"></label>
+                    <input asp-for="OwnerEmailId" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <a href="javascript:void(0)"
+                       id="lnkEditPassword"
+                       class="ms-2 text-warning fw-bold text-decoration-none">
+                        Click Here
+                    </a>
+
+                    <input asp-for="Password"
+                           id="txtPassword"
+                           class="form-control mt-2"
+                           disabled />
+                </div>
+
+
+                <!-- User-friendly IsOpen toggle -->
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsOpen"
+                           class="form-check-input"
+                           type="checkbox"
+                           id="isOpenSwitch"
+                           onchange="updateStatusText()" />
+
+                    <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
+                        @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AccountValidTill" class="form-label"></label>
+                    <input asp-for="AccountValidTill" type="date" class="form-control" />
+                </div>
+
+                <!-- Locations Multi-select checkboxes -->
+                <div class="mb-3">
+                    <label class="form-label">Locations</label>
+                    <div class="border rounded p-3">
+                        @foreach (var location in ViewBag.LocationList)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="ServedLocations"
+                                       value="@location.Value"
+                                       id="loc_@location.Value"
+                                       @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
+
+                                <label class="form-check-label" for="loc_@location.Value">
+                                    @location.Text
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-warning">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label class="form-label d-block">Select Locations</label>
-
-        @foreach (var location in ViewBag.Locations as List<string>)
-        {
-            bool isChecked = Model?.ServedLocations?.Contains(location) == true;
-
-            <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       name="ServedLocations"
-                       value="@location"
-                       id="loc_@location.Replace(" ", "_")"
-                       @(isChecked ? "checked" : "") />
-
-                <label class="form-check-label"
-                       for="loc_@location.Replace(" ", "_")">
-                    @location
-                </label>
-            </div>
-        }
-    </div>
-
-    <div class="form-group">
-        <label>Phone No.</label>
-        <textarea asp-for="PhoneNo" class="form-control"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>Owner Email</label>
-        <input asp-for="OwnerEmailId" type="email" class="form-control" readonly />
-    </div>
-
-    <div class="form-group">
-        <label>Password</label>
-        <input asp-for="Password" type="text" class="form-control" readonly />
-    </div>
-
-    <div class="form-check">
-        <input asp-for="IsOpen" class="form-check-input" />
-        <label asp-for="IsOpen" class="form-check-label">Is Open</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary mt-2">Cancel</a>
-</form>
-<br />
-
-
-<div asp-validation-summary="All" class="text-danger"></div>
+</div>
 
 <script>
-    const input = document.getElementById('Password');
-    const button = document.getElementById('UpdatePassword');
+    function updateStatusText() {
+        const checkbox = document.getElementById('isOpenSwitch');
+        const label = document.getElementById('isOpenLabel');
 
-    // Store original password value
-    const originalPassword = input.value;
+        label.textContent = checkbox.checked
+            ? 'Shop is Open'
+            : 'Shop is Close';
+    }
 
-    button.addEventListener('click', function () {
-        if (input.hasAttribute('readonly')) {
+    // Run on page load to show correct status
+    document.addEventListener('DOMContentLoaded', updateStatusText);
+
+    let isEditingPassword = false;
+    let oldPassword = "";
+
+    document.getElementById("lnkEditPassword").addEventListener("click", function () {
+        const passwordInput = document.getElementById("txtPassword");
+
+        if (!isEditingPassword) {
+            // Store old password
+            oldPassword = passwordInput.value;
+
             // Enable editing
-            input.removeAttribute('readonly');
-            input.focus();
-            button.textContent = 'Old Password';
+            passwordInput.disabled = false;
+            passwordInput.removeAttribute("readonly");
+            passwordInput.focus();
+
+            // Update link text
+            this.innerText = "Use Old Password";
         } else {
-            // Restore old password and lock field
-            input.value = originalPassword;
-            input.setAttribute('readonly', true);
-            button.textContent = 'Edit Password';
+            // Revert to old password
+            passwordInput.value = oldPassword;
+            passwordInput.disabled = true;
+
+            // Update link text back
+            this.innerText = "Click Here";
         }
+
+        isEditingPassword = !isEditingPassword;
     });
 </script>
-
-
 

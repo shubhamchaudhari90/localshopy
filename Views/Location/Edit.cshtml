@@ -1,0 +1,63 @@
+﻿@model Location
+@{
+    ViewData["Title"] = "Edit Location";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Edit Location</h2>
+        </div>
+
+        <div class="card-body animate__animated animate__fadeInUp">
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+            <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SortOrder" class="form-label"></label>
+                    <input asp-for="SortOrder" class="form-control" />
+                </div>
+
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsActive"
+                           class="form-check-input"
+                           type="checkbox"
+                           id="isActiveSwitch"
+                           onchange="updateStatusText()" />
+
+                    <label class="form-check-label" id="isActiveLabel">
+                        Location is inactive
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-warning">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function updateStatusText() {
+        const checkbox = document.getElementById('isActiveSwitch');
+        const label = document.getElementById('isActiveLabel');
+
+        label.textContent = checkbox.checked
+            ? 'Location is active'
+            : 'Location is inactive';
+    }
+
+    // Run on page load (important for Edit view)
+    document.addEventListener('DOMContentLoaded', updateStatusText);
+</script>

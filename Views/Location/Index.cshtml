@@ -1,83 +1,87 @@
-﻿@model List<string>
+﻿@model IEnumerable<Location>
+@{
+    ViewData["Title"] = "Active Locations";
+}
 
-<h2>Locations</h2>
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Locations</h2>
 
-<!-- CREATE -->
-<form asp-action="Create" method="post" class="mb-3">
-    <div class="input-group">
-        <input name="locationName"
-               class="form-control"
-               placeholder="Enter location name"
-               required />
-        <button type="submit" class="btn btn-primary">Add</button>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-warning animate__animated animate__fadeInUp"
+           href="@Url.Action("Create")">
+            Add New Location
+        </a>
+
+        <a class="btn btn-secondary animate__animated animate__fadeInUp"
+           href="@Url.Action("Deleted")">
+            Show Removed Locations
+        </a>
     </div>
-</form>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Location</th>
-            <th style="width:260px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var location in Model)
-        {
-            var inputId = $"loc_{location.Replace(" ", "_")}";
-
-            <tr>
-                <td>
-                    <form asp-action="Edit" method="post" class="d-flex align-items-center">
-                        <input type="hidden" name="oldName" value="@location" />
-
-                        <input id="@inputId"
-                               name="newName"
-                               value="@location"
-                               class="form-control me-2"
-                               readonly />
-
-                        <button type="button"
-                                class="btn btn-sm btn-warning me-2"
-                                onclick="toggleEdit('@inputId', this, '@location')">
-                            Edit
-                        </button>
-
-                        <button class="btn btn-sm btn-success">
-                            Save
-                        </button>
-                    </form>
-                </td>
-                <td>
-                    <a asp-action="Delete"
-                       asp-route-name="@location"
-                       class="btn btn-sm btn-danger"
-                       onclick="return confirm('Delete this location?');">
-                        Delete
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<script>
-    function toggleEdit(inputId, btn, originalValue) {
-        const input = document.getElementById(inputId);
-
-        if (input.hasAttribute('readonly')) {
-            // Enable editing
-            input.removeAttribute('readonly');
-            input.focus();
-            btn.textContent = 'Cancel';
-            btn.classList.remove('btn-warning');
-            btn.classList.add('btn-secondary');
-        } else {
-            // Cancel editing → restore original value
-            input.value = originalValue;
-            input.setAttribute('readonly', true);
-            btn.textContent = 'Edit';
-            btn.classList.remove('btn-secondary');
-            btn.classList.add('btn-warning');
-        }
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
     }
-</script>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No locations found.</strong>
+        </div>
+    }
+    else
+    {
+        <!-- Responsive table wrapper -->
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Sort Order</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td data-label="Name">
+                                <strong>@cat.Name</strong>
+                            </td>
+
+                            <td data-label="Sort Order">
+                                @cat.SortOrder
+                            </td>
+
+                            <td data-label="Status">
+                                @if (cat.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+
+                            <td class="text-center" data-label="Actions">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a class="btn btn-sm btn-warning"
+                                       href="@Url.Action("Edit", new { id = cat.Id })">
+                                        Edit
+                                    </a>
+
+                                    <a class="btn btn-sm btn-danger"
+                                       href="@Url.Action("Delete", new { id = cat.Id })">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,82 @@
+﻿@using localshopyNew.ViewModel
+@model List<ReviewViewModel>
+
+@{
+    ViewData["Title"] = "Approved Reviews";
+}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Approved Reviews
+    </h2>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-primary animate__animated animate__fadeInUp"
+           asp-controller="Review" asp-action="Index">
+            Pending Reviews
+        </a>
+
+        <a class="btn btn-danger animate__animated animate__fadeInUp"
+           asp-controller="Review" asp-action="Rejected">
+            Rejected Reviews
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No approved reviews found.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product</th>
+                        <th>Shop</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th class="text-center" style="width: 160px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td data-label="Product"><strong>@r.ProductName</strong></td>
+                            <td data-label="Shop">@r.ShopName</td>
+                            <td data-label="Rating">
+                                <div class="text-warning">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= r.Rating)
+                                        {
+                                            <i class="bi bi-star-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star"></i>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                            <td data-label="Comment">@r.Comment</td>
+                            <td class="text-center" data-label="Action">
+                                <form asp-action="Reject" method="post" class="d-inline"
+                                      onsubmit="return confirm('Reject this approved review?');">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button class="btn btn-danger btn-sm">
+                                        Reject
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

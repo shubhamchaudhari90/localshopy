@@ -1,93 +1,225 @@
-﻿@model Product
-
+﻿@using localshopyNew.ViewModel
+@model ProductViewModel
 @{
     ViewData["Title"] = "Edit Product";
 }
 
-<h2>Edit Product</h2>
+<div class="container mt-5">
 
-<form asp-action="EditProduct" method="post" enctype="multipart/form-data">
-    
+    <div class="card shadow-sm">
+        <!-- Card Header -->
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Edit Product</h2>
+        </div>
 
-    <div class="form-group mb-2">
-        <label>Name</label>
-        <input asp-for="Name" type="text" class="form-control" readonly/>
-    </div>
+        <!-- Card Body -->
+        <div class="card-body animate__animated animate__fadeInUp">
 
-    <div class="form-group mb-2">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
+            <form asp-action="EditProduct" method="post" enctype="multipart/form-data">
 
-    <div class="form-group mb-2">
-        <label>Product Image</label>
-        <input type="file" name="ProductImage" class="form-control" />
-        @if (!string.IsNullOrEmpty(Model.ImageFileName))
-        {
-            <img src="~/images/products/@Model.ImageFileName" alt="Product Image" width="100" class="mt-2" />
-        }
-    </div>
+                @* Error Message *@
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
 
+                <!-- Category (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="CategoryName" class="form-label">Category Name</label>
+                    <input asp-for="CategoryName" type="text" class="form-control" readonly disabled />
+                </div>
 
-    <div class="form-group mb-2">
-        <label>Price</label>
-        <input asp-for="Price" type="number" class="form-control" required />
-    </div>
+                <!-- Product Master (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="ProductMasterName" class="form-label">Product Name</label>
+                    <input asp-for="ProductMasterName" type="text" class="form-control" readonly disabled />
+                </div>
 
-    @*    <div class="form-check mb-2">
-        <input asp-for="IsAvailable" class="form-check-input" />
-        <label asp-for="IsAvailable" class="form-check-label">Available</label>
-    </div> *@
+                <!-- Product Type (readonly) -->
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label">Type</label>
+                    <input asp-for="Type" type="text" class="form-control" readonly disabled />
+                </div>
 
-    <div class="form-group mb-3">
-        <label class="form-label d-block">Product Availability</label>
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <input asp-for="Description" class="form-control" maxlength="150" required oninput="this.value = this.value.slice(0, 150);" />
+                </div>
 
-        <div class="form-check form-switch">
-            <input asp-for="IsAvailable"
-                   class="form-check-input"
-                   type="checkbox"
-                   id="IsAvailableSwitch" />
+                <!-- Price -->
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label">Price (₹) <span class="text-danger">*</span></label>
+                    <input asp-for="Price"
+                           class="form-control"
+                           id="txtPrice"
+                           required
+                           maxlength="5"
+                           inputmode="numeric"
+                           pattern="[0-9]+"
+                           oninput="
+                           this.value=this.value.replace(/[^0-9]/g, '' );
+                           if (parseInt(this.value)> 10000) this.value = '10000';
+                    " />
 
-            <label class="form-check-label" for="IsAvailableSwitch">
-                <span id="availabilityText">
-                    @(Model.IsAvailable ? "Available" : "Out Of Stock")
-                </span>
-            </label>
+                </div>
+
+                <!-- User-friendly IsAvailable toggle -->
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="isAvailableSwitch" onchange="updateStatusText()" />
+                    <label class="form-check-label fw-semibold" id="isAvailableLabel" for="isAvailableSwitch">
+                        @(Model.IsAvailable ? "Available" : "Out of stock")
+                    </label>
+                </div>
+
+                <!-- Image -->
+                <div class="mb-3">
+                    <label asp-for="ProductImage" class="form-label">Product Image</label>
+                    <input asp-for="ProductImage" type="file" class="form-control" />
+                </div>
+
+                <!-- Apply Discount Toggle -->
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="applyDiscountToggle" />
+                    <label class="form-check-label fw-semibold" for="applyDiscountToggle">Apply Discount</label>
+                </div>
+
+                <!-- Discount Fields Container -->
+                <div id="discountFields" style="display: none;">
+                    <!-- Discount (%) -->
+                    <div class="mb-3">
+                        <label asp-for="Discount" class="form-label">Discount (%)</label>
+                        <input asp-for="Discount"
+                               class="form-control"
+                               id="txtDiscount"
+                               type="number"
+                               min="0"
+                               max="99"
+                               step="1"
+                               oninput="
+                               if (this.value < 0) this.value = 0;
+                        if (this.value > 99) this.value = 99;
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        " />
+
+                        <span class="text-danger" id="discountError"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DiscountValidFrom" class="form-label">Discount Valid From</label>
+                        <input asp-for="DiscountValidFrom" type="date" class="form-control" id="txtDiscountFrom" />
+                        <span class="text-danger" id="fromError"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DiscountValidTill" class="form-label">Discount Valid Till</label>
+                        <input asp-for="DiscountValidTill" type="date" class="form-control" id="txtDiscountTill" />
+                        <span class="text-danger" id="tillError"></span>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn  border-dark btn-warning">Save</button>
+                    <a asp-action="ShopDetails" class="btn  border-dark btn-secondary">Cancel</a>
+                </div>
+
+            </form>
+
         </div>
     </div>
+</div>
 
-
-    <div class="form-group mb-2">
-        <label>Discount (%)</label>
-        <input asp-for="Discount" type="number" class="form-control" step="0.01" />
-    </div>
-
-    <div class="form-group mb-2">
-        <label>Discount Valid From</label>
-        <input asp-for="DiscountValidFrom" type="date" class="form-control" />
-    </div>
-
-    <div class="form-group mb-2">
-        <label>Discount Valid Till</label>
-        <input asp-for="DiscountValidTill" type="date" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
-    <a asp-action="Products" class="btn btn-secondary mt-2">Cancel</a>
-</form>
-
-<div asp-validation-summary="All" class="text-danger"></div>
 <script>
-    const availabilitySwitch = document.getElementById('IsAvailableSwitch');
-    const availabilityText = document.getElementById('availabilityText');
 
-    if (availabilitySwitch) {
-        availabilitySwitch.addEventListener('change', function () {
-            availabilityText.textContent = this.checked
-                ? 'Available'
-                : 'Out Of Stock';
+    document.addEventListener("DOMContentLoaded", function () {
+        const discountToggle = document.getElementById("applyDiscountToggle");
+        const discountFields = document.getElementById("discountFields");
+        const discountInput = document.getElementById("txtDiscount");
+
+        // Initial load check
+        if (discountInput && parseFloat(discountInput.value) > 0) {
+            discountToggle.checked = true;
+            discountFields.style.display = "block";
+        }
+
+        // Toggle change handler
+        discountToggle.addEventListener("change", function () {
+            discountFields.style.display = this.checked ? "block" : "none";
+
+            // Optional: reset values when turned off
+            if (!this.checked) {
+                discountInput.value = 0;
+                document.getElementById("txtDiscountFrom").value = "";
+                document.getElementById("txtDiscountTill").value = "";
+            }
         });
-    };
-    
+    });
 
+    function updateStatusText() {
+        const checkbox = document.getElementById('isAvailableSwitch');
+        const label = document.getElementById('isAvailableLabel');
+
+        label.textContent = checkbox.checked
+            ? 'Available'
+            : 'Out Of Stock';
+    }
+
+    $(document).ready(function () {
+
+        // Show/hide discount fields
+        $('#applyDiscountToggle').change(function () {
+            if ($(this).is(':checked')) {
+                $('#discountFields').slideDown();
+            } else {
+                $('#discountFields').slideUp();
+                // Reset values
+                $('#txtDiscount').val(0);
+                $('#txtDiscountFrom').val('');
+                $('#txtDiscountTill').val('');
+                $('.text-danger').text('');
+            }
+        });
+
+        // Form submit validation
+        $('form').submit(function (e) {
+            if ($('#applyDiscountToggle').is(':checked')) {
+                let isValid = true;
+                const discount = parseInt($('#txtDiscount').val());
+                const fromDate = $('#txtDiscountFrom').val();
+                const tillDate = $('#txtDiscountTill').val();
+                const today = new Date().toISOString().split('T')[0];
+
+                // Discount validation
+                if (isNaN(discount) || discount < 0 || discount > 99) {
+                    $('#discountError').text('Discount must be between 0 and 99.');
+                    isValid = false;
+                } else {
+                    $('#discountError').text('');
+                }
+
+                // From date validation
+                if (!fromDate || fromDate < today) {
+                    $('#fromError').text('From date must be today or later.');
+                    isValid = false;
+                } else {
+                    $('#fromError').text('');
+                }
+
+                // Till date validation
+                if (!tillDate || tillDate < fromDate) {
+                    $('#tillError').text('Till date must be same or after From date.');
+                    isValid = false;
+                } else {
+                    $('#tillError').text('');
+                }
+
+                if (!isValid) {
+                    e.preventDefault(); // stop form submit
+                }
+            }
+        });
+    });
 </script>

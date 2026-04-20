@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Instruction Page";
+}
+
+<!-- Instructions Section -->
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="mb-3 fs-5 fw-bold">📢 How to Use the Application</h4>
+            <div class="accordion" id="instructionsAccordion">
+                <!-- Customer Instructions -->
+                <div class="accordion-item mb-3">
+                    <h2 class="accordion-header" id="headingCustomer">
+                        <button class="accordion-button bg-warning btn btn-warning w-100 text-start fw-bold"
+                                type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseCustomer" aria-expanded="true"
+                                aria-controls="collapseCustomer">
+                            🛍️ Customer Instructions
+                        </button>
+                    </h2>
+                    <div id="collapseCustomer" class="accordion-collapse show"
+                         aria-labelledby="headingCustomer">
+                        <div class="accordion-body alert alert-warning mb-3">
+                            <ul class="mb-0">
+                                <li class="mb-2 fw-semibold">Please <span class="text-danger">allow notifications</span> to receive real-time order status updates.</li>
+                                <li class="mb-2 fw-semibold">Log in using your <span class="text-danger">Google account</span> to use the cart, place orders, and track order status.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shopkeeper Instructions -->
+                <div class="accordion-item mb-3">
+                    <h2 class="accordion-header" id="headingShopkeeper">
+                        <button class="accordion-button bg-warning btn btn-warning w-100 text-start fw-bold"
+                                type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseShopkeeper" aria-expanded="true"
+                                aria-controls="collapseShopkeeper">
+                            🧾 Shopkeeper Instructions
+                        </button>
+                    </h2>
+                    <div id="collapseShopkeeper" class="accordion-collapse show"
+                         aria-labelledby="headingShopkeeper">
+                        <div class="accordion-body alert alert-warning mb-3">
+                            <ul class="mb-0">
+                                <li class="mb-2 fw-semibold">
+                                    Please <span class="text-danger">allow notifications</span> to get notified when an order is placed.
+                                </li>
+                                <li class="mb-2 fw-semibold">To add, edit, or delete products, visit the <span class="text-danger">My Shop</span> page.</li>
+                                <li class="mb-2 fw-semibold">While adding or editing a product, you can add or update <span class="text-danger">discounts</span>.</li>
+                                <li class="mb-2 fw-semibold">You can mark a product as <span class="text-danger">Out of Stock</span> so it will not be visible to customers.</li>
+                                <li class="mb-2 fw-semibold">The Switch(button) in front of the shop status is used to <span class="text-danger">open OR close</span> the shop.</li>
+                                <li class="mb-2 fw-semibold">All orders must be delivered OR marked as <span class="text-danger">Pre-Order</span> before closing the shop.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

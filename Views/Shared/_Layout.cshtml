@@ -1,71 +1,222 @@
-﻿<!DOCTYPE html>
+﻿@inject ISessionService _sessionService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - localshopyNew</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/localshopyNew.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            @*             @if (!User.Identity!.IsAuthenticated)
-{
-    <a asp-controller="Account" asp-action="Login">Login with Google</a>
-}
-else
-{
-    <span>Hello @User.Identity.Name</span>
-    <a asp-controller="Account" asp-action="Logout">Logout</a>
-} *@
+    <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=1.0" />
+    <title>@ViewData["Title"]</title>
 
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">localshopyNew</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Location">Customer</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index">Shop</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Location" asp-action="Index">Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shopkeeper" asp-action="Login">Shopkeeper Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Backup" asp-action="DownloadBackup">Backup</a>
-                        </li>
-                    </ul>
+    <!-- Site CSS (your custom styles) -->
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Animate.css (optional animations) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- jQuery (needed before any scripts that use it) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Responsive font using clamp() */
+            font-size: clamp(15px, 1.5vw, 16px);
+        }
+
+        main {
+            flex: 1;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 1rem 0;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(90deg, #FFC107, #FFCA28);
+        }
+
+            .navbar-custom .navbar-brand,
+            .navbar-custom .nav-link {
+                color: #fff;
+                font-weight: bold;
+                /* Navbar font responsive without media query */
+                font-size: clamp(14px, 1.2vw, 16px);
+            }
+
+                .navbar-custom .nav-link:hover {
+                    text-decoration: underline;
+                }
+
+        /* Header tags responsive font */
+        h1, h2, h3, h4, h5, h6 {
+            font-size: clamp(1rem, 2vw, 2rem);
+        }
+
+        .mt-5 {
+            margin-top: 1rem !important;
+        }
+
+        .accordion-item {
+            border: none !important; /* remove default bootstrap border */
+            box-shadow: none; /* optional, remove shadow if any */
+        }
+
+    </style>
+</head>
+
+<body>
+    @using Microsoft.AspNetCore.Http
+    @using localshopyNew.Constants
+    @using System.Security.Claims
+    @using localshopyNew.Services.Interfaces
+
+    <header>
+        <nav class="navbar navbar-dark navbar-custom shadow-sm">
+            <div class="container d-flex justify-content-between align-items-start">
+                <!-- Left: Brand + Hamburger + Menu -->
+                <div class="d-flex flex-column flex-lg-row align-items-center">
+                    <!-- Brand + Hamburger (row on mobile, same on lg) -->
+                    <div class="d-flex align-items-center">
+                        <!-- Hamburger for mobile -->
+                        <button class="btn btn-outline-light me-2 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <!-- Brand -->
+                        <a class="navbar-brand mb-0 me-4" asp-controller="Customer" asp-action="Products">
+                            LocalShopy
+                        </a>
+                    </div>
+                    <!-- Menu: collapsible on mobile, inline on lg+ -->
+                    <div class="collapse d-lg-flex mt-2 mt-lg-0 ms-lg-3 align-items-start" id="mobileMenu">
+
+                        <!-- Left nav items -->
+                        <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
+                            @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                @if (User.IsInRole(RoleConstants.Shopkeeper))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="AllOrders">All Orders</a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole(RoleConstants.Admin))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Review" asp-action="Index">Review</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Shop" asp-action="Index">All Shops</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="ShopProduct" asp-action="ShopList">Shop Products</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="ProductMaster" asp-action="Index">Product Master</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Category" asp-action="Index">Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="GetAllOrdersForAdmin">Orders</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" asp-controller="LogErrors" asp-action="Index">Log Errors</a>
+                                    </li>
+                                }
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="Instructions">
+                                    Instructions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light fw-bold me-3" asp-controller="Home" asp-action="ContactUs">
+                                    Contact Us
+                                </a>
+                            </li>
+                            @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light fw-bold" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: Login/Logout with Email -->
+                <div class="d-flex align-items-start ms-auto mt-2">
+                    @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        @if (User.IsInRole(RoleConstants.Shopkeeper))
+                        {
+                            <a class="nav-link text-light" asp-controller="Order" asp-action="OrdersToServe">Orders To Serve</a>
+                        }
+                        else
+                        {
+                            <a class="nav-link text-light" asp-controller="Order" asp-action="Index" style="margin-right:15px;">Orders</a>
+
+                            <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none" style="margin-right:30px;">
+                                <i class="bi bi-cart fs-4" style="font-size: calc(1.75rem + .3vw) !important;"></i>
+                                <span id="spnCartCount" style="font-size: 150%; top: 25% !important;"
+                                      class="position-absolute top-0 start-50 translate-middle badge">
+                                    @(_sessionService.GetCartCount())
+                                </span>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Login button -->
+                        <form asp-controller="Account" asp-action="Login" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-warning btn-sm fw-bold text-white">
+                                Login
+                            </button>
+                        </form>
+                    }
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="flex-shrink-0 alert alert-warning p-0 m-0">
         <div class="container">
-            &copy; 2025 - localshopyNew - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer text-muted bg-light py- mt-auto">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year All rights reserved by Shubham Rajendra Chaudhari
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Firebase config & FCM -->
+    <script src="~/firebase-config.js"></script>
+    <script type="module" src="~/js/fcm.js"></script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

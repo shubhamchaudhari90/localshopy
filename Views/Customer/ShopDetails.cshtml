@@ -1,75 +1,324 @@
-﻿@model List<CustomerProductViewModel>
+﻿@using localshopyNew.ViewModel
+@model ShopProductsViewModel
 
 @{
-    ViewData["Title"] = "Products";
+    ViewData["Title"] = Model?.Shop?.Name ?? "Shop Details";
 }
 
-<h2>@ViewBag.ShopName</h2>
-<h3>@ViewBag.ShopPhoneNo</h3>
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
+        <div class="card-body p-4">
 
-@if (!Model.Any())
-{
-    <p>No products available.</p>
-}
-else
-{
-    var groupedProducts = Model
-        .GroupBy(p => p.CategotyName)
-        .OrderBy(g => g.Key); // sort categories
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <!-- Shop Name -->
+                <div class="animate__animated animate__fadeInDown fw-bold fs-2">
+                    @Model?.Shop?.Name
+                </div>
+            </div>
 
-    int categoryIndex = 0; // unique IDs for collapse
+            @* <!-- Shop Details -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Address: </strong> @Model?.Shop?.Address</p>
+                </div>
 
-    foreach (var categoryGroup in groupedProducts)
-    {
-        string collapseId = "collapseCategory" + categoryIndex;
+                <div class="col-md-6">
+                    <p><strong>Phone: </strong> @Model?.Shop?.PhoneNo</p>
+                </div>
 
-        <div class="mb-3">
-            <h3>
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
-                    @categoryGroup.Key
-                </button>
-            </h3>
+                <div class="col-md-6">
+                    <p>
+                        <strong>Locations: </strong> @string.Join(" | ", Model.Locations)
+                    </p>
+                </div>
+            </div> *@
 
-            <div class="collapse show" id="@collapseId">
-                <div class="row">
-                    @foreach (var item in categoryGroup)
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            <hr />
+
+            <!-- Product Section Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Products</h4>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="alert alert-info">
+                    <strong>No products found.</strong>
+                </div>
+            }
+            else
+            {
+
+                // Group products by category
+                var groupedProducts = Model.Products
+                .GroupBy(p => p.CategoryName)
+                .OrderBy(g => g.Key); // optional: order by category name
+
+                var showCartImage = false;
+                if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    showCartImage = true;
+                }
+
+                <div class="accordion" id="categoryAccordion">
+
+                    @foreach (var group in groupedProducts)
                     {
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100">
-                                @if (!string.IsNullOrEmpty(item.Product.ImageFileName))
-                                {
-                                    <img src="~/images/products/@item.Product.ImageFileName"
-                                         class="card-img-top"
-                                         style="height:200px; object-fit:cover;" />
-                                }
+                        var categoryId = "category-" + group.Key.Replace(" ", "-"); // unique ID
+                        var itemCount = group.Count();
 
-                                <div class="card-body">
-                                    <h5 class="card-title">@item.Product.Name</h5>
-                                    <p class="card-text">@item.Product.Description</p>
+                        <div class="accordion-item mb-3">
+                            <h2 class="accordion-header" id="@($"{categoryId}-heading")">
+                                <button class="accordion-button text-dark fw-bold"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@categoryId"
+                                        aria-expanded="true"
+                                        aria-controls="@categoryId"
+                                        style="background-color: #ffc107;">
+                                    <!-- Bootstrap warning color -->
+                                    @group.Key (@itemCount)
+                                </button>
+                            </h2>
 
-                                    @if (item.Product.Discount > 0 &&
-                                                            item.Product.DiscountValidFrom <= DateTime.UtcNow &&
-                                                            item.Product.DiscountValidTill >= DateTime.UtcNow)
-                                    {
-                                        <p>
-                                            <del>₹@item.Product.Price</del>
-                                            <strong class="text-success">
-                                                ₹@item.Product.FinalPrice
-                                            </strong>
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        <p><strong>₹@item.Product.Price</strong></p>
-                                    }
+                            <div id="@categoryId" class="accordion-collapse collapse show" aria-labelledby="@($"{categoryId}-heading")" data-bs-parent="#categoryAccordion">
+                                <div class="accordion-body alert alert-warning">
+                                    <div class="row g-3">
+                                        @foreach (var product in group)
+                                        {
+                                            bool discountActive =
+                                            product.Discount > 0 &&
+                                            product.DiscountValidFrom.HasValue &&
+                                            product.DiscountValidTill.HasValue &&
+                                            DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                                            DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                                            <div class="col-12 col-md-6 col-lg-4 product-card">
+                                                <div class="card h-100 shadow-sm">
+                                                    <div class="row g-0 h-100">
+
+                                                        <!-- Image Left -->
+                                                        <div class="col-4 p-2">
+
+                                                            <!-- Product Card -->
+                                                            <div class="ratio ratio-1x1">
+
+                                                                <!-- Product Image -->
+                                                                @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                                {
+                                                                    <img src="~/uploads/products/@product.ImageFileName"
+                                                                         class="card-img-top img-fluid" />
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted w-100" style="aspect-ratio: 1/1;">
+                                                                        <i class="bi bi-image fs-4"></i>
+                                                                    </div>
+                                                                }
+
+                                                                @if (showCartImage)
+                                                                {
+                                                                    <!-- Add to Cart Button (Half Over Image) -->
+                                                                    @if (product.IsAddedToCart)
+                                                                    {
+                                                                        <div role="button"
+                                                                             class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle"
+                                                                             data-shop="@product.ShopName"
+                                                                             data-product="@product.ProductMasterName">
+                                                                            <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
+                                                                        </div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button"
+                                                                                class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart"
+                                                                                data-shop="@product.ShopName"
+                                                                                data-product="@product.ProductMasterName">
+                                                                            <i class="bi bi-cart-plus icon-cart fs-4"></i>
+                                                                        </button>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a asp-controller="Account"
+                                                                       asp-action="Login"
+                                                                       class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
+                                                                        <i class="bi bi-cart-x icon-cart fs-4"></i>
+                                                                    </a>
+                                                                }
+
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Content Right -->
+                                                        <div class="col d-flex flex-column p-2">
+
+                                                            <div class="d-flex align-items-center justify-content-between mb-1">
+
+                                                                <!-- Product Name + Stock -->
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <a title="View Product Details"
+                                                                       asp-controller="Customer"
+                                                                       asp-action="ProductDetail"
+                                                                       asp-route-shopProductName="@product.ShopName.Replace("'", "--").Replace(" ", "_")~@product.ProductMasterName.Replace("'", "--").Replace(" ", "_")"
+                                                                       class="fw-bold text-body text-decoration-underline">
+                                                                        @product.ProductMasterName
+                                                                    </a>
+
+                                                                    <span class="fw-semibold @(product.IsAvailable ? "text-success" : "text-danger") small">
+                                                                        @(product.IsAvailable ? "" : "Out of stock")
+                                                                    </span>
+                                                                </div>
+
+                                                                @{
+                                                                    string typeColor =
+                                                                    product.Type == "Veg" ? "var(--bs-success)" :
+                                                                    product.Type == "Egg" ? "var(--bs-warning)" :
+                                                                    product.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                                    "";
+                                                                }
+
+                                                                <!-- Type Icon -->
+                                                                <div title="@product.Type"
+                                                                     class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                                     style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+                                                                    <div style="width:10px; height:10px; border-radius:50%; background-color:@typeColor;"></div>
+                                                                </div>
+
+                                                            </div>
+
+
+                                                            <!-- ⭐ Average Rating -->
+                                                            @if (product.AverageRating > 0)
+                                                            {
+                                                                <div class="d-flex align-items-center mt-1 mb-1">
+                                                                    <span class="text-warning me-1" style="font-size:14px;">
+                                                                        @{
+                                                                            int fullStars = (int)Math.Floor(product.AverageRating);
+                                                                            bool halfStar = product.AverageRating - fullStars >= 0.5;
+
+                                                                            for (int i = 1; i <= 5; i++)
+                                                                            {
+                                                                                if (i <= fullStars)
+                                                                                {
+                                                                                    <i class="bi bi-star-fill"></i>
+                                                                                }
+                                                                                else if (i == fullStars + 1 && halfStar)
+                                                                                {
+                                                                                    <i class="bi bi-star-half"></i>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <i class="bi bi-star"></i>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    </span>
+
+                                                                    <small class="text-muted">
+                                                                        @if (product.ReviewCount > 0)
+                                                                        {
+                                                                            <span>(@product.ReviewCount)</span>
+                                                                        }
+                                                                    </small>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-muted mb-0">No reviews.</p>
+                                                            }
+
+                                                            <p class="mb-1 text-muted small">@product.Description</p>
+
+                                                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    @if (discountActive)
+                                                                    {
+                                                                        <span class="text-muted text-decoration-line-through small">
+                                                                            ₹@product.Price
+                                                                        </span>
+                                                                        <span class="text-warning fw-semibold small">
+                                                                            (-@product.Discount%)
+                                                                        </span>
+                                                                    }
+                                                                    <span class="fw-bold text-success">
+                                                                        ₹@product.FinalPrice
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     }
                 </div>
-            </div>
+            }
         </div>
+    </div>
+</div>
 
-        categoryIndex++; // increment for unique collapse ID
-    }
-}
+<!-- JS Filter -->
+<script>
+    $(document).on("click", ".add-to-cart", function (e) {
+            e.preventDefault();
+            e.stopPropagation(); // stops bubbling
+
+            const $btn = $(this);
+
+            // prevent double-click
+
+            if ($btn.data("loading")) return;
+
+            $btn.data("loading", true);
+
+            var shopName = $(this).data("shop");
+            var productName = $(this).data("product");
+
+            $.ajax({
+                url: '/Cart/AddProductToCart',
+                type: 'POST',
+                data: {
+                    shopName: shopName,
+                    productName: productName
+                },
+                success: function (response) {
+                    if (response === true) {
+                        const successHtml = `
+                        <div role="button"
+                            class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle added-to-cart"
+                            data-shop="${$btn.data('shop')}"
+                            data-product="${$btn.data('product')}">
+                            <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
+                        </div>`;
+                        
+                        $btn.replaceWith(successHtml);
+                    
+                        const span = document.getElementById("spnCartCount");
+                        let currentCount = parseInt(span.textContent, 10) || 0;
+                        span.textContent = currentCount + 1;
+
+                    }
+                    else{
+                        location.reload();
+                    }
+                },
+                error: function (xhr) {
+                    location.reload();
+                }
+             });
+        });
+</script>

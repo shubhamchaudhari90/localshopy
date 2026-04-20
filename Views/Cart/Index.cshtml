@@ -1,0 +1,414 @@
+﻿@using localshopyNew.ViewModel
+@model IEnumerable<CartViewModel>
+
+@{
+    ViewData["Title"] = "Cart Details";
+}
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
+        <div class="card-body p-4">
+            <div class="accordion product-cart">
+
+                @if (Model.Any())
+                {
+                    <div class="accordion-item mb-3">
+                        <button class="accordion-button bg-warning text-dark fw-bold"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseId"
+                                aria-expanded="true">
+                            Cart
+                        </button>
+
+                        <div id="collapseId" class="accordion-collapse collapse show">
+                            <div class="accordion-body alert alert-warning">
+                                <div class="row g-3">
+                                    @foreach (var product in Model)
+                                    {
+                                        bool discountActive =
+                                        product.Discount > 0 &&
+                                        product.DiscountValidFrom.HasValue &&
+                                        product.DiscountValidTill.HasValue &&
+                                        DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                                        DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                                        <div class="col-12 col-md-6 col-lg-4 product-card prd@(product.ProductId)">
+                                            <div class="card h-100 shadow-sm">
+                                                <div class="row g-0 h-100">
+                                                    <div class="col-4 p-2">
+                                                        <div class="ratio ratio-1x1">
+                                                            @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                            {
+                                                                <img src="~/uploads/products/@product.ImageFileName"
+                                                                     class="card-img-top img-fluid" />
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="d-flex align-items-center justify-content-center bg-light text-muted w-100" style="aspect-ratio: 1/1;">
+                                                                    <i class="bi bi-image fs-3"></i>
+                                                                </div>
+                                                            }
+
+                                                            <span role="button"
+                                                                  class="cart-remove-icon position-absolute cart-options-icons translate-middle bg-warning rounded"
+                                                                  data-id="@product.ProductId"
+                                                                  aria-label="Remove item">
+                                                                <i class="bi bi-trash text-danger fs-5"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col d-flex flex-column p-2">
+                                                        <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
+                                                            @product.ProductName
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                                            <div class="fw-semibold text-secondary text-truncate"
+                                                                 style="max-width: calc(100% - 24px); white-space:nowrap;"
+                                                                 title="@product.ShopName">
+                                                                @product.ShopName
+                                                            </div>
+
+                                                            @{
+                                                                string typeColor =
+                                                                product.Type == "Veg" ? "var(--bs-success)" :
+                                                                product.Type == "Egg" ? "var(--bs-warning)" :
+                                                                product.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                                "";
+                                                            }
+
+                                                            <div title="@product.Type"
+                                                                 class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                                 style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+                                                                <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center justify-content-between gap-3">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <span class="fw-bold text-success unit-price"
+                                                                      data-price="@product.FinalPrice">
+                                                                    ₹@product.FinalPrice
+                                                                </span>
+
+                                                                <div class="qty-stepper d-flex align-items-center">
+                                                                    <button type="button"
+                                                                            class="btn btn-warning btn-sm qty-btn decrease"
+                                                                            data-id="@product.ProductId"
+                                                                            data-price="@product.FinalPrice">
+                                                                        <i class="bi bi-dash"></i>
+                                                                    </button>
+
+                                                                    <span class="qty-value">@product.Quantity</span>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-warning btn-sm qty-btn increase"
+                                                                            data-id="@product.ProductId"
+                                                                            data-price="@product.FinalPrice">
+                                                                        <i class="bi bi-plus"></i>
+                                                                    </button>
+                                                                </div>
+
+                                                                <span class="fw-bold text-success total-price tot_@product.ProductId">
+                                                                    ₹@(product.FinalPrice* product.Quantity)
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card border-warning shadow-sm text-center mt-4">
+                        <div class="card-body rounded">
+                            <div class="mb-2">
+                                <i class="bi bi-folder-x fs-1 text-warning"></i>
+                            </div>
+
+                            <h4 class="fw-bold text-dark mb-1">No Product Available</h4>
+                            <br />
+                            <a asp-controller="Customer"
+                               asp-action="Products"
+                               class="btn btn-warning fw-semibold shadow-sm">
+                                Home
+                            </a>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            @if (Model.Any())
+            {
+                <form asp-controller="Order" asp-action="PlaceOrder" method="post">
+                    <div class="accordion order-acc">
+                        <div class="accordion-item mb-3">
+                            <button class="accordion-button bg-warning text-dark fw-bold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseId"
+                                    aria-expanded="true">
+                                Order
+                            </button>
+
+                            <div id="collapseId" class="accordion-collapse collapse show">
+                                <div class="accordion-body alert alert-warning">
+                                    <div class="row g-3">
+                                        @if (TempData["ErrorMessage"] != null)
+                                        {
+                                            <div class="alert alert-danger">
+                                                @TempData["ErrorMessage"]
+                                            </div>
+                                        }
+                                        <!-- Address Inputs -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Mobile Number</label>
+                                            <input type="text"
+                                                   name="MobileNumber"
+                                                   class="form-control"
+                                                   placeholder="Mobile Number"
+                                                   required
+                                                   maxlength="10"
+                                                   pattern="[0-9]{10}"
+                                                   inputmode="numeric"
+                                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" />
+
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Flat Number</label>
+                                            <input type="text"
+                                                   name="FlatNumber"
+                                                   class="form-control"
+                                                   placeholder="e.g. 101"
+                                                   required
+                                                   maxlength="5"
+                                                   pattern="[0-9]{1,5}"
+                                                   inputmode="numeric"
+                                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);" />
+
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Wing</label>
+                                            <input type="text"
+                                                   name="Wing"
+                                                   class="form-control"
+                                                   placeholder="e.g. A, B, East"
+                                                   required
+                                                   pattern="[A-Za-z0-9\- ]+"
+                                                   oninput="this.value = this.value.replace(/[^A-Za-z0-9\- ]/g, '');" />
+
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Society Name</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   placeholder="e.g. 101"
+                                                   value="@ViewBag.SocietyName"
+                                                   required readonly disabled />
+                                        </div>
+
+                                        <!-- Total Card -->
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Order Value</label>
+                                            <div class="card shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="fw-bold">Total</span>
+                                                        <span id="totalValueLabel" class="fw-bold text-end">Value</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Submit Button -->
+                                        <div class="col-12 d-flex align-items-center justify-content-end">
+                                            <button type="submit"
+                                                    class="btn btn-warning text-dark fw-semibold">
+                                                Place Order
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            }
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+    const count = document.querySelectorAll('.product-card').length;
+    });
+
+    $(document).on('click', '.qty-btn', function (e) {
+        e.preventDefault();
+
+        const $btn = $(this);
+        const productId = $btn.data('id');
+        const price=$btn.data('price');
+        const isIncrease = $btn.hasClass('increase');
+        const $qtyValue = $btn.closest('.qty-stepper').find('.qty-value');
+
+        let currentQty = parseInt($qtyValue.text(), 10);
+        let newQty = isIncrease ? currentQty + 1 : currentQty - 1;
+
+        // Prevent quantity going below 1
+        if (newQty > 0)
+        {
+            // Optional: disable buttons while processing
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: '/Cart/UpdateCartQuantity',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: newQty,
+                    isIncrease : isIncrease
+                },
+                success: function (res) {
+                    if (res) {
+                        $qtyValue.text(newQty);
+
+                        const element = document.querySelector(`.tot_${productId}`);
+                        if (element) {
+                            element.textContent = newQty * price ;
+                            element.textContent = `₹${element.textContent}`;
+
+                            const span = document.getElementById("spnCartCount");
+                            let currentCount = parseInt(span.textContent, 10) || 0;
+                            span.textContent = isIncrease ? currentCount + 1 : currentCount - 1;
+                        }
+                    } else {
+                        location.reload();
+                    }
+                    calculateTotalPrice();
+                },
+                error: function () {
+                    location.reload();
+                },
+                complete: function () {
+                    $btn.prop('disabled', false);
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.cart-remove-icon', function (e) {
+        e.preventDefault();
+        const $icon = $(this);
+        const productId = $icon.data('id');
+
+        $.ajax({
+            url: '/Cart/RemoveProductFromCart',
+            type: 'POST',
+            data: {
+                id: productId
+            },
+            success: function (res) {
+                if (res) {
+
+                    const el = document.querySelector(`.prd${productId}`);
+                    if (el) {
+                        el.remove(); // removes from UI
+                        const count = document.querySelectorAll('.product-card').length;
+
+                        if (count === 0)
+                        {
+                            const accordion = document.querySelector('.product-cart'); // parent element
+
+                            if (accordion)
+                            {
+                                accordion.innerHTML = `
+                                <div class="card border-warning shadow-sm text-center mt-4">
+                                    <div class="card-body rounded">
+
+                                        <div class="mb-2">
+                                            <i class="bi bi-folder-x fs-1 text-warning"></i>
+                                        </div>
+
+                                        <h4 class="fw-bold text-dark mb-1">
+                                            No Product Available
+                                        </h4>
+
+                                        <br />
+
+                                        <a href="/Customer/Products"
+                                        class="btn btn-warning fw-semibold shadow-sm">
+                                        Home
+                                        </a>
+                                    </div>
+                                </div>
+                                `;
+                            }
+
+                            const orderACc = document.querySelector('.order-acc'); // parent element
+
+                            if (orderACc)
+                            {
+                                orderACc.innerHTML = '';
+
+                            }
+                        }
+                        $.ajax({
+                            url: '/Cart/GetUpdatedCartCountSession',
+                            type: 'POST',
+                            success: function(cartCount) {
+                                const span = document.getElementById("spnCartCount");
+                                span.textContent = cartCount;
+                            },
+                        });
+                    }
+                } else {
+                    location.reload();
+                }
+                calculateTotalPrice();
+            },
+            error: function () {
+                location.reload();
+                calculateTotalPrice();
+            }
+
+        });
+    });
+
+    function calculateTotalPrice() {
+        let total = 0;
+
+        document.querySelectorAll('.total-price').forEach(span => {
+            // Get text like "₹1234"
+            let value = span.textContent
+                .replace('₹', '')
+                .replace(/,/g, '')
+                .trim();
+
+            total += parseFloat(value) || 0;
+        });
+
+        // Update the total label
+        document.getElementById('totalValueLabel').textContent = '₹' + total.toFixed(2);
+    }
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', calculateTotalPrice);
+</script>

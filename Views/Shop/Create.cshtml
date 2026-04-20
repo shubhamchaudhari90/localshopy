@@ -1,56 +1,92 @@
-﻿@model localshopyNew.Models.Shop
+﻿@model Shop
+@{
+    ViewData["Title"] = "Add Shop";
+}
 
-<h2>Create Shop</h2>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Add Shop</h2>
+        </div>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+        <div class="card-body animate__animated animate__fadeInUp">
+
+            <form asp-action="Create" method="post" class="animate__animated animate__fadeInUp">
+                @if (ViewData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @ViewData["ErrorMessage"]
+                    </div>
+                }
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNo" class="form-label"></label>
+                    <input asp-for="PhoneNo" class="form-control" maxlength="10" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AlternateNumber" class="form-label"></label>
+                    <input asp-for="AlternateNumber" class="form-control" maxlength="10" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="OwnerEmailId" class="form-label"></label>
+                    <input asp-for="OwnerEmailId" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Locations</label>
+
+                    <div class="border rounded p-3">
+                        @foreach (var location in ViewBag.LocationList)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="ServedLocations"
+                                       value="@location.Value"
+                                       id="loc_@location.Value"
+                                       @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
+
+                                <label class="form-check-label" for="loc_@location.Value">
+                                    @location.Text
+                                </label>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-warning">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
     </div>
+</div>
+<script>
+    function updateStatusText() {
+        const checkbox = document.getElementById('isOpenSwitch');
+        const label = document.getElementById('isOpenLabel');
 
-    <div class="form-group">
-        <label>Phone No.</label>
-        <textarea asp-for="PhoneNo" class="form-control"></textarea>
-    </div>
+        label.textContent = checkbox.checked
+            ? 'Shop is Open'
+            : 'Shop is Close';
+    }
 
-    <div class="form-group">
-        <label class="form-label d-block">Select Locations</label>
-
-        @foreach (var location in ViewBag.Locations as List<string>)
-        {
-            bool isChecked = Model?.ServedLocations?.Contains(location) == true;
-
-            <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       name="ServedLocations"
-                       value="@location"
-                       id="loc_@location.Replace(" ", "_")"
-                       @(isChecked ? "checked" : "") />
-
-                <label class="form-check-label"
-                       for="loc_@location.Replace(" ", "_")">
-                    @location
-                </label>
-            </div>
-        }
-    </div>
-
-
-    <div class="form-group">
-        <label>Owner Email</label>
-        <input asp-for="OwnerEmailId" type="email" class="form-control" />
-        <span asp-validation-for="OwnerEmailId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Create Shop</button>
-</form>
-
-<div asp-validation-summary="All" class="text-danger"></div>
+    // Run on page load (important for Edit view)
+    document.addEventListener('DOMContentLoaded', updateStatusText);
+</script>

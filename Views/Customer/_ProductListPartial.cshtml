@@ -1,0 +1,347 @@
+﻿@using localshopyNew.Constants
+@using localshopyNew.ViewModel
+@model IEnumerable<ProductViewModel>
+
+@{
+    var groupedProducts = Model
+        .GroupBy(p => p.CategoryName ?? "Other")
+        .ToList();
+
+    var showCartImage = false;
+    var isShopkeeper = false;
+    if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        showCartImage = true;
+    }
+
+    if (User != null && User.IsInRole(RoleConstants.Shopkeeper))
+    {
+        isShopkeeper = true;
+    }
+
+}
+
+@if (groupedProducts.Any())
+{
+    <div class="accordion" id="productCategoryAccordion">
+
+        @foreach (var group in groupedProducts.Select((g, idx) => new { g, idx }))
+        {
+            var category = group.g.Key;
+            var index = group.idx;
+            var collapseId = $"collapse-{index}";
+            var headingId = $"heading-{index}";
+            var products = group.g.OrderBy(x => Guid.NewGuid()).ToList();
+
+            <div class="accordion-item mb-2">
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button bg-warning text-dark fw-bold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="true">
+                        @category (@products.Count())
+                    </button>
+                </h2>
+
+                <div id="@collapseId" class="accordion-collapse collapse show">
+                    <div class="accordion-body alert alert-warning">
+
+                        <div class="row g-3">
+                            @foreach (var product in products)
+                            {
+                                bool discountActive =
+                                product.Discount > 0 &&
+                                product.DiscountValidFrom.HasValue &&
+                                product.DiscountValidTill.HasValue &&
+                                DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                                DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                                string cardClass = product.IsAvailable
+                                ? ""
+                                : "border-secondary bg-secondary bg-opacity-10";
+
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm @cardClass">
+                                        <div class="row g-0 h-100">
+
+                                            <div class="col-4 p-2">
+
+                                                <!-- Product Card -->
+                                                <div class="ratio ratio-1x1">
+
+                                                    <!-- Product Image -->
+                                                    @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                    {
+                                                        <img src="~/uploads/products/@product.ImageFileName"
+                                                             class="card-img-top img-fluid" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="d-flex align-items-center justify-content-center bg-light text-muted w-100" style="aspect-ratio: 1/1;">
+                                                            <i class="bi bi-image fs-3"></i>
+                                                        </div>
+                                                    }
+
+                                                    @if (!isShopkeeper)
+                                                    {
+                                                        @if (showCartImage)
+                                                        {
+                                                            <!-- Add to Cart Button (Half Over Image) -->
+                                                            @if (product.IsAddedToCart)
+                                                            {
+                                                                <div role="button"
+                                                                     class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id"
+                                                                     data-shop="@product.ShopName"
+                                                                     data-product="@product.ProductMasterName"
+                                                                     data-productid="@product.Id">
+                                                                    <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
+                                                                </div>
+
+                                                                <button type="button"
+                                                                        class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id d-none"
+                                                                        style="width:60px; height:26px; z-index:10;"
+                                                                        data-shop="@product.ShopName"
+                                                                        data-product="@product.ProductMasterName"
+                                                                        data-productid="@product.Id">
+                                                                    <i class="bi bi-cart-plus icon-cart fs-4"></i>
+                                                                </button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div role="button"
+                                                                     class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle div_@product.Id d-none"
+                                                                     data-shop="@product.ShopName"
+                                                                     data-product="@product.ProductMasterName"
+                                                                     data-productid="@product.Id">
+                                                                    <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
+                                                                </div>
+
+                                                                <button type="button"
+                                                                        class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle add-to-cart btn_@product.Id"
+                                                                        data-shop="@product.ShopName"
+                                                                        data-product="@product.ProductMasterName"
+                                                                        data-productid="@product.Id">
+                                                                    <i class="bi bi-cart-plus icon-cart fs-4"></i>
+                                                                </button>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a asp-controller="Account"
+                                                               asp-action="Login"
+                                                               class="btn  border-dark btn-warning btn-sm position-absolute cart-options-icons translate-middle login-required-btn">
+                                                                <i class="bi bi-cart-x icon-cart fs-4"></i>
+                                                            </a>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <!-- Product Data -->
+                                            <div class="col d-flex flex-column p-2">
+
+                                                <!-- PRODUCT NAME (SINGLE LINE) -->
+                                                <a asp-controller="Customer"
+                                                   asp-action="ProductDetail"
+                                                   asp-route-shopProductName="@product.ShopName.Replace("'", "--").Replace(" ", "_")~@product.ProductMasterName.Replace("'", "--").Replace(" ", "_")"
+                                                   class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
+                                                   style="white-space: nowrap;">
+                                                    @product.ProductMasterName
+                                                </a>
+
+                                                <!-- SHOP NAME + TYPE (SAME LINE) -->
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <a asp-controller="Customer"
+                                                       asp-action="ShopDetails"
+                                                       asp-route-shopName="@product.ShopName.Replace("'", "--").Replace(" ", "_")"
+                                                       class="fw-semibold text-secondary text-decoration-underline text-truncate d-block"
+                                                       style="max-width: calc(100% - 26px); white-space: nowrap;"
+                                                       title="@product.ShopName">
+                                                        @product.ShopName
+                                                    </a>
+
+                                                    @{
+                                                        string typeColor =
+                                                        product.Type == "Veg" ? "var(--bs-success)" :
+                                                        product.Type == "Egg" ? "var(--bs-warning)" :
+                                                        product.Type == "Non-Veg" ? "var(--bs-danger)" :
+                                                        "";
+                                                    }
+
+                                                    <!-- Type Icon -->
+                                                    <div title="@product.Type"
+                                                         class="d-flex align-items-center justify-content-center flex-shrink-0"
+                                                         style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
+
+                                                        <div style="width:10px; height:10px; border-radius:50%; background-color:@typeColor;">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <!-- RATING (LEFT) + PRICE (RIGHT) -->
+                                                <div class="d-flex align-items-center justify-content-between">
+
+                                                    <!-- ⭐ Rating -->
+                                                    <div class="d-flex align-items-center">
+                                                        @if (product.AverageRating > 0)
+                                                        {
+                                                            <span class="text-warning me-1" style="font-size:13px;">
+                                                                @{
+                                                                    int fullStars = (int)Math.Floor(product.AverageRating);
+                                                                    bool halfStar = product.AverageRating - fullStars >= 0.5;
+
+                                                                    for (int i = 1; i <= 5; i++)
+                                                                    {
+                                                                        if (i <= fullStars)
+                                                                        {
+                                                                            <i class="bi bi-star-fill"></i>
+                                                                        }
+                                                                        else if (i == fullStars + 1 && halfStar)
+                                                                        {
+                                                                            <i class="bi bi-star-half"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="bi bi-star"></i>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </span>
+
+                                                            @if (product.ReviewCount > 0)
+                                                            {
+                                                                <small class="text-muted">(@product.ReviewCount)</small>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="text-muted mb-0">No reviews.</p>
+                                                        }
+                                                    </div>
+
+                                                    <!-- 💰 Price -->
+                                                    <div class="text-end">
+                                                        @if (discountActive)
+                                                        {
+                                                            <span class="text-muted text-decoration-line-through small me-1">
+                                                                ₹@product.Price
+                                                            </span>
+                                                        }
+                                                        <span class="fw-bold text-success">
+                                                            ₹@product.FinalPrice
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Accordion Script -->
+    <script>
+
+        $(document).on("click", ".add-to-cart", function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $btn = $(this);
+
+            if ($btn.data("loading")) return;
+
+            $btn.data("loading", true);
+
+            var shopName = $(this).data("shop");
+            var productName = $(this).data("product");
+            var productId = $(this).data("productid");
+            $.ajax({
+                url: '/Cart/AddProductToCart',
+                type: 'POST',
+                data: {
+                    shopName: shopName,
+                    productName: productName
+                },
+                success: function (response) {
+                    if (response) {
+                        toggleCart(productId);
+
+                        const span = document.getElementById("spnCartCount");
+                        let currentCount = parseInt(span.textContent, 10) || 0;
+                        span.textContent = currentCount + 1;
+
+                    }
+                    else{
+                        location.reload();
+                    }
+                },
+                error: function (xhr) {
+                    location.reload();
+                }
+             });
+        });
+
+        function toggleCart(productId) {
+            const addBtn = document.getElementsByClassName(`btn_${productId}`)[0];
+            const addedDiv = document.getElementsByClassName(`div_${productId}`)[0];
+
+            if (!addBtn || !addedDiv) return;
+
+            addBtn.classList.toggle("d-none");
+            addedDiv.classList.toggle("d-none");
+        }
+
+
+        function initializeAccordionPartial() {
+            const toggleBtn = document.getElementById("toggleAllBtn");
+            const accordionEls = document.querySelectorAll(".accordion-collapse");
+
+            if (!toggleBtn || accordionEls.length === 0) return;
+
+            const collapses = Array.from(accordionEls).map(el =>
+                new bootstrap.Collapse(el, { toggle: false })
+            );
+
+            function updateButtonText() {
+                const openCount = document.querySelectorAll(".accordion-collapse.show").length;
+                toggleBtn.innerHTML = openCount > 0
+                    ? '<i class="bi bi-arrows-collapse"></i> Collapse All'
+                    : '<i class="bi bi-arrows-expand"></i> Expand All';
+            }
+
+            toggleBtn.addEventListener("click", function () {
+                const expand = document.querySelectorAll(".accordion-collapse.show").length === 0;
+                collapses.forEach(c => expand ? c.show() : c.hide());
+                setTimeout(updateButtonText, 200);
+            });
+
+            accordionEls.forEach(el => {
+                el.addEventListener("shown.bs.collapse", updateButtonText);
+                el.addEventListener("hidden.bs.collapse", updateButtonText);
+            });
+
+            updateButtonText();
+        }
+
+        initializeAccordionPartial();
+    </script>
+}
+else
+{
+    <div class="card border-warning shadow-sm text-center">
+        <div class="card-body alert alert-warning mb-0 rounded">
+            <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
+            <h5 class="fw-bold text-dark mt-2">No product found.</h5>
+            <p class="text-muted mb-0">Please try to change criteria.</p>
+        </div>
+    </div>
+}

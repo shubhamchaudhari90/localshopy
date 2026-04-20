@@ -1,0 +1,391 @@
+﻿@using localshopyNew.ViewModel
+@model ShopProductsViewModel
+@{
+    var daysLeft = (Model.Shop.AccountValidTill.Date - DateTime.Today).Days;
+
+    string shopAlertClass;
+    string shopAlertText;
+
+    if (daysLeft < 0)
+    {
+        shopAlertClass = "alert alert-danger d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = " (Expired)";
+    }
+    else if (daysLeft <= 5)
+    {
+        shopAlertClass = "alert alert-warning d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = $" ({daysLeft} day{(daysLeft > 1 ? "s" : "")} left)";
+    }
+    else
+    {
+        shopAlertClass = "d-inline-block py-1 px-2 mb-0 fw-bold";
+        shopAlertText = "";
+    }
+}
+
+@{
+    ViewData["Title"] = Model.Shop.Name ?? "Shop Details";
+}
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm animate__animated animate__fadeInUp w-100" style="max-width: 1100px;">
+        <div class="card-body p-4">
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <!-- Shop Name -->
+                <div class="animate__animated animate__fadeInDown fw-bold"
+                     style="font-size: 2.2rem; line-height: 1.2;">
+                    @Model.Shop.Name
+                </div>
+            </div>
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <div style="border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; font-family: Arial, sans-serif; background-color: #fafafa;">
+                        <p style="margin: 0 0 8px 0; font-weight: bold; color: #333;">
+                            ⚠️ @TempData["ErrorMessage"]
+                        </p>
+                        <ul style="margin: 0; padding-left: 20px; color: #555;">
+                            <li><strong>Deliver</strong> all orders</li>
+                            <li>OR mark them as <strong>Pre-Order</strong></li>
+                        </ul>
+                    </div>
+
+                </div>
+            }
+            <!-- Shop Details -->
+            <div class="row mb-4">
+
+                <div class="col-md-6 d-flex justify-content-between align-items-center">
+
+                    <!-- Left: Status -->
+                    <div class="d-flex align-items-center gap-1">
+                        <strong>Status:</strong>
+                        <span class="@(Model.Shop.IsOpen ? "text-success" : "text-danger") fw-bold d-flex align-items-center gap-1">
+                            @(Model.Shop.IsOpen ? "Open" : "Closed")
+                            @if (Model.Shop.IsOpen)
+                            {
+                                <i class="bi bi-unlock text-success" title="Shop Open"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-lock-fill text-danger" title="Shop Closed"></i>
+                            }
+                        </span>
+                    </div>
+
+                    <!-- Right: Edit button -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="form-check form-switch warning-toggle">
+                            <input asp-for="@Model.Shop.IsOpen"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   id="isOpenSwitch"
+                                   onchange="switchStatus()" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <p>
+                        <strong>Valid Till:</strong>
+                        <span class="@shopAlertClass">
+                            @Model.Shop.AccountValidTill.ToString("dd-MMM-yyyy")
+                            @shopAlertText
+                        </span>
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <p><strong>Phone:</strong> @Model.Shop.PhoneNo</p>
+                </div>
+
+                <div class="col-md-6">
+                    <p><strong>Alternate No:</strong> @Model.Shop.AlternateNumber</p>
+                </div>
+
+                <div class="col-md-6">
+                    <p><strong>Address:</strong> @Model.Shop.Address</p>
+                </div>
+
+                <div class="col-md-6">
+                    <p><strong>Email:</strong> @Model.Shop.OwnerEmailId</p>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-between align-items-center">
+
+                    <!-- Left: Status -->
+                    <div class="d-flex align-items-center gap-1">
+                        <p>
+                            <strong>Locations:</strong> @string.Join(" | ", Model.Locations)
+                        </p>
+                    </div>
+
+                    <!-- Right: Edit button -->
+                    <p>
+                        <a href="@Url.Action("Edit", "Shopkeeper")"
+                           class="btn  border-dark btn-sm btn-warning"
+                           title="Edit Shop Details">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            <hr />
+
+            <!-- Product Section Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Products</h4>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <!-- Left: Add Product -->
+                <a class="btn  border-dark btn-warning btn-sm fw-semibold"
+                   href="@Url.Action("AddProduct", "Shopkeeper")">
+                    <i class="bi bi-plus-circle me-1"></i> Add Product
+                </a>
+                @if (Model.Products.Any())
+                {
+                    <!-- Right: Collapse / Expand -->
+                    <button id="toggleAllBtn" class="btn  border-dark btn-outline-warning btn-sm">
+                        <i class="bi bi-arrows-collapse"></i> Collapse All
+                    </button>
+                }
+            </div>
+
+
+            @if (!Model.Products.Any())
+            {
+                <div class="alert alert-info">
+                    <strong>No products found.</strong>
+                </div>
+            }
+            else
+            {
+                // Group products by category
+                var groupedProducts = Model.Products
+                .GroupBy(p => p.CategoryName)
+                .OrderBy(g => g.Key); // optional: order by category name
+
+
+                <div class="accordion" id="categoryAccordion">
+
+                    @foreach (var group in groupedProducts)
+                    {
+                        var categoryId = "category-" + group.Key.Replace(" ", "-"); // unique ID
+                        var itemCount = group.Count();
+
+                        <div class="accordion-item mb-3">
+                            <h2 class="accordion-header" id="@($"{categoryId}-heading")">
+                                <button class="accordion-button text-dark fw-bold"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@categoryId"
+                                        aria-expanded="true"
+                                        aria-controls="@categoryId"
+                                        style="background-color: #ffc107;">
+                                    <!-- Bootstrap warning color -->
+                                    @group.Key (@itemCount)
+                                </button>
+                            </h2>
+
+
+                            <div id="@categoryId" class="accordion-collapse collapse show" aria-labelledby="@($"{categoryId}-heading")" data-bs-parent="#categoryAccordion">
+                                <div class="accordion-body alert alert-warning">
+                                    <div class="row g-3">
+                                        @foreach (var product in group)
+                                        {
+                                            bool discountActive =
+                                            product.Discount > 0 &&
+                                            product.DiscountValidFrom.HasValue &&
+                                            product.DiscountValidTill.HasValue &&
+                                            DateTime.Today >= product.DiscountValidFrom.Value.Date &&
+                                            DateTime.Today <= product.DiscountValidTill.Value.Date;
+
+                                            string productCardClass = product.IsAvailable ? "" : "border-secondary bg-secondary bg-opacity-10";
+
+                                            <div class="col-12 col-md-6 col-lg-4 product-card">
+                                                <div class="card h-100 shadow-sm @productCardClass">
+                                                    <div class="row g-0 h-100">
+
+                                                        <!-- Image Left -->
+                                                        <div class="col-auto p-2">
+
+                                                            <div class="position-relative" style="width:100px; height:100px;">
+
+                                                                <!-- Product Image -->
+                                                                @if (!string.IsNullOrEmpty(product.ImageFileName))
+                                                                {
+                                                                    <img src="~/uploads/products/@product.ImageFileName"
+                                                                         class="img-fluid rounded"
+                                                                         style="width:100%; height:100%; object-fit:cover;" />
+
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="d-flex align-items-center justify-content-center rounded bg-light text-muted"
+                                                                         style="width:100%; height:100%;">
+                                                                        <i class="bi bi-image" style="font-size:2rem;"></i>
+                                                                    </div>
+                                                                }
+
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Content Right -->
+                                                        <div class="col d-flex flex-column p-2">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <h6 class="mb-0 small">@product.ProductMasterName</h6>
+                                                                <span class="fw-semibold @(product.IsAvailable ? "text-success" : "text-danger") small">
+                                                                    @(product.IsAvailable ? "" : "Out of stock")
+                                                                </span>
+                                                            </div>
+
+                                                            <!-- Type Icon -->
+                                                            <div title="@product.Type" class="d-inline-flex align-items-center justify-content-center"
+                                                                 style="
+                                                                                width:18px;
+                                                                                height:18px;
+                                                                                            border:2px solid @(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");
+                                                                                border-radius:6px;
+                                                                                background-color:white;">
+
+                                                                <!-- Inner Circle -->
+                                                                <div title="@product.Type" style="
+                                                                                width:10px;
+                                                                                height:10px;
+                                                                                border-radius:50%;
+                                                                                            background-color:@(product.Type == "Veg" ? "var(--bs-success)" : product.Type == "Egg" ? "var(--bs-warning)" : product.Type == "Non-Veg" ? "var(--bs-danger)" : "");">
+                                                                </div>
+                                                            </div>
+
+                                                            <p class="mb-1 text-muted small">@product.Description</p>
+
+                                                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    @if (discountActive)
+                                                                    {
+                                                                        <span class="text-muted text-decoration-line-through small">
+                                                                            ₹@product.Price
+                                                                        </span>
+                                                                        <span class="text-warning fw-semibold small">
+                                                                            (-@product.Discount%)
+                                                                        </span>
+                                                                    }
+                                                                    <span class="fw-bold text-success">
+                                                                        ₹@product.FinalPrice
+                                                                    </span>
+                                                                </div>
+
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <a class="btn  border-dark btn-sm btn-warning p-1"
+                                                                       href="@Url.Action("EditProduct", "Shopkeeper", new { productId = product.Id })"
+                                                                       title="Edit">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </a>
+
+                                                                    <form asp-action="Delete" asp-controller="Shopkeeper" method="post"
+                                                                          onsubmit="return confirm('Are you sure you want to delete this product?');"
+                                                                          class="m-0">
+                                                                        <input type="hidden" name="productId" value="@product.Id" />
+                                                                        <button type="submit"
+                                                                                class="btn  border-dark btn-sm btn-danger p-1"
+                                                                                title="Delete">
+                                                                            <i class="bi bi-trash"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- JS Filter -->
+<script>
+    // Function to initialize accordion behavior
+    function initializeAccordionPartial() {
+        const toggleBtn = document.getElementById("toggleAllBtn");
+        const accordionEls = document.querySelectorAll(".accordion-collapse");
+
+        if (!toggleBtn || accordionEls.length === 0) return;
+
+        // Bootstrap collapse instances
+        const collapses = Array.from(accordionEls).map(el =>
+            new bootstrap.Collapse(el, { toggle: false })
+        );
+
+        function updateButtonText() {
+            const openCount = document.querySelectorAll(".accordion-collapse.show").length;
+            toggleBtn.innerHTML = openCount > 0
+                ? '<i class="bi bi-arrows-collapse"></i> Collapse All'
+                : '<i class="bi bi-arrows-expand"></i> Expand All';
+        }
+
+        // Button click
+        toggleBtn.addEventListener("click", function () {
+            const expand = document.querySelectorAll(".accordion-collapse.show").length === 0;
+            collapses.forEach(c => expand ? c.show() : c.hide());
+            setTimeout(updateButtonText, 200);
+        });
+
+        // Sync button when user clicks individual accordions
+        accordionEls.forEach(el => {
+            el.addEventListener("shown.bs.collapse", updateButtonText);
+            el.addEventListener("hidden.bs.collapse", updateButtonText);
+        });
+
+        updateButtonText();
+    }
+
+    // Call the function immediately if elements already exist
+    initializeAccordionPartial();
+    
+    function switchStatus() {
+        const toggle = document.getElementById("isOpenSwitch");
+
+        fetch('/Shopkeeper/SwitchStatus', {
+            method: 'POST'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Request failed");
+            return res.json();
+        })
+        .then(data => {
+            console.log("Saved");
+        })
+        .catch(err => {
+            console.error(err);
+            // rollback on failure
+            toggle.checked = !isChecked;
+        })
+        .finally(() => {
+            location.reload();
+        });
+    }
+
+</script>

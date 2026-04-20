@@ -1,0 +1,133 @@
+﻿@using localshopyNew.ViewModel
+@model ProductViewModel
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <h2 class="mb-0 animate__animated animate__fadeInDown">Edit Product</h2>
+        </div>
+
+        <div class="card-body animate__animated animate__fadeInUp">
+
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            <form asp-action="EditProduct" method="post" class="animate__animated animate__fadeInUp">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ShopId" />
+
+                <div class="mb-3">
+                    <label asp-for="ShopName" class="form-label"></label>
+                    <input asp-for="ShopName" class="form-control" readonly disabled />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProductMasterName" class="form-label"></label>
+                    <input asp-for="ProductMasterName" class="form-control" readonly disabled />
+                </div>
+
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label">Type <span class="text-danger">*</span></label>
+                    <select id="ddlType" asp-for="Type" class="form-select" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="Veg">Veg</option>
+                        <option value="Egg">Egg</option>
+                        <option value="Non-Veg">Non-Veg</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Discount" class="form-label"></label>
+                    <input asp-for="Discount" class="form-control" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DiscountValidFrom" class="form-label"></label>
+                        <input asp-for="DiscountValidFrom" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DiscountValidTill" class="form-label"></label>
+                        <input asp-for="DiscountValidTill" type="date" class="form-control" />
+                    </div>
+                </div>
+
+                <!-- IsAvailable switch -->
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsAvailable"
+                           class="form-check-input"
+                           type="checkbox"
+                           id="isAvailableSwitch"
+                           onchange="updateAvailabilityText()" />
+
+                    <label class="form-check-label" id="isAvailableLabel" for="isAvailableSwitch">
+                        @(Model.IsAvailable ? "Product is Available" : "Product is Not Available")
+                    </label>
+                </div>
+
+                <!-- IsActive switch -->
+                <div class="mb-3 form-check form-switch">
+                    <input asp-for="IsActive"
+                           class="form-check-input"
+                           type="checkbox"
+                           id="isActiveSwitch"
+                           onchange="updateActiveText()" />
+
+                    <label class="form-check-label" id="isActiveLabel" for="isActiveSwitch">
+                        @(Model.IsActive ? "Product is Active" : "Product is Deleted")
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-warning">Save</button>
+                <a class="btn btn-sm btn-secondary flex-fill"
+                   href="@Url.Action("ShopProducts", new { shopId = Model.ShopId })">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateAvailabilityText() {
+        const checkbox = document.getElementById('isAvailableSwitch');
+        const label = document.getElementById('isAvailableLabel');
+
+        label.textContent = checkbox.checked
+            ? 'Product is Available'
+            : 'Product is Out Of Stock';
+    }
+
+    function updateActiveText() {
+        const checkbox = document.getElementById('isActiveSwitch');
+        const label = document.getElementById('isActiveLabel');
+
+        label.textContent = checkbox.checked
+            ? 'Product is Active'
+            : 'Product is Deleted';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateAvailabilityText();
+        updateActiveText();
+    });
+</script>

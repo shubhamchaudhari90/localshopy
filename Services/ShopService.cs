@@ -1,80 +1,157 @@
-﻿using localshopyNew.Models;
-using System.Text.Json;
+﻿using localshopyNew.Data;
+using localshopyNew.Models;
+using localshopyNew.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Services
 {
-    public class ShopService
+    public class ShopService : IShopService
     {
-        private readonly string _shopFolder;
+        private readonly AppDBContext _context;
 
-        public ShopService(IWebHostEnvironment env)
+        public ShopService(AppDBContext context)
         {
-            _shopFolder = Path.Combine(env.ContentRootPath, "App_Data", "Shops");
-            Directory.CreateDirectory(_shopFolder);
+            _context = context;
         }
 
-        private string GetShopPath(string Name)
-            => Path.Combine(_shopFolder, $"{Name}.json");
-
-        public Shop GetShop(string Name)
+        public async Task<bool> IsShopNameExists(string name)
         {
-            var path = GetShopPath(Name);
-
-            if (!File.Exists(path))
-                throw new FileNotFoundException("Shop not found.");
-
-            var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<Shop>(json)!;
+            return await _context.Shops.AnyAsync(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public List<Shop> GetAllShops()
+        public async Task<bool> IsShopOwnerEmailExists(string ownerEmailId)
         {
-            var shops = new List<Shop>();
-            var files = Directory.GetFiles(_shopFolder, "*.json");
+            return await _context.Shops.AnyAsync(x => x.OwnerEmailId.ToLower() == ownerEmailId.ToLower());
+        }
 
-            foreach (var file in files)
-            {
-                var json = File.ReadAllText(file);
-                var shop = JsonSerializer.Deserialize<Shop>(json);
-                if (shop != null)
-                    shops.Add(shop);
-            }
+        public async Task<Shop?> GetShopById(Guid id)
+        {
+            return await _context.Shops.FirstOrDefaultAsync(x => x.Id == id);
+        }
 
+        public async Task<List<Shop>> GetActiveShops()
+        {
+            var shops = await _context.Shops.Where(x => x.IsActive).OrderBy(x => x.Name).ToListAsync();
             return shops;
         }
 
-        public void CreateShop(Shop shop)
+        public async Task<List<Shop>> GetInActiveShops()
         {
-            var path = GetShopPath(shop.Name);
-
-            if (File.Exists(path))
-                throw new InvalidOperationException("Shop already exists.");
-
-            var json = JsonSerializer.Serialize(shop, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            File.WriteAllText(path, json);
+            var shops = await _context.Shops.Where(x => !x.IsActive).OrderBy(x => x.Name).ToListAsync();
+            return shops;
         }
 
-        public void UpdateShop(Shop shop)
+        public async Task<bool> AddShop(Shop shop)
         {
-            var path = GetShopPath(shop.Name);
-
-            if (!File.Exists(path))
-                throw new FileNotFoundException("Shop not found.");
-
-            Shop existing = GetShop(shop.Name);
-            shop.Products = existing.Products;
-            shop.Id = existing.Id;
-
-            var json = JsonSerializer.Serialize(shop, new JsonSerializerOptions
+            int maxShopNumber = 0;
+            if (await _context.Shops.AsNoTracking().AnyAsync())
             {
-                WriteIndented = true
-            });
+                maxShopNumber = await _context.Shops
+                    .AsNoTracking()
+                    .Select(x => x.ShopNumber)
+                    .MaxAsync();
+            }
 
-            File.WriteAllText(path, json);
+            var nextShopNumber = maxShopNumber + 1;
+
+
+            Shop? existingShop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shop.Name.ToLower() || x.OwnerEmailId.ToLower() == shop.OwnerEmailId.ToLower());
+            if (existingShop != null)
+            {
+                return false;
+            }
+            shop.Id = Guid.NewGuid();
+            shop.CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
+            shop.IsActive = true;
+            shop.AccountValidTill = DateTime.Today.AddMonths(1);
+            shop.OwnerEmailId = shop.OwnerEmailId.ToLower();
+            shop.ShopNumber = nextShopNumber;
+            await _context.AddAsync(shop);
+            int rowsInserted = await _context.SaveChangesAsync();
+            if (rowsInserted > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateShop(Shop shop)
+        {
+            var existingShop = await _context.Shops.FindAsync(shop.Id);
+            if (existingShop == null)
+                return false;
+
+            if (existingShop.Name.ToLower() != shop.Name.ToLower())
+            {
+                bool isNameExists = await IsShopNameExists(shop.Name);
+                if (isNameExists)
+                {
+                    return false;
+                }
+            }
+
+            if (existingShop.OwnerEmailId.ToLower() != shop.OwnerEmailId.ToLower())
+            {
+                bool isShopExists = await IsShopOwnerEmailExists(shop.OwnerEmailId.ToLower());
+                if (isShopExists)
+                {
+                    return false;
+                }
+            }
+
+            existingShop.Name = shop.Name;
+            existingShop.PhoneNo = shop.PhoneNo;
+            existingShop.AlternateNumber = string.IsNullOrEmpty(shop.AlternateNumber) ? "" : shop.AlternateNumber;
+            existingShop.Address = shop.Address;
+            existingShop.OwnerEmailId = shop.OwnerEmailId.ToLower();
+            if (!string.IsNullOrEmpty(shop.Password))
+                existingShop.Password = shop.Password;
+            existingShop.IsOpen = shop.IsOpen;
+            existingShop.ServedLocations = shop.ServedLocations;
+            existingShop.AccountValidTill = shop.AccountValidTill;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteShop(Guid id)
+        {
+            var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == id);
+            if (shop != null)
+            {
+                _context.Shops.Remove(shop);
+                int rowsDeleted = await _context.SaveChangesAsync();
+                if (rowsDeleted > 0)
+                    return true;
+                return false;
+            }
+            return false;
+        }
+
+        public async Task<List<Shop>> GetAllShops()
+        {
+            var shops = await _context.Shops.OrderBy(x => x.Name).ToListAsync();
+            return shops;
+        }
+
+        public async Task ExtendValidity1M(Guid shopId)
+        {
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+            DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
+
+            Shop? shop = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+            if (shop == null)
+                return;
+            if (shop.AccountValidTill <= today)
+            {
+                shop.AccountValidTill = now.AddMonths(1);
+            }
+            else
+            {
+                shop.AccountValidTill = shop.AccountValidTill.AddMonths(1);
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,22 +1,230 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
+
+.add-to-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile smaller button */
+@media (max-width: 576px) {
+    .add-to-cart {
+        width: 36px;
+        height: 36px;
+    }
+
+        .add-to-cart i {
+            font-size: 16px;
+        }
+}
+
+.cart-remove-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.qty-stepper {
+    background: #f8f9fa;
+    border-radius: 999px; /* pill shape */
+    padding: 3px;
+}
+
+
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .qty-btn i {
+        font-size: 14px;
+    }
+
+    .qty-btn:active {
+        transform: scale(0.92);
+    }
+
+.qty-value {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+
+.qty-stepper {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 2px;
+    justify-content: space-between;
+}
+
+.qty-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: #ffc107;
+    font-weight: bold;
+    line-height: 1;
+}
+
+    .qty-btn:active {
+        transform: scale(0.9);
+    }
+
+.qty-value {
+    min-width: 22px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.cart-remove-icon {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .cart-remove-icon:active {
+        transform: scale(0.9);
+    }
+
+/* Cart container */
+.cart-container {
+    position: relative; /* for absolute positioning of count */
+    display: inline-block;
+}
+
+/* Number overlay - half on top-right of cart */
+.cart-count {
+    position: absolute;
+    top: -12%; /* slightly above cart */
+    right: -6%; /* slightly right */
+    transform: translate(50%, -50%); /* center over corner */
+
+    background-color: #ffc107; /* warning-yellow */
+    color: #212529;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    min-width: 25px;
+    text-align: center;
+    border-radius: 50%; /* circle */
+    box-shadow: 0 0 0 2px #fff; /* optional outline */
+}
+
+/* Optional: increase spacing between cart and logout/login */
+.d-flex.ms-auto > * {
+    margin-left: 0.75rem; /* spacing between elements */
+}
+
+
+.cart-badge {
+    font-weight: 800; /* bold */
+    font-size: 1.2rem; /* bigger number */
+    min-width: 28px; /* ensures circle doesn't shrink */
+    padding: 6px 10px; /* space around number */
+    text-align: center;
+    color: #212529; /* dark text for contrast */
+    background-color: #ffc107; /* Bootstrap warning yellow */
+    border-radius: 50%; /* circle */
+    box-shadow: 0 0 0 2px #fff; /* optional outline for contrast */
+    transform: translate(-50%, -25%); /* fine-tuned center over cart */
+}
+
+.progress-slim {
+    height: 6px !important; /* Slim height */
+    border-radius: 10px;
+    background-color: #f1f1f1;
+}
+
+    .progress-slim .progress-bar {
+        border-radius: 10px;
+        transition: width 0.4s ease;
+    }
+
+/* Even slimmer on small screens */
+@media (max-width: 576px) {
+    .progress-slim {
+        height: 4px;
+    }
+}
+
+.cart-options-icons {
+    top: 87% !important;
+    left: 50% !important;
+    width: 48px !important;
+    height: 24px !important;
+    background-color: white;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.icon-cart {
+    left: 27% !important;
+    top: -15% !important;
+    position: absolute !important;
+}
+
+.check-icon-cart {
+    left: 27% !important;
+    top: -15% !important;
+    position: absolute !important;
+}
+
+.warning-toggle .form-check-input {
+    width: 3.2rem;
+    height: 1.6rem;
+    border: 2px solid #ffc107; /* warning */
+    
+    cursor: pointer;
+    box-shadow: none;
+}
+
+    .warning-toggle .form-check-input:checked {
+        
+        border-color: #ffc107;
+    }
+
+    .warning-toggle .form-check-input:focus {
+        box-shadow: 0 0 0 0.15rem rgba(255, 193, 7, 0.4);
+    }
+
+    .warning-toggle .form-check-input:checked::before {
+        background-color: #ffc107;
+    }
+
+    .warning-toggle .form-check-input::before {
+        background-color: #ffc107;
+    }

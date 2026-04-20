@@ -1,0 +1,117 @@
+﻿@model List<ErrorLog>
+
+@{
+    ViewData["Title"] = "Error Logs";
+}
+
+<div class="container mt-3 mt-md-4">
+    <h2 class="mb-3">Error Logs</h2>
+
+    @Html.AntiForgeryToken()
+
+    @if (Model == null || !Model.Any())
+    {
+        <!-- EMPTY STATE -->
+        <div class="text-center mt-5">
+            <div class="text-muted fs-5">No records found</div>
+        </div>
+    }
+    else
+    {
+        <!-- DESKTOP -->
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Time</th>
+                    <th>Message</th>
+                    <th>Path</th>
+                    <th>Method</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td>@log.CreatedAt.ToLocalTime().ToString("g")</td>
+                        <td class="text-danger">@log.Message</td>
+                        <td>@log.Path</td>
+                        <td>@log.Method</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-delete"
+                                    data-id="@log.Id">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MOBILE -->
+    <div class="d-md-none">
+        @foreach (var log in Model)
+        {
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="text-danger fw-bold">@log.Message</div>
+                    <div class="small text-muted">@log.CreatedAt.ToLocalTime()</div>
+                    <div><strong>Path:</strong> @log.Path</div>
+
+                    <button class="btn btn-danger w-100 mt-2 btn-delete"
+                            data-id="@log.Id">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+    }
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).on("click", ".btn-delete", function () {
+
+            var button = $(this);
+            var id = button.data("id");
+
+            if (!confirm("Are you sure you want to delete this log?")) {
+                return;
+            }
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/LogErrors/Delete',
+                type: 'POST',
+                data: {
+                    id: id,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+                    if (res.success) {
+
+                        // remove table row
+                        button.closest("tr").remove();
+
+                        // remove card
+                        button.closest(".card").remove();
+                    }
+                    else {
+                        alert("Delete failed");
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                    alert("Error: " + xhr.status);
+                }
+            });
+        });
+    </script>
+}

@@ -1,30 +1,44 @@
-﻿namespace localshopyNew.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace localshopyNew.Models
 {
     public class Product
     {
-        public required string Name { get; set; }
-        public required string Description { get; set; }
+        public Guid Id { get; set; }
+
+        public Guid ShopId { get; set; }
+
+        public Guid ProductMasterId { get; set; }
+
+        public string Description { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Type is required.")]
+        [RegularExpression("Veg|Non-Veg|Egg", ErrorMessage = "Type must be Veg, Non-Veg, or Egg.")]
+        public required string Type { get; set; } = "Non-Veg";
+
         public int Price { get; set; }
-        public bool IsAvailable { get; set; }
+
         public string? ImageFileName { get; set; }
-        public double Discount { get; set; } // percentage (e.g. 10 = 10%)
+
+        public double Discount { get; set; }
+
         public DateTime? DiscountValidFrom { get; set; }
+
         public DateTime? DiscountValidTill { get; set; }
-        public int FinalPrice
-        {
-            get
-            {
-                var now = DateTime.UtcNow;
 
-                if (Discount <= 0 || DiscountValidFrom == null || DiscountValidFrom == null ||
-                    now < DiscountValidFrom || now > DiscountValidTill)
-                {
-                    return Price;
-                }
+        public required DateTime CreatedAt { get; set; } =
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"));
 
-                var discountAmount = Price * (Discount / 100);
-                return (int)Math.Round(Price - discountAmount);
-            }
-        }
+        public DateTime UpdatedAt { get; set; }
+
+        public int SortOrder { get; set; }
+
+        public bool IsAvailable { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        [NotMapped]
+        public IFormFile? ProductImage { get; set; }
     }
 }

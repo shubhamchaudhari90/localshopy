@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Active Categories";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Categories
+    </h2>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-warning animate__animated animate__fadeInUp"
+           href="@Url.Action("Create")">
+            Add New Category
+        </a>
+
+        <a class="btn btn-secondary animate__animated animate__fadeInUp"
+           href="@Url.Action("Deleted")">
+            Show Removed Categories
+        </a>
+    </div>
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No categories found.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive animate__animated animate__fadeInUp">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Sort Order</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td data-label="Name">
+                                <strong>@cat.Name</strong>
+                            </td>
+
+                            <td data-label="Sort Order">
+                                @cat.SortOrder
+                            </td>
+
+                            <td data-label="Status">
+                                @if (cat.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+
+                            <td class="text-center" data-label="Actions">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a class="btn btn-sm btn-warning"
+                                       href="@Url.Action("Edit", new { id = cat.Id })">
+                                        Edit
+                                    </a>
+                                    <a class="btn btn-sm btn-danger"
+                                       href="@Url.Action("Delete", new { id = cat.Id })">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

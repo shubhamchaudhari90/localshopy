@@ -1,24 +1,74 @@
-﻿@model List<string>
+﻿@using localshopyNew.ViewModel
+@model LocationViewModel
 
-@{
-    ViewData["Title"] = "Select Location";
-}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
 
-<h3>Select Your Location</h3>
+            <div class="card border-0 shadow-sm animate__animated animate__fadeInDown">
+                <div class="card-body p-4 p-md-5">
 
-<form method="post">
-    <div>
-        <label for="location">Location</label><br />
-        <select id="location" name="location" required>
-            <option value="">-- Select Location --</option>
-            @foreach (var loc in Model)
-            {
-                <option value="@loc">@loc</option>
-            }
-        </select>
+                    <!-- Icon -->
+                    <div class="text-center mb-3">
+                        <div class="bg-warning d-inline-flex align-items-center justify-content-center"
+                             style="width:70px;height:70px;">
+                            <i class="bi bi-geo-alt-fill fs-3 text-dark"></i>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <h4 class="text-center fw-bold mb-2">
+                        Select Your Location
+                    </h4>
+
+                    <!-- Subtitle -->
+                    <p class="text-muted text-center mb-4">
+                        Choose a location to see products available near you
+                    </p>
+
+                    <form asp-action="Location" method="post">
+
+                        <!-- Location Dropdown -->
+                        <div class="mb-4">
+                            <label asp-for="SelectedLocationId"
+                                   class="form-label fw-semibold">
+                                Location
+                            </label>
+
+                            <select asp-for="SelectedLocationId"
+                                    asp-items="@(new SelectList(Model.Locations, "Id", "Name"))"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Select Location --</option>
+                            </select>
+
+                            <span asp-validation-for="SelectedLocationId"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit"
+                                    class="btn  border-dark btn-warning btn-lg fw-bold shadow-sm">
+                                <i class="bi bi-arrow-right-circle me-1"></i>
+                                Continue
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Footer Hint -->
+                <div class="card-footer bg-light text-center small text-muted">
+                    Your location helps us show relevant products
+                </div>
+            </div>
+
+        </div>
     </div>
+</div>
 
-    <br />
-
-    <button type="submit" class="btn btn-primary mt-2">Submit</button>
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
