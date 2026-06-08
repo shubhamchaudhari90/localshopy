@@ -24,7 +24,7 @@ namespace localshopyNew.Middleware
                 var log = new ErrorLog
                 {
                     Message = ex.Message,
-                    StackTrace = ex.StackTrace,
+                    StackTrace = ex.StackTrace + " || " + ex.InnerException,
                     Path = context.Request.Path,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -32,8 +32,9 @@ namespace localshopyNew.Middleware
                 db.ErrorLogs.Add(log);
                 await db.SaveChangesAsync();
 
-                context.Response.StatusCode = 500;
-                await context.Response.WriteAsync("Internal Server Error");
+                context.Response.Clear();
+                context.Response.Redirect("/Account/Logout");
+                return;
             }
         }
     }
