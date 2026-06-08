@@ -183,7 +183,7 @@ app.UseExceptionHandler(errorApp =>
                 var log = new ErrorLog
                 {
                     Message = ex.Message,
-                    StackTrace = ex.StackTrace,
+                    StackTrace = ex.StackTrace + " || " + ex.InnerException + "" + ex.Message,
                     Path = exceptionFeature.Path,
                     Method = context.Request.Method,
                     CreatedAt = DateTime.UtcNow
@@ -191,6 +191,9 @@ app.UseExceptionHandler(errorApp =>
 
                 db.ErrorLogs.Add(log);
                 await db.SaveChangesAsync();
+
+                context.Response.Clear();
+                context.Response.Redirect("/Account/Logout");
             }
             catch
             {
