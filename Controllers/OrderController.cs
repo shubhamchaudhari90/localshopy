@@ -10,17 +10,11 @@ using System.Security.Claims;
 namespace localshopyNew.Controllers
 {
     [Authorize]
-    public class OrderController : Controller
+    public class OrderController(ISessionService sessionService, IOrderService orderService) : Controller
     {
-        private readonly ISessionService _sessionService;
-        private readonly IOrderService _orderService;
-        private readonly FirebaseNotificationService _notification;
-        public OrderController(ISessionService sessionService, IOrderService orderService)
-        {
-            _sessionService = sessionService;
-            _orderService = orderService;
-            _notification = new FirebaseNotificationService();
-        }
+        private readonly ISessionService _sessionService = sessionService;
+        private readonly IOrderService _orderService = orderService;
+        private readonly FirebaseNotificationService _notification = new();
 
         [HttpPost]
         public async Task<IActionResult> OrderDetails(Guid id)
@@ -36,7 +30,7 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Order> ordersList = new List<Order>();
+            List<Order> ordersList = [];
             string? email = User.FindFirstValue(ClaimTypes.Email);
             if (!string.IsNullOrEmpty(email))
             {
@@ -52,25 +46,23 @@ namespace localshopyNew.Controllers
 
         public async Task<IActionResult> AllOrders()
         {
-            List<Order> orderList = new List<Order>();
             Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 return RedirectToAction("Login", "Account");
             }
-            orderList = await _orderService.GetAllOrdersByShopId(shopId);
+            List<Order> orderList = await _orderService.GetAllOrdersByShopId(shopId);
             return View(orderList);
         }
 
         public async Task<IActionResult> OrdersToServe()
         {
-            List<Order> orderList = new List<Order>();
             Guid shopId = _sessionService.GetShopId();
             if (shopId == Guid.Empty)
             {
                 return RedirectToAction("Logout", "Account");
             }
-            orderList = await _orderService.OrdersToServe(shopId);
+            List<Order> orderList = await _orderService.OrdersToServe(shopId);
             return View(orderList);
         }
 
@@ -106,13 +98,20 @@ namespace localshopyNew.Controllers
             }
             List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing, mobileNumber);
 
-            List<Guid> orderIds = orders.Select(x => x.Id).ToList();
+            List<Guid> orderIds = [.. orders.Select(x => x.Id)];
 
-            List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
-
-            foreach (ShopkeeperNotificationViewModel token in tokens)
+            try
             {
-                await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
+                List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
+
+                foreach (ShopkeeperNotificationViewModel token in tokens)
+                {
+                    await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
             _sessionService.SetCartCount(0);
             return View("OrderDetails", orders);
@@ -130,8 +129,7 @@ namespace localshopyNew.Controllers
             }
             else
             {
-                List<Guid> orderIds = new List<Guid>();
-                orderIds.Add(id);
+                List<Guid> orderIds = [id];
                 List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
 
                 foreach (ShopkeeperNotificationViewModel token in tokens)
@@ -288,7 +286,7 @@ namespace localshopyNew.Controllers
             {
                 if (string.IsNullOrEmpty(role))
                     role = "User";
-                bool isSaved = await _orderService.SaveToken(emailId, token, role);
+                await _orderService.SaveToken(emailId, token, role);
             }
             return Ok();
         }

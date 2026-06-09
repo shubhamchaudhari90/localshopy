@@ -224,10 +224,15 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseStaticFiles();
 
-//app.UseExceptionHandler("/Home/Error");
-//app.UseHsts();
-//app.UseExceptionHandler("/Error/500");
-//app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == StatusCodes.Status404NotFound)
+    {
+        context.HttpContext.Response.Redirect("/Account/Logout");
+    }
+});
 
 // =======================
 // PIPELINE
