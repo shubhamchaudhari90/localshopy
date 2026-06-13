@@ -1,4 +1,5 @@
 ﻿@model Shop
+
 @{
     ViewData["Title"] = "Edit Shop";
 }
@@ -11,7 +12,7 @@
 
         <div class="card-body animate__animated animate__fadeInUp">
 
-            <form asp-action="Edit" method="post" class="animate__animated animate__fadeInUp">
+            <form asp-action="Edit" method="post">
 
                 @if (ViewData["ErrorMessage"] != null)
                 {
@@ -47,6 +48,7 @@
 
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label"></label>
+
                     <a href="javascript:void(0)"
                        id="lnkEditPassword"
                        class="ms-2 text-warning fw-bold text-decoration-none">
@@ -59,8 +61,7 @@
                            disabled />
                 </div>
 
-
-                <!-- User-friendly IsOpen toggle -->
+                <!-- Open / Close Switch -->
                 <div class="mb-3 form-check form-switch">
                     <input asp-for="IsOpen"
                            class="form-check-input"
@@ -68,47 +69,71 @@
                            id="isOpenSwitch"
                            onchange="updateStatusText()" />
 
-                    <label class="form-check-label" id="isOpenLabel" for="isOpenSwitch">
+                    <label class="form-check-label"
+                           id="isOpenLabel"
+                           for="isOpenSwitch">
                         @(Model.IsOpen ? "Shop is Open" : "Shop is Close")
                     </label>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="AccountValidTill" class="form-label"></label>
-                    <input asp-for="AccountValidTill" type="date" class="form-control" />
+                    <input asp-for="AccountValidTill"
+                           type="date"
+                           class="form-control" />
                 </div>
 
-                <!-- Locations Multi-select checkboxes -->
+                <!-- Locations -->
                 <div class="mb-3">
                     <label class="form-label">Locations</label>
+
                     <div class="border rounded p-3">
+
                         @foreach (var location in ViewBag.LocationList)
                         {
+                            bool isAllIndia =
+                            location.Text.ToString().Trim().Equals(
+                            "All India",
+                            StringComparison.OrdinalIgnoreCase);
+
                             <div class="form-check">
-                                <input class="form-check-input"
+
+                                <input class="form-check-input location-checkbox @(isAllIndia ? "all-india-checkbox" : "")"
                                        type="checkbox"
                                        name="ServedLocations"
                                        value="@location.Value"
                                        id="loc_@location.Value"
                                        @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
 
-                                <label class="form-check-label" for="loc_@location.Value">
+                                <label class="form-check-label"
+                                       for="loc_@location.Value">
                                     @location.Text
                                 </label>
+
                             </div>
                         }
+
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-warning">Save</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-warning">
+                    Save
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Cancel
+                </a>
+
             </form>
+
         </div>
     </div>
 </div>
 
 <script>
+
     function updateStatusText() {
+
         const checkbox = document.getElementById('isOpenSwitch');
         const label = document.getElementById('isOpenLabel');
 
@@ -117,36 +142,84 @@
             : 'Shop is Close';
     }
 
-    // Run on page load to show correct status
-    document.addEventListener('DOMContentLoaded', updateStatusText);
+    document.addEventListener("DOMContentLoaded", function () {
 
-    let isEditingPassword = false;
-    let oldPassword = "";
+        updateStatusText();
 
-    document.getElementById("lnkEditPassword").addEventListener("click", function () {
+        // Password Edit Logic
+        let isEditingPassword = false;
+        let oldPassword = "";
+
+        const editPasswordLink = document.getElementById("lnkEditPassword");
         const passwordInput = document.getElementById("txtPassword");
 
-        if (!isEditingPassword) {
-            // Store old password
-            oldPassword = passwordInput.value;
+        if (editPasswordLink && passwordInput) {
 
-            // Enable editing
-            passwordInput.disabled = false;
-            passwordInput.removeAttribute("readonly");
-            passwordInput.focus();
+            editPasswordLink.addEventListener("click", function () {
 
-            // Update link text
-            this.innerText = "Use Old Password";
-        } else {
-            // Revert to old password
-            passwordInput.value = oldPassword;
-            passwordInput.disabled = true;
+                if (!isEditingPassword) {
 
-            // Update link text back
-            this.innerText = "Click Here";
+                    oldPassword = passwordInput.value;
+
+                    passwordInput.disabled = false;
+                    passwordInput.focus();
+
+                    this.innerText = "Use Old Password";
+
+                } else {
+
+                    passwordInput.value = oldPassword;
+                    passwordInput.disabled = true;
+
+                    this.innerText = "Click Here";
+                }
+
+                isEditingPassword = !isEditingPassword;
+            });
         }
 
-        isEditingPassword = !isEditingPassword;
-    });
-</script>
+        // All India Logic
+        const allIndiaCheckbox =
+            document.querySelector(".all-india-checkbox");
 
+        const checkboxes =
+            document.querySelectorAll(".location-checkbox");
+
+        if (!allIndiaCheckbox)
+            return;
+
+        function toggleLocations() {
+
+            if (allIndiaCheckbox.checked) {
+
+                checkboxes.forEach(function (cb) {
+
+                    if (cb !== allIndiaCheckbox) {
+
+                        cb.checked = true;
+                        cb.disabled = true;
+                    }
+                });
+
+            } else {
+
+                checkboxes.forEach(function (cb) {
+
+                    if (cb !== allIndiaCheckbox) {
+
+                        cb.disabled = false;
+                    }
+                });
+            }
+        }
+
+        allIndiaCheckbox.addEventListener(
+            "change",
+            toggleLocations
+        );
+
+        // Initial Page Load
+        toggleLocations();
+    });
+
+</script>

@@ -78,7 +78,7 @@ namespace localshopyNew.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(string wing, string flatNumber, string mobileNumber)
+        public async Task<IActionResult> PlaceOrder(string wing, string flatNumber, string mobileNumber, string societyAddress)
         {
             TempData["ErrorMessage"] = null;
             if (string.IsNullOrEmpty(wing) || string.IsNullOrEmpty(flatNumber) || string.IsNullOrEmpty(mobileNumber))
@@ -96,7 +96,7 @@ namespace localshopyNew.Controllers
             {
                 return RedirectToAction("Location", "Customer");
             }
-            List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing, mobileNumber);
+            List<Order> orders = await _orderService.PlaceOrder(email, locationId, flatNumber, wing, mobileNumber, societyAddress);
 
             List<Guid> orderIds = [.. orders.Select(x => x.Id)];
 

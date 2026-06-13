@@ -66,8 +66,16 @@ namespace localshopyNew.Controllers
         {
             string? email = User.FindFirstValue(ClaimTypes.Email);
 
+
             if (string.IsNullOrEmpty(email)) { email = string.Empty; }
-            var products = await _customerService.GetProductsByCategories(categories, email);
+
+            Guid location = _sessionService.GetLocation();
+            if (location == Guid.Empty)
+            {
+                return RedirectToAction(nameof(Location));
+            }
+
+            var products = await _customerService.GetProductsByCategories(categories, email, location);
 
             return PartialView("_ProductListPartial", products);
         }

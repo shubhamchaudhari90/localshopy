@@ -13,7 +13,7 @@ namespace localshopyNew.Services.Interfaces
 
         Task<List<Order>> OrdersToServe(Guid shopId);
 
-        Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber);
+        Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber, string societyAddress);
 
         Task<string> Cancel(Guid id);
 

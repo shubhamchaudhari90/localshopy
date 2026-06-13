@@ -210,16 +210,31 @@
                                                    oninput="this.value = this.value.replace(/[^A-Za-z0-9\- ]/g, '');" />
 
                                         </div>
+                                        @if (@ViewBag.SocietyName == "All India")
+                                        {
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Society Address</label>
+                                                <input type="text"
+                                                       name="SocietyAddress"
+                                                       class="form-control"
+                                                       placeholder="Sukhwani Skylines, Wakad, Pune 411057"
+                                                       required
+                                                       pattern="[A-Za-z0-9\- ]+"
+                                                       oninput="this.value = this.value.replace(/[^A-Za-z0-9\- ]/g, '');" />
 
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Society Name</label>
-                                            <input type="text"
-                                                   class="form-control"
-                                                   placeholder="e.g. 101"
-                                                   value="@ViewBag.SocietyName"
-                                                   required readonly disabled />
-                                        </div>
-
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Society Name</label>
+                                                <input type="text"
+                                                       class="form-control"
+                                                       placeholder="e.g. 101"
+                                                       value="@ViewBag.SocietyName"
+                                                       required readonly disabled />
+                                            </div>
+                                        }
                                         <!-- Total Card -->
                                         <div class="col-12">
                                             <label class="form-label fw-semibold">Order Value</label>

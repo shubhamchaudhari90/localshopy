@@ -16,8 +16,11 @@ namespace localshopyNew.Services
             _context = context;
         }
 
-        public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId)
+        public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId, Guid location)
         {
+            var allIndiaLocation = _context.Locations.FirstOrDefault(x => x.Name == "All India");
+            allIndiaLocation ??= new Location() { Name = "", Id = location };
+
             List<ProductViewModel> products = new List<ProductViewModel>();
 
             if (string.IsNullOrEmpty(categories))
@@ -42,6 +45,7 @@ namespace localshopyNew.Services
                 && p.IsAvailable    // AVAILABLE ONLY (NO OUT OF STOCK)
                 && shop.IsOpen      // SHOP SHOULD BE OPEN
                 && shop.AccountValidTill.Date >= DateTime.Today // SHOP ACCOUNT SHOULD BE VALID
+                && (shop.ServedLocations.Contains(location) || shop.ServedLocations.Contains(allIndiaLocation.Id))// SERVED LOCATION BY SHOP
                 && c.IsActive
                 && categoryList.Contains(c.Name)
 
@@ -83,6 +87,9 @@ namespace localshopyNew.Services
 
         public async Task<List<Category>?> GetCategoriesByLocation(Guid locationId)
         {
+            var allIndiaLocation = _context.Locations.FirstOrDefault(x => x.Name == "All India");
+            allIndiaLocation ??= new Location() { Name = "", Id = locationId };
+
             var categories = await (
                 from p in _context.Products
                 join pm in _context.ProductMasters
@@ -99,10 +106,8 @@ namespace localshopyNew.Services
                 && p.IsAvailable    // AVAILABLE ONLY (NO OUT OF STOCK)
                 && shop.IsOpen      // SHOP SHOULD BE OPEN
                 && shop.AccountValidTill.Date >= DateTime.Today // SHOP ACCOUNT SHOULD BE VALID
-                && shop.ServedLocations.Contains(locationId) // SERVED LOCATION BY SHOP
+                && (shop.ServedLocations.Contains(locationId) || shop.ServedLocations.Contains(allIndiaLocation.Id))// SERVED LOCATION BY SHOP
                 && c.IsActive
-
-                //orderby c.Name
 
                 select new Category
                 {
@@ -111,7 +116,7 @@ namespace localshopyNew.Services
                 }).Distinct().ToListAsync();
 
             if (categories != null && categories.Count > 0)
-                categories = categories.OrderBy(c => Guid.NewGuid()).ToList();
+                categories = [.. categories.OrderBy(c => Guid.NewGuid())];
 
             return categories;
         }

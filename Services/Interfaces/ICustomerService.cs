@@ -7,7 +7,7 @@ namespace localshopyNew.Services.Interfaces
     {
         Task<ShopProductsViewModel?> GetShopDetailsByName(string shopName, string emailId);
         Task<ProductViewModel?> GetProductDetailsByName(string shopName, string productName, string emailId);
-        Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId);
+        Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId, Guid location);
         Task<List<Category>?> GetCategoriesByLocation(Guid locationId);
         Task AddReview(Review review);
     }

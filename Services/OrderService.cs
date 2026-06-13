@@ -71,7 +71,7 @@ namespace localshopyNew.Services
             return orders;
         }
 
-        public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber)
+        public async Task<List<Order>> PlaceOrder(string emailId, Guid locationId, string flatNumber, string wing, string mobileNumber, string societyAddress = "")
         {
             TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
             DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone).Date;
@@ -142,6 +142,7 @@ namespace localshopyNew.Services
 
             foreach (var shopGroup in products.GroupBy(x => new { x.ShopId, x.ShopName, x.ShopNumber, x.ShopContactNumber }))
             {
+                var society = string.IsNullOrWhiteSpace(societyAddress) ? $"{location.Name}, {location.Address}" : societyAddress;
                 var count = orderCountByShop.GetValueOrDefault(shopGroup.Key.ShopName, 0) + 1;
 
                 // Calculate subtotal FIRST
@@ -163,10 +164,10 @@ namespace localshopyNew.Services
                     CustomerMobileNumber = mobileNumber,
                     Wing = wing,
                     FlatNumber = flatNumber,
-                    Society = location.Name,
+                    Society = string.IsNullOrWhiteSpace(societyAddress) ? location.Name : societyAddress,
 
-                    BillingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {location.Name}, {location.Address}",
-                    ShippingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {location.Name}, {location.Address}",
+                    BillingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {society}",
+                    ShippingAddress = $"Flat no.: {flatNumber}, Wing: {wing}, Society: {society}",
 
                     PaymentMethod = "CASH/UPI",
 
