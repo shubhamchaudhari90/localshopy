@@ -7,8 +7,6 @@ namespace localshopyNew.Models
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
-        [RegularExpression(@"^[a-zA-Z0-9_ ]+$",
-        ErrorMessage = "Name can only contain letters, numbers, underscores, and spaces.")]
         public required string Name { get; set; }
 
         public string? Address { get; set; }

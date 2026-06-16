@@ -9,8 +9,6 @@ namespace localshopyNew.Models
         public required Guid CategoryId { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
-        [RegularExpression(@"^[a-zA-Z0-9_ ()]+$",
-        ErrorMessage = "Name can only contain letters, numbers, underscores, and spaces.")]
         public required string ProductName { get; set; }
 
         public int SortOrder { get; set; }

@@ -141,25 +141,20 @@
                                             <!-- Product Data -->
                                             <div class="col d-flex flex-column p-2">
 
-                                                <!-- PRODUCT NAME (SINGLE LINE) -->
-                                                <a asp-controller="Customer"
-                                                   asp-action="ProductDetail"
-                                                   asp-route-shopProductName="@product.ShopName.Replace("'", "--").Replace(" ", "_")~@product.ProductMasterName.Replace("'", "--").Replace(" ", "_")"
-                                                   class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
-                                                   style="white-space: nowrap;">
-                                                    @product.ProductMasterName
-                                                </a>
+
 
                                                 <!-- SHOP NAME + TYPE (SAME LINE) -->
                                                 <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <!-- PRODUCT NAME (SINGLE LINE) -->
                                                     <a asp-controller="Customer"
-                                                       asp-action="ShopDetails"
-                                                       asp-route-shopName="@product.ShopName.Replace("'", "--").Replace(" ", "_")"
-                                                       class="fw-semibold text-secondary text-decoration-underline text-truncate d-block"
-                                                       style="max-width: calc(100% - 26px); white-space: nowrap;"
-                                                       title="@product.ShopName">
-                                                        @product.ShopName
+                                                       asp-action="ProductDetail"
+                                                       asp-route-shopProductName="@product.ShopName.Replace("'", "--").Replace(" ", "_")~@product.ProductMasterName.Replace("'", "--").Replace(" ", "_")"
+                                                       class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
+                                                       style="white-space: nowrap;">
+                                                        @product.ProductMasterName
                                                     </a>
+
+
 
                                                     @{
                                                         string typeColor =
@@ -179,6 +174,23 @@
 
                                                     </div>
                                                 </div>
+                                                <a asp-controller="Customer"
+                                                   asp-action="ShopDetails"
+                                                   asp-route-shopName="@product.ShopName.Replace("'", "--").Replace(" ", "_")"
+                                                   class="fw-semibold text-secondary text-decoration-underline text-truncate d-block"
+                                                   style="max-width: calc(100% - 26px); white-space: nowrap;"
+                                                   title="@product.ShopName">
+                                                    @product.ShopName
+                                                </a>
+                                                @if (@product.PackSize > 0)
+                                                {
+                                                    <!-- Quantity -->
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-light text-dark border small px-2 py-1">
+                                                            @product.PackSize <span class="fw-bold">@product.Unit</span>
+                                                        </span>
+                                                    </div>
+                                                }
 
                                                 <!-- RATING (LEFT) + PRICE (RIGHT) -->
                                                 <div class="d-flex align-items-center justify-content-between">

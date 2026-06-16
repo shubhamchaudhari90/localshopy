@@ -61,17 +61,13 @@
                                                     </div>
 
                                                     <div class="col d-flex flex-column p-2">
-                                                        <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
-                                                            @product.ProductName
-                                                        </div>
+                                                        
 
                                                         <div class="d-flex align-items-center justify-content-between mb-1">
-                                                            <div class="fw-semibold text-secondary text-truncate"
-                                                                 style="max-width: calc(100% - 24px); white-space:nowrap;"
-                                                                 title="@product.ShopName">
-                                                                @product.ShopName
+                                                            
+                                                            <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
+                                                                @product.ProductName
                                                             </div>
-
                                                             @{
                                                                 string typeColor =
                                                                 product.Type == "Veg" ? "var(--bs-success)" :
@@ -86,6 +82,22 @@
                                                                 <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
                                                             </div>
                                                         </div>
+
+                                                        <div class="fw-semibold text-secondary text-truncate"
+                                                             style="max-width: calc(100% - 24px); white-space:nowrap;"
+                                                             title="@product.ShopName">
+                                                            @product.ShopName
+                                                        </div>
+
+                                                        @if(@product.PackSize > 0)
+                                                        {
+                                                            <!-- Quantity -->
+                                                            <div class="mb-1">
+                                                                <span class="badge bg-light text-dark border small px-2 py-1">
+                                                                    @product.PackSize <span class="fw-bold">@product.Unit</span>
+                                                                </span>
+                                                            </div>
+                                                        }
 
                                                         <div class="d-flex align-items-center justify-content-between gap-3">
                                                             <div class="d-flex align-items-center gap-2">

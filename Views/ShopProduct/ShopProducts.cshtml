@@ -16,6 +16,7 @@
                 <th>Product Name</th>
                 <th>Type</th>
                 <td>Status</td>
+                <td>PackSize</td>
                 <th>Price</th>
                 <th style="width: 140px;">Actions</th>
             </tr>
@@ -27,6 +28,7 @@
                     <td>@item.ProductMasterName</td>
                     <td>@item.Type</td>
                     <td>@item.IsAvailable</td>
+                    <td>@item.PackSize + " " + @item.PackSize</td>
                     <td>@item.Price.ToString("0.00")</td>
                     <td>
                         <a asp-action="EditProduct"

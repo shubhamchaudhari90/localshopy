@@ -20,6 +20,9 @@ namespace localshopyNew.Models
 
         public string? ImageFileName { get; set; }
 
+        public int PackSize { get; set; }
+        public string Unit { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string Type { get; set; }

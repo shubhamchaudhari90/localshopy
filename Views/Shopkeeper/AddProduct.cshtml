@@ -58,6 +58,31 @@
                     <span asp-validation-for="Type" class="text-danger"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="PackSize" class="form-label">PackSize</label>
+                    <input asp-for="PackSize"
+                           class="form-control"
+                           id="txtQuantity"
+                           maxlength="5"
+                           inputmode="numeric"
+                           pattern="[0-9]+"
+                           min="1"
+                           max="10000"
+                           step="1"
+                           onkeydown="return ['e','E','+','-','.'].includes(event.key) ? false : true;" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Unit" class="form-label">Unit</label>
+                    <select id="ddlUnit" asp-for="Unit" class="form-select" required>
+                        <option value="">-- Select Unit --</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Gram">Gram</option>
+                        <option value="Liter">Liter</option>
+                        <option value="Piece">Piece</option>
+                    </select>
+                </div>
+
                 <!-- Description -->
                 <div class="mb-3">
                     <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>

@@ -11,6 +11,10 @@ namespace localshopyNew.Models
 
         public Guid ProductMasterId { get; set; }
 
+        public int PackSize { get; set; } // e.g. 1, 500
+
+        public string Unit { get; set; } = string.Empty; // Kg, Gm, Ltr, Ml, Piece
+
         public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Type is required.")]

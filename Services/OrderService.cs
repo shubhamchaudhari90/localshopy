@@ -121,7 +121,9 @@ namespace localshopyNew.Services
                     DiscountValidFrom = p.DiscountValidFrom,
                     DiscountValidTill = p.DiscountValidTill,
                     Type = p.Type,
-                    ShopContactNumber = $"{shop.PhoneNo}, {shop.AlternateNumber}"
+                    ShopContactNumber = $"{shop.PhoneNo}, {shop.AlternateNumber}",
+                    PackSize = p.PackSize,
+                    Unit = p.Unit
                 }
             )
             .AsNoTracking()
@@ -200,6 +202,8 @@ namespace localshopyNew.Services
                         TotalPrice = p.FinalPrice * p.Quantity,
                         Type = p.Type,
                         ImageFileName = p.ImageFileName,
+                        PackSize = p.PackSize,
+                        Unit = p.Unit
                     })
                 );
             }

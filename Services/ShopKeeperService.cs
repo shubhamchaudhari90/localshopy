@@ -115,6 +115,8 @@ namespace localshopyNew.Services
                     ProductMasterName = pm.ProductName,
                     CategoryName = c != null ? c.Name : "Other",
                     Type = string.IsNullOrEmpty(p.Type) ? "VEG" : p.Type,
+                    Unit = p.Unit,
+                    PackSize = p.PackSize,
                 }).ToListAsync();
 
             List<string> locations = await _context.Locations.Where(x => shop.ServedLocations.Contains(x.Id)).Select(x => x.Name).ToListAsync();
@@ -196,6 +198,8 @@ namespace localshopyNew.Services
                 existing.DiscountValidTill = product.DiscountValidTill;
                 existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
                 existing.IsActive = true;
+                existing.PackSize = product.PackSize;
+                existing.Unit = product.Unit;
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -221,11 +225,16 @@ namespace localshopyNew.Services
             if (existing != null)
             {
                 string? oldImageFileName = existing.ImageFileName;
+
+                existing.Unit = existing.Unit;
+                existing.PackSize = existing.PackSize;
                 existing.Price = product.Price;
                 existing.IsAvailable = product.IsAvailable;
                 if (!string.IsNullOrEmpty(product.ImageFileName))
                     existing.ImageFileName = product.ImageFileName;
                 existing.Discount = product.Discount;
+                existing.PackSize = product.PackSize;
+                existing.Unit = product.Unit;
                 existing.DiscountValidFrom = product.DiscountValidFrom;
                 existing.DiscountValidTill = product.DiscountValidTill;
                 existing.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata")); ;
@@ -280,6 +289,8 @@ namespace localshopyNew.Services
                 Price = product.Price,
                 IsAvailable = product.IsAvailable,
                 ImageFileName = product.ImageFileName,
+                PackSize = product.PackSize,
+                Unit = product.Unit,
                 Discount = product.Discount,
                 DiscountValidFrom = product.DiscountValidFrom,
                 DiscountValidTill = product.DiscountValidTill,

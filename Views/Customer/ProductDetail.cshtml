@@ -77,6 +77,16 @@
 
                     </div>
 
+                    @if (@Model.PackSize > 0)
+                    {
+                        <!-- Quantity -->
+                        <div class="mb-1">
+                            <span class="badge bg-light text-dark border small px-2 py-1">
+                                @Model.PackSize <span class="fw-bold">@Model.Unit</span>
+                            </span>
+                        </div>
+                    }
+
                     <!-- DESCRIPTION + PRICE -->
                     <div class="d-flex align-items-center justify-content-between">
 

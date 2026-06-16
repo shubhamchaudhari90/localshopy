@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using localshopyNew.Data;
 
@@ -10,9 +11,11 @@ using localshopyNew.Data;
 namespace localshopyNew.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260616081149_AddedSkuData")]
+    partial class AddedSkuData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
@@ -527,16 +530,20 @@ namespace localshopyNew.Migrations
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("PackSize")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("Price")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("ProductMasterId")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SkuName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SortOrder")
