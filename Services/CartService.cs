@@ -60,6 +60,12 @@ namespace localshopyNew.Services
         {
             List<CartViewModel> products = new List<CartViewModel>();
 
+            var allIndiaLocation = await _context.Locations.FirstOrDefaultAsync(x => x.Name == "All India");
+            if (allIndiaLocation == null)
+            {
+                allIndiaLocation = new Location() { Name = "Test", Id = locationId };
+            }
+
             products = await
                 (
                 from cart in _context.Carts.AsNoTracking()
@@ -82,7 +88,7 @@ namespace localshopyNew.Services
                 && shop.IsOpen
                 && shop.AccountValidTill.Date >= DateTime.Today
                 && (c == null || c.IsActive) // ✅ preserve LEFT JOIN
-                && shop.ServedLocations.Contains(locationId)
+                && (shop.ServedLocations.Contains(locationId) || shop.ServedLocations.Contains(allIndiaLocation.Id))
 
                 orderby shop.Name, cart.CreatedAt
 
