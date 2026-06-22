@@ -1,9 +1,12 @@
-﻿using localshopyNew.ViewModel;
+﻿using localshopyNew.Constants;
+using localshopyNew.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 
 namespace localshopyNew.Controllers
 {
+    [Authorize(Roles = RoleConstants.Admin)]
     public class SqlController : Controller
     {
         private readonly IConfiguration _configuration;
