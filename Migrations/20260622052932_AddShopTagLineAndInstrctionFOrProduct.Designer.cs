@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using localshopyNew.Data;
 
@@ -10,9 +11,11 @@ using localshopyNew.Data;
 namespace localshopyNew.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260622052932_AddShopTagLineAndInstrctionFOrProduct")]
+    partial class AddShopTagLineAndInstrctionFOrProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
@@ -449,10 +452,6 @@ namespace localshopyNew.Migrations
                     b.Property<int>("PackSize")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ProductDescription")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("TEXT");
 
@@ -552,6 +551,10 @@ namespace localshopyNew.Migrations
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("SpecialInstructions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -669,6 +672,10 @@ namespace localshopyNew.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ServedLocations")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShopDescription")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

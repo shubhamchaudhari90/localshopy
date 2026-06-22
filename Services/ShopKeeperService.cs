@@ -103,6 +103,7 @@ namespace localshopyNew.Services
                     ShopId = p.ShopId,
                     SortOrder = p.SortOrder,
                     Description = p.Description,
+                    // SpecialInstructions = p.SpecialInstructions,
                     Price = p.Price,
                     IsAvailable = p.IsAvailable,
                     ImageFileName = p.ImageFileName,
@@ -189,6 +190,7 @@ namespace localshopyNew.Services
                 int count = _context.Products.Where(x => x.ShopId == product.ShopId).Max(x => x.SortOrder);
                 existing.SortOrder = count + 1;
                 existing.Description = product.Description;
+                // existing.SpecialInstructions = product.SpecialInstructions;
                 existing.Price = product.Price;
                 existing.Type = product.Type;
                 existing.IsAvailable = product.IsAvailable;

@@ -24,7 +24,7 @@ namespace localshopyNew.Middleware
                 var log = new ErrorLog
                 {
                     Message = ex.Message,
-                    StackTrace = ex.StackTrace + " || " + ex.InnerException + "" + ex.Message,
+                    StackTrace = ex.StackTrace + " || " + ex.InnerException + "" + ex.Message + "" + ex.ToString(),
                     Path = context.Request.Path,
                     CreatedAt = DateTime.UtcNow
                 };

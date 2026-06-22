@@ -11,6 +11,7 @@
         public string ShopALternateNumber { get; set; } = "";
         public string ShopName { get; set; } = "";
         public string ProductName { get; set; } = "";
+        public string ProductDescription { get; set; } = "";
 
         public int PackSize { get; set; }
         public string Unit { get; set; }

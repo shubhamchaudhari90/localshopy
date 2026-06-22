@@ -18,6 +18,8 @@ namespace localshopyNew.Models
 
         public string AlternateNumber { get; set; } = "";
 
+        public string TagLine { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         public required string OwnerEmailId { get; set; }

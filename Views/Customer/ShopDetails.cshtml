@@ -11,11 +11,28 @@
 
             <!-- Header -->
             <div class="text-center mb-4">
-                <!-- Shop Name -->
-                <div class="animate__animated animate__fadeInDown fw-bold fs-2">
+                <div class="fw-bold fs-2 animate__animated animate__fadeInDown">
                     @Model?.Shop?.Name
                 </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model?.Shop?.TagLine))
+                {
+                    <div class="text-secondary animate__animated animate__fadeInUp mt-1 text-secondary" 
+                         style="font-size: 1rem; font-weight: 750; letter-spacing: 1px;">
+                        @Model?.Shop?.TagLine
+                    </div>
+                }
             </div>
+
+            @* <div class="text-center mb-4">
+                @if (!string.IsNullOrWhiteSpace(Model?.Shop?.TagLine))
+                {
+                    <div class="text-secondary animate__animated animate__fadeInUp mt-md-1"
+                         style="font-size: 1rem; font-weight: 500; letter-spacing: 1px;">
+                        @Model?.Shop?.ShopDescription
+                    </div>
+                }
+            </div> *@
 
             @* <!-- Shop Details -->
             <div class="row mb-4">
@@ -199,7 +216,7 @@
                                                             @if (@product.PackSize > 0)
                                                             {
                                                                 <!-- Quantity -->
-                                                                <div class="mb-1">
+                                                                <div class="mb-1 mt-1">
                                                                     <span class="badge bg-light text-dark border small px-2 py-1">
                                                                         @product.PackSize <span class="fw-bold">@product.Unit</span>
                                                                     </span>
@@ -313,9 +330,9 @@
                             data-product="${$btn.data('product')}">
                             <i class="bi bi-cart-check-fill check-icon-cart added-icon fs-4"></i>
                         </div>`;
-                        
+
                         $btn.replaceWith(successHtml);
-                    
+
                         const span = document.getElementById("spnCartCount");
                         let currentCount = parseInt(span.textContent, 10) || 0;
                         span.textContent = currentCount + 1;

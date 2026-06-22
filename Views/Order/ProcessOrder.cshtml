@@ -161,23 +161,48 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-9 d-flex flex-column p-2">
-                                                            <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
-                                                                @item.ProductName
-                                                            </div>
-                                                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                                                @{
-                                                                    string typeColor =
-                                                                    item.Type == "Veg" ? "var(--bs-success)" :
-                                                                    item.Type == "Egg" ? "var(--bs-warning)" :
-                                                                    item.Type == "Non-Veg" ? "var(--bs-danger)" :
-                                                                    "";
-                                                                }
-                                                                <div title="@item.Type"
-                                                                     class="d-flex align-items-center justify-content-center flex-shrink-0"
-                                                                     style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
-                                                                    <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
+                                                            <div class="d-flex justify-content-between align-items-start">
+
+                                                                <div>
+                                                                    <span class="d-inline-flex align-items-center px-2 py-1 text-warning fw-bold text-dark ">
+                                                                        @item.ProductName
+                                                                    </span>
                                                                 </div>
+
+                                                                <!-- Veg / Egg / NonVeg Icon -->
+                                                                @{
+                                                                    var typeColor = item.Type switch
+                                                                    {
+                                                                        "Veg" => "var(--bs-success)",
+                                                                        "Egg" => "var(--bs-warning)",
+                                                                        _ => "var(--bs-danger)"
+                                                                    };
+                                                                }
+
+                                                                <div title="@item.Type"
+                                                                     class="d-inline-flex align-items-center justify-content-center flex-shrink-0 ms-2"
+                                                                     style="width:18px;height:18px;border:2px solid @typeColor;border-radius:4px;background:white;">
+
+                                                                    <div style="width:10px;height:10px;border-radius:50%;background-color:@typeColor;">
+                                                                    </div>
+
+                                                                </div>
+
                                                             </div>
+
+                                                            @if (@item.PackSize > 0)
+                                                            {
+                                                                <!-- Quantity -->
+                                                                <div class="mb-1 mt-1">
+                                                                    <span class="badge bg-light text-dark border small px-2 py-1">
+                                                                        @item.PackSize <span class="fw-bold">@item.Unit</span>
+                                                                    </span>
+                                                                </div>
+                                                            }
+                                                            <!-- Description -->
+                                                            <p class="mb-2 text-muted small">
+                                                                @item.ProductDescription
+                                                            </p>
                                                             <div class="d-flex align-items-center justify-content-between gap-3">
                                                                 <div class="d-flex justify-content-between align-items-center gap-2">
                                                                     <div>

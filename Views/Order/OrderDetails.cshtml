@@ -203,27 +203,43 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-9 d-flex flex-column p-2">
-                                                            <div class="fw-bold text-body text-truncate" style="white-space:nowrap;">
-                                                                <a asp-controller="Customer"
-                                                                   asp-action="ProductDetail"
-                                                                   asp-route-shopProductName="@order.ShopName.Replace("'", "--").Replace(" ", "_")~@item.ProductName.Replace("'", "--").Replace(" ", "_")"
-                                                                   class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
-                                                                   style="white-space: nowrap;">
-                                                                    @item.ProductName
-                                                                </a>
-                                                            </div>
-                                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                            <div class="d-flex justify-content-between align-items-start">
+
+                                                                <div>
+                                                                    <a asp-controller="Customer"
+                                                                       asp-action="ProductDetail"
+                                                                       asp-route-shopProductName="@order.ShopName.Replace("'", "--").Replace(" ", "_")~@item.ProductName.Replace("'", "--").Replace(" ", "_")"
+                                                                       class="fw-bold text-body text-decoration-underline d-block text-truncate mb-1"
+                                                                       style="white-space: nowrap;">
+                                                                        @item.ProductName
+                                                                    </a>
+                                                                </div>
+
+                                                                <!-- Veg / Egg / NonVeg Icon -->
                                                                 @{
-                                                                    string typeColor =
-                                                                    item.Type == "Veg" ? "var(--bs-success)" :
-                                                                    item.Type == "Egg" ? "var(--bs-warning)" :
-                                                                    item.Type == "Non-Veg" ? "var(--bs-danger)" :
-                                                                    "";
+                                                                    var typeColor = item.Type switch
+                                                                    {
+                                                                        "Veg" => "var(--bs-success)",
+                                                                        "Egg" => "var(--bs-warning)",
+                                                                        _ => "var(--bs-danger)"
+                                                                    };
                                                                 }
+
                                                                 <div title="@item.Type"
-                                                                     class="d-flex align-items-center justify-content-center flex-shrink-0"
-                                                                     style="width:18px; height:18px; border:2px solid @typeColor; border-radius:6px; background:#fff;">
-                                                                    <div style="width:10px; height:10px; border-radius:50%; background:@typeColor;"></div>
+                                                                     class="d-inline-flex align-items-center justify-content-center flex-shrink-0 ms-2"
+                                                                     style="width:18px;height:18px;border:2px solid @typeColor;border-radius:4px;background:white;">
+
+                                                                    <div style="width:10px;height:10px;border-radius:50%;background-color:@typeColor;">
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                                                    <div>
+                                                                        <strong>Description:</strong> @item.ProductDescription
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex align-items-center justify-content-between gap-3">

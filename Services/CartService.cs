@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Services
 {
-    public class CartService : ICartService
+    public class CartService(AppDBContext context) : ICartService
     {
-        private readonly AppDBContext _context;
-
-        public CartService(AppDBContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDBContext _context = context;
 
         public async Task<bool> AddProductToCart(string productName, string shopName, string emailId)
         {
@@ -31,10 +26,10 @@ namespace localshopyNew.Services
 
                         if (!isExists)
                         {
-                            Cart cart = new Cart() { EmailId = emailId, ProductId = product.Id, Quantity = 1 };
+                            Cart cart = new() { EmailId = emailId, ProductId = product.Id, Quantity = 1 };
                             await _context.Carts.AddAsync(cart);
                             int rows = await _context.SaveChangesAsync();
-                            bool result = rows > 0 ? true : false;
+                            bool result = rows > 0;
                             return result;
                         }
                     }
@@ -58,13 +53,10 @@ namespace localshopyNew.Services
 
         public async Task<List<CartViewModel>> GetCartDetails(string emailId, Guid locationId)
         {
-            List<CartViewModel> products = new List<CartViewModel>();
+            List<CartViewModel> products = [];
 
             var allIndiaLocation = await _context.Locations.FirstOrDefaultAsync(x => x.Name == "All India");
-            if (allIndiaLocation == null)
-            {
-                allIndiaLocation = new Location() { Name = "Test", Id = locationId };
-            }
+            allIndiaLocation ??= new Location() { Name = "Test", Id = locationId };
 
             products = await
                 (

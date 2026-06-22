@@ -1,0 +1,76 @@
+﻿@using localshopyNew.ViewModel
+@model SqlQueryViewModel
+
+@{
+    ViewData["Title"] = "SQL Executor";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            SQL Executor
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">SQL Query</label>
+
+                    <textarea asp-for="Query"
+                              rows="8"
+                              class="form-control"></textarea>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Execute
+                </button>
+
+            </form>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Message))
+            {
+                <div class="alert alert-info mt-3">
+                    @Model.Message
+                </div>
+            }
+
+            @if (Model.Results.Any())
+            {
+                <div class="table-responsive mt-3">
+
+                    <table class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                @foreach (var column in Model.Results.First().Keys)
+                                {
+                                    <th>@column</th>
+                                }
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var row in Model.Results)
+                            {
+                                <tr>
+                                    @foreach (var value in row.Values)
+                                    {
+                                        <td>@value</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

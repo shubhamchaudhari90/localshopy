@@ -18,6 +18,8 @@ namespace localshopyNew.Models
         [MaxLength(200)]
         public string ProductName { get; set; }
 
+        public string ProductDescription { get; set; } = string.Empty;
+
         public string? ImageFileName { get; set; }
 
         public int PackSize { get; set; }

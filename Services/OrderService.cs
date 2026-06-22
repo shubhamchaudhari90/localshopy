@@ -48,7 +48,6 @@ namespace localshopyNew.Services
             return await _context.Orders.AsNoTracking().Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
         }
 
-
         public async Task<List<Order>> GetAllOrdersByShopId(Guid shopId)
         {
             TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
@@ -91,6 +90,9 @@ namespace localshopyNew.Services
             if (location == null)
                 return new();
 
+            var allIndiaLocation = await _context.Locations.FirstOrDefaultAsync(x => x.Name == "All India");
+            allIndiaLocation ??= new Location() { Name = "Test", Id = locationId };
+
             var products = await (
                 from cart in _context.Carts
                 join p in _context.Products on cart.ProductId equals p.Id
@@ -103,7 +105,7 @@ namespace localshopyNew.Services
                       && shop.IsOpen
                       && shop.AccountValidTill.Date >= DateTime.Today
                       && c.IsActive
-                      && shop.ServedLocations.Contains(locationId)
+                      && (shop.ServedLocations.Contains(locationId) || shop.ServedLocations.Contains(allIndiaLocation.Id))
                 select new CartViewModel
                 {
                     ShopId = shop.Id,
@@ -111,6 +113,7 @@ namespace localshopyNew.Services
                     ShopNumber = shop.ShopNumber,
                     ProductId = p.Id,
                     ProductName = pm.ProductName,
+                    ProductDescription = string.IsNullOrEmpty(p.Description) ? "" : p.Description,
                     ProductMasterId = pm.Id,
                     CategoryId = c.Id,
                     CategoryName = c.Name,
@@ -197,6 +200,7 @@ namespace localshopyNew.Services
                         OrderId = order.Id,
                         ProductId = p.ProductId,
                         ProductName = p.ProductName,
+                        ProductDescription = p.ProductDescription,
                         Quantity = p.Quantity,
                         UnitPrice = p.FinalPrice,
                         TotalPrice = p.FinalPrice * p.Quantity,
@@ -452,7 +456,6 @@ namespace localshopyNew.Services
 
             return rowsUpdated > 0;
         }
-
 
         public async Task<List<string>> GetToken(Guid orderID)
         {

@@ -47,6 +47,22 @@
                     <input asp-for="Address" class="form-control" readonly disabled />
                 </div>
 
+                @if (!string.IsNullOrEmpty(Model.TagLine))
+                {
+                    <div class="mb-3">
+                        <label asp-for="TagLine" class="form-label"></label>
+                        <input asp-for="TagLine" class="form-control" readonly disabled />
+                    </div>
+                }
+
+                @* @if (!string.IsNullOrEmpty(Model.ShopDescription))
+                {
+                    <div class="mb-3">
+                        <label asp-for="ShopDescription" class="form-label"></label>
+                        <input asp-for="ShopDescription" class="form-control" readonly disabled />
+                    </div>
+                } *@
+
                 <!-- Owner Email (readonly) -->
                 <div class="mb-3">
                     <label asp-for="OwnerEmailId" class="form-label"></label>
@@ -104,7 +120,7 @@
 </div>
 
 <script>
-   
+
     let isEditingPassword = false;
     let oldPassword = "";
 
