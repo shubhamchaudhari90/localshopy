@@ -48,11 +48,19 @@ namespace localshopyNew.Controllers
             bool isAdded = await _service.AddLocation(location);
             if (isAdded)
             {
-                List<ShopkeeperNotificationViewModel> tokens = await _service.GetShopkeeperTokens();
-
-                foreach (ShopkeeperNotificationViewModel token in tokens)
+                try
                 {
-                    await _notification.SendNotificationAsync(token.FcmToken, "New Location Added", $"New location: {location.Name} added.");
+                    List<ShopkeeperNotificationViewModel> tokens = await _service.GetShopkeeperTokens();
+
+                    foreach (ShopkeeperNotificationViewModel token in tokens)
+                    {
+                        await _notification.SendNotificationAsync(token.FcmToken, "New Location Added", $"New location: {location.Name} added.");
+                    }
+
+                }
+                catch (Exception)
+                {
+
                 }
                 return RedirectToAction(nameof(Index));
             }
