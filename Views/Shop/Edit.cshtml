@@ -189,45 +189,30 @@
         }
 
         // All India Logic
-        const allIndiaCheckbox =
-            document.querySelector(".all-india-checkbox");
-
-        const checkboxes =
-            document.querySelectorAll(".location-checkbox");
+        const allIndiaCheckbox = document.querySelector(".all-india-checkbox");
+        const checkboxes = document.querySelectorAll(".location-checkbox");
 
         if (!allIndiaCheckbox)
             return;
 
         function toggleLocations() {
-
             if (allIndiaCheckbox.checked) {
-
                 checkboxes.forEach(function (cb) {
-
                     if (cb !== allIndiaCheckbox) {
-
                         cb.checked = true;
                         cb.disabled = true;
                     }
                 });
-
             } else {
-
                 checkboxes.forEach(function (cb) {
-
                     if (cb !== allIndiaCheckbox) {
-
                         cb.disabled = false;
                     }
                 });
             }
         }
 
-        allIndiaCheckbox.addEventListener(
-            "change",
-            toggleLocations
-        );
-
+        allIndiaCheckbox.addEventListener("change",toggleLocations);
         // Initial Page Load
         toggleLocations();
     });

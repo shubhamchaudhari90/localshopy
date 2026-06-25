@@ -28,7 +28,9 @@ namespace localshopyNew.Controllers
         private readonly SignInManager<IdentityUser> _signInManager = signInManager;
         private readonly UserManager<IdentityUser> _userManager = userManager;
 
-        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        private readonly string[] allowedExtensions = { ".JPG", ".JPEG", ".PNG", ".GIF" };
+
+        private readonly string[] allowedUnits = { "KG", "GRAM", "LITER", "MILLILITER", "PIECE", "PACK", "PACKET", "BOX", "BOTTLE", "DOZEN", "METER", "CENTIMETER", "FOOT", "SQUAREFOOT", "SQUAREMETER" };
 
         public async Task<IActionResult> ShopDetails()
         {
@@ -183,6 +185,12 @@ namespace localshopyNew.Controllers
                 return View(product);
             }
 
+            if (!string.IsNullOrWhiteSpace(product.Unit) && !allowedUnits.Any(x => x.Equals(product.Unit, StringComparison.OrdinalIgnoreCase)))
+            {
+                ViewData["ErrorMessage"] = "Unit is not valid";
+                return View(product);
+            }
+
             product.ShopId = shopId;
 
             if (product.ProductImage != null && product.ProductImage.Length > 0)
@@ -196,7 +204,7 @@ namespace localshopyNew.Controllers
 
                 // 2. Generate unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
-                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                if (string.IsNullOrWhiteSpace(extension) || !allowedExtensions.Any(x => x.Equals(extension, StringComparison.OrdinalIgnoreCase)))
                 {
                     ViewData["ErrorMessage"] = "Image is not valid";
                     return View(product);
@@ -296,6 +304,12 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("EditProduct", product.Id);
             }
 
+            if (!string.IsNullOrWhiteSpace(product.Unit) && !allowedUnits.Any(x => x.Equals(product.Unit, StringComparison.OrdinalIgnoreCase)))
+            {
+                ViewData["ErrorMessage"] = "Unit is not valid";
+                return View(product);
+            }
+
             if (product.ProductImage != null && product.ProductImage.Length > 0)
             {
                 // 1. Determine the uploads folder in a cross-platform way
@@ -310,10 +324,10 @@ namespace localshopyNew.Controllers
 
                 // 2. Generate a unique filename
                 var extension = Path.GetExtension(product.ProductImage.FileName);
-                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                if (string.IsNullOrWhiteSpace(extension) || !allowedExtensions.Any(x => x.Equals(extension, StringComparison.OrdinalIgnoreCase)))
                 {
-                    TempData["ErrorMessage"] = "Image is not valid";
-                    return RedirectToAction("EditProduct", product.Id);
+                    ViewData["ErrorMessage"] = "Image is not valid";
+                    return View(product);
                 }
 
                 var fileName = Guid.NewGuid() + extension;

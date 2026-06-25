@@ -61,10 +61,31 @@
                     <label asp-for="Unit" class="form-label">Unit</label>
                     <select id="ddlUnit" asp-for="Unit" class="form-select" required>
                         <option value="">-- Select Unit --</option>
-                        <option value="Kg">Kg</option>
-                        <option value="Gram">Gram</option>
-                        <option value="Liter">Liter</option>
+
+                        <!-- Weight -->
+                        <option value="Kg">Kilogram (Kg)</option>
+                        <option value="Gram">Gram (g)</option>
+
+                        <!-- Volume -->
+                        <option value="Liter">Liter (L)</option>
+                        <option value="Milliliter">Milliliter (ml)</option>
+
+                        <!-- Count -->
                         <option value="Piece">Piece</option>
+                        <option value="Pack">Pack</option>
+                        <option value="Packet">Packet</option>
+                        <option value="Box">Box</option>
+                        <option value="Bottle">Bottle</option>
+                        <option value="Dozen">Dozen</option>
+
+                        <!-- Length -->
+                        <option value="Meter">Meter (m)</option>
+                        <option value="Centimeter">Centimeter (cm)</option>
+                        <option value="Foot">Foot (ft)</option>
+
+                        <!-- Area -->
+                        <option value="SquareFoot">Square Foot (sq ft)</option>
+                        <option value="SquareMeter">Square Meter (sq m)</option>
                     </select>
                 </div>
 

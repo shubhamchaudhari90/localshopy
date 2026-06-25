@@ -91,15 +91,21 @@
                     <div class="border rounded p-3">
                         @foreach (var location in ViewBag.LocationList)
                         {
+                            bool isAllIndia =
+                            location.Text.ToString().Trim().Equals(
+                            "All India",
+                            StringComparison.OrdinalIgnoreCase);
+
                             <div class="form-check">
-                                <input class="form-check-input location-checkbox"
+                                <input class="form-check-input location-checkbox @(isAllIndia ? "all-india-checkbox" : "")"
                                        type="checkbox"
                                        name="ServedLocations"
                                        value="@location.Value"
                                        id="loc_@location.Value"
                                        @(Model?.ServedLocations.Contains(Guid.Parse(location.Value)) == true ? "checked" : "") />
 
-                                <label class="form-check-label" for="loc_@location.Value">
+                                <label class="form-check-label"
+                                       for="loc_@location.Value">
                                     @location.Text
                                 </label>
                             </div>
@@ -152,38 +158,32 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
+        // All India Logic
+        const allIndiaCheckbox = document.querySelector(".all-india-checkbox");
         const checkboxes = document.querySelectorAll(".location-checkbox");
-
-        // Find All India checkbox by text
-        const allIndiaCheckbox = [...checkboxes]
-            .find(x => x.dataset.text === "All India");
 
         if (!allIndiaCheckbox)
             return;
 
         function toggleLocations() {
-
-            const isAllIndiaChecked = allIndiaCheckbox.checked;
-
-            checkboxes.forEach(cb => {
-
-                if (cb !== allIndiaCheckbox) {
-
-                    if (isAllIndiaChecked) {
+            if (allIndiaCheckbox.checked) {
+                checkboxes.forEach(function (cb) {
+                    if (cb !== allIndiaCheckbox) {
                         cb.checked = true;
                         cb.disabled = true;
                     }
-                    else {
-                        cb.checked = true;
+                });
+            } else {
+                checkboxes.forEach(function (cb) {
+                    if (cb !== allIndiaCheckbox) {
                         cb.disabled = false;
                     }
-                }
-            });
+                });
+            }
         }
 
-        allIndiaCheckbox.addEventListener("change", toggleLocations);
-
-        // Handle edit mode on page load
+        allIndiaCheckbox.addEventListener("change",toggleLocations);
+        // Initial Page Load
         toggleLocations();
     });
 </script>
