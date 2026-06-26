@@ -7,27 +7,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace localshopyNew.Services
 {
-    public class CustomerService : ICustomerService
+    public class CustomerService(AppDBContext context) : ICustomerService
     {
-        private readonly AppDBContext _context;
-
-        public CustomerService(AppDBContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDBContext _context = context;
 
         public async Task<List<ProductViewModel>?> GetProductsByCategories(string categories, string emailId, Guid location)
         {
             var allIndiaLocation = _context.Locations.FirstOrDefault(x => x.Name == "All India");
             allIndiaLocation ??= new Location() { Name = "", Id = location };
 
-            List<ProductViewModel> products = new List<ProductViewModel>();
+            List<ProductViewModel> products = [];
 
             if (string.IsNullOrEmpty(categories))
             {
                 return products;
             }
-            List<string> categoryList = categories.Split(", ").Take(5).ToList();
+            List<string> categoryList = [.. categories.Split(", ").Take(5)];
 
             products = await (
                 from p in _context.Products
@@ -172,7 +167,7 @@ namespace localshopyNew.Services
                     Type = string.IsNullOrEmpty(p.Type) ? "VEG" : p.Type
                 }).ToListAsync();
 
-            if (products != null && products.Any())
+            if (products != null && products.Count != 0)
                 products = await MapReviewData(products);
 
             if (products != null && products.Count > 0 && !string.IsNullOrEmpty(emailId))
@@ -182,7 +177,7 @@ namespace localshopyNew.Services
 
             var shop = await _context.Shops.FirstOrDefaultAsync(x => x.Name.ToLower() == shopName.ToLower());
 
-            List<string> locations = new List<string>();
+            List<string> locations = [];
 
             if (shop != null)
             {
@@ -232,7 +227,7 @@ namespace localshopyNew.Services
                     isReviewed = await _context.Reviews.AnyAsync(x => x.ProductId == product.Id && x.Reviewer.ToLower() == emailId.ToLower());
             }
 
-            ProductViewModel model = new ProductViewModel()
+            ProductViewModel model = new()
             {
                 Id = product.Id,
                 CategoryName = category.Name,
@@ -274,7 +269,7 @@ namespace localshopyNew.Services
             TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
             DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istZone);
 
-            Review entity = new Review()
+            Review entity = new()
             {
                 Reviewer = review.Reviewer,
                 Comment = review.Comment,
@@ -293,7 +288,7 @@ namespace localshopyNew.Services
         private async Task<List<ReviewViewModel>> AverageRatingsForProducts(string productIds)
         {
             if (string.IsNullOrWhiteSpace(productIds))
-                return new List<ReviewViewModel>();
+                return [];
 
             var productGuidIds = productIds
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -302,10 +297,10 @@ namespace localshopyNew.Services
                 .Select(g => g.Value)
                 .ToList();
 
-            if (!productGuidIds.Any())
-                return new List<ReviewViewModel>();
+            if (productGuidIds.Count == 0)
+                return [];
 
-            List<ReviewViewModel> productRatings = new List<ReviewViewModel>();
+            List<ReviewViewModel> productRatings = [];
 
             productRatings = await _context.Reviews
                 .Where(r => r.IsApproved && productGuidIds.Contains(r.ProductId))
@@ -332,11 +327,11 @@ namespace localshopyNew.Services
 
             if (localPart.Length <= 6)
             {
-                string maskedlocalPart = new string('*', localPart.Length);
+                string maskedlocalPart = new('*', localPart.Length);
                 return $"{maskedlocalPart}@{domain}";
             }
 
-            var start = localPart.Substring(0, 3);
+            var start = localPart[..3];
             var end = localPart.Substring(localPart.Length - 3, 3);
             var masked = new string('*', localPart.Length - 6);
 
@@ -347,7 +342,7 @@ namespace localshopyNew.Services
         {
             if (products != null && products.Count > 0)
             {
-                products = products.OrderBy(p => Guid.NewGuid()).ToList();
+                products = [.. products.OrderBy(p => Guid.NewGuid())];
 
                 var productIdsCsv = string.Join(",", products.Select(x => x.Id));
                 if (!string.IsNullOrEmpty(productIdsCsv))

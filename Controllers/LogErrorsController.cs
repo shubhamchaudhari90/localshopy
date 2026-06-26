@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstant.Admin)]
     public class LogErrorsController : Controller
     {
         private readonly ILogErrorsService _service;

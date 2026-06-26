@@ -1,0 +1,107 @@
+﻿@model IEnumerable<LoggedInUsers>
+
+@{
+    ViewData["Title"] = "Logged In Users";
+}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4 animate__animated animate__fadeInDown">
+        Logged In Users
+    </h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success animate__animated animate__fadeIn">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger animate__animated animate__fadeIn">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info animate__animated animate__fadeIn">
+            <strong>No logged in users found.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive animate__animated animate__fadeInUp">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Email</th>
+                        <th>Login Type</th>
+                        <th>Role</th>
+                        <th>Logged In Time</th>
+                        <th class="text-center" style="width:160px;">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+
+                            <td data-label="Email">
+                                <strong>@user.EmailId</strong>
+                            </td>
+
+                            <td data-label="Login Type">
+                                @user.LoggedInType
+                            </td>
+
+                            <td data-label="Role">
+                                <span class="badge bg-primary">
+                                    @user.Role
+                                </span>
+                            </td>
+
+                            <td data-label="Logged In Time">
+                                @user.LoggedInTime.ToLocalTime().ToString("dd-MMM-yyyy hh:mm:ss tt")
+                            </td>
+
+                            <td class="text-center" data-label="Action">
+
+                                <form asp-action="DeleteLoggedInUser"
+                                      asp-controller="Account"
+                                      method="post"
+                                      onsubmit="return confirm('Are you sure you want to delete this record?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@user.Id" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>

@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstant.Admin)]
     public class SqlController : Controller
     {
         private readonly IConfiguration _configuration;

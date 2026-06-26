@@ -127,7 +127,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IEncodingService, EncodingService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IBlockedUserService, BlockedUserService>();
 builder.Services.AddScoped<ILogErrorsService, LogErrorsService>();
 

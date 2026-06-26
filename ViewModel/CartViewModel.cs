@@ -14,7 +14,7 @@
         public string ProductDescription { get; set; } = "";
 
         public int PackSize { get; set; }
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
 
         public string? ImageFileName { get; set; }
         public int Quantity { get; set; }

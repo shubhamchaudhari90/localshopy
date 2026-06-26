@@ -108,7 +108,7 @@
                         <ul class="navbar-nav flex-column flex-lg-row gap-2 mb-0 align-items-start text-start">
                             @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                             {
-                                @if (User.IsInRole(RoleConstants.Shopkeeper))
+                                @if (User.IsInRole(RoleConstant.Shopkeeper))
                                 {
                                     <li class="nav-item">
                                         <a class="nav-link text-light fw-bold" asp-controller="Shopkeeper" asp-action="ShopDetails">My Shop</a>
@@ -117,35 +117,73 @@
                                         <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="AllOrders">All Orders</a>
                                     </li>
                                 }
-
-                                @if (User.IsInRole(RoleConstants.Admin))
+                                @if (User.IsInRole(RoleConstant.Admin))
                                 {
                                     <li class="nav-item">
                                         <a class="nav-link text-light fw-bold" asp-controller="Review" asp-action="Index">Review</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="Shop" asp-action="Index">All Shops</a>
+                                        <a class="nav-link text-light fw-bold" data-bs-toggle="collapse" href="#mastersMenu" role="button" aria-expanded="false">Masters ▶|</a>
+                                        <div class="collapse" id="mastersMenu">
+                                            <ul class="navbar-nav ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="Location" asp-action="Index">Locations</a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="Category" asp-action="Index">Categories</a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="ProductMaster" asp-action="Index">Product Master</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <!-- System -->
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light fw-bold" data-bs-toggle="collapse" href="#systemMenu">System ▶|</a>
+                                        <div class="collapse" id="systemMenu">
+                                            <ul class="navbar-nav ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="Account" asp-action="LoggedInUsers">Logged In Users</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="LogErrors" asp-action="Index">Log Errors</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light" asp-controller="Sql" asp-action="Index">SQL Console</a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="ShopProduct" asp-action="ShopList">Shop Products</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="ProductMaster" asp-action="Index">Product Master</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="Category" asp-action="Index">Category</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="Location" asp-action="Index">Location</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="Order" asp-action="GetAllOrdersForAdmin">Orders</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="LogErrors" asp-action="Index">Log Errors</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light fw-bold" asp-controller="Sql" asp-action="Index">SQL</a>
+                                        <a class="nav-link text-light fw-bold" data-bs-toggle="collapse" href="#shopMenu">Shop ▶|</a>
+                                        <div class="collapse" id="shopMenu">
+                                            <ul class="navbar-nav ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light"
+                                                       asp-controller="Shop"
+                                                       asp-action="Index">
+                                                        All Shops
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light"
+                                                       asp-controller="ShopProduct"
+                                                       asp-action="ShopList">
+                                                        Shop Products
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-light"
+                                                       asp-controller="Order"
+                                                       asp-action="GetAllOrdersForAdmin">
+                                                        Orders
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </li>
                                 }
                             }
@@ -173,7 +211,7 @@
                 <div class="d-flex align-items-start ms-auto mt-2">
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        @if (User.IsInRole(RoleConstants.Shopkeeper))
+                        @if (User.IsInRole(RoleConstant.Shopkeeper))
                         {
                             <a class="nav-link text-light" asp-controller="Order" asp-action="OrdersToServe">Orders To Serve</a>
                         }
@@ -212,7 +250,7 @@
 
     <footer class="footer text-muted bg-light py- mt-auto">
         <div class="container text-center">
-            &copy; @DateTime.Now.Year All rights reserved by Shubham Rajendra Chaudhari
+            &copy; @DateTime.UtcNow.Year All rights reserved by Shubham Rajendra Chaudhari
         </div>
     </footer>
 

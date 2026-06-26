@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstant.Admin)]
     public class ShopProductController : Controller
     {
         private readonly IShopProductService _shopProductService;

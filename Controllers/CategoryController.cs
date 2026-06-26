@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstant.Admin)]
 
     public class CategoryController : Controller
     {

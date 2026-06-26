@@ -11,17 +11,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace localshopyNew.Controllers
 {
 
-    [Authorize(Roles = RoleConstants.Shopkeeper)]
+    [Authorize(Roles = RoleConstant.Shopkeeper)]
     public class ShopkeeperController(
         IShopkeeperService shopkeeperService,
         IWebHostEnvironment env,
-        IAdminService adminService,
+        IAccountService accountService,
         SignInManager<IdentityUser> signInManager,
         UserManager<IdentityUser> userManager,
         ISessionService sessionService) : Controller
     {
         private readonly IShopkeeperService _shopkeeperService = shopkeeperService;
-        private readonly IAdminService _adminService = adminService;
+        private readonly IAccountService _accountService = accountService;
         private readonly ISessionService _sessionService = sessionService;
         private readonly IWebHostEnvironment _env = env;
 
@@ -143,7 +143,7 @@ namespace localshopyNew.Controllers
 
             Product product = new Product()
             {
-                Type = ProductTypeConstants.Veg,
+                Type = ProductTypeConstant.Veg,
                 IsAvailable = true,
                 Price = 100,
                 DiscountValidFrom = today,

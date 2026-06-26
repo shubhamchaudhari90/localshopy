@@ -102,7 +102,7 @@ namespace localshopyNew.Controllers
 
         public async Task<List<Category>> GetCategotiesByLocation()
         {
-            List<Category>? categories = new List<Category>();
+            List<Category>? categories = [];
 
             // Get location from session
             Guid location = _sessionService.GetLocation();
@@ -116,11 +116,11 @@ namespace localshopyNew.Controllers
 
             if (categories == null || categories.Count <= 0)
             {
-                return new List<Category>();
+                return [];
             }
 
             // Shuffle the list randomly
-            categories = categories.OrderBy(c => Guid.NewGuid()).ToList();
+            categories = [.. categories.OrderBy(c => Guid.NewGuid())];
 
             return categories;
         }

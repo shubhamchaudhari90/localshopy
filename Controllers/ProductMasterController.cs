@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace localshopyNew.Controllers
 {
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstant.Admin)]
 
     public class ProductMasterController : Controller
     {

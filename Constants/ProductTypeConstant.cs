@@ -1,6 +1,6 @@
 ﻿namespace localshopyNew.Constants
 {
-    public static class ProductTypeConstants
+    public static class ProductTypeConstant
     {
         public const string Veg = "Veg";
         public const string Egg = "Egg";

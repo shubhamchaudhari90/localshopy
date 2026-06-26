@@ -9,27 +9,14 @@ using System.Security.Claims;
 
 namespace localshopyNew.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(IShopkeeperService shopkeeperService, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IAccountService accountService, ISessionService sessionService) : Controller
     {
-        private readonly IShopkeeperService _shopkeeperService;
-        private readonly IAdminService _adminService;
-        private readonly ISessionService _sessionService;
+        private readonly IShopkeeperService _shopkeeperService = shopkeeperService;
+        private readonly IAccountService _accountService = accountService;
+        private readonly ISessionService _sessionService = sessionService;
 
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public AccountController(
-            IShopkeeperService shopkeeperService,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
-            IAdminService adminService, ISessionService sessionService)
-        {
-            _shopkeeperService = shopkeeperService;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _adminService = adminService;
-            _sessionService = sessionService;
-        }
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
 
         public IActionResult GoogleLogin()
         {
@@ -51,10 +38,7 @@ namespace localshopyNew.Controllers
                 return RedirectToAction("Login");
 
             // Sign in if external login exists
-            var signInResult = await _signInManager.ExternalLoginSignInAsync(
-                info.LoginProvider,
-                info.ProviderKey,
-                false);
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
 
             if (!signInResult.Succeeded)
             {
@@ -70,12 +54,13 @@ namespace localshopyNew.Controllers
                 await _signInManager.SignInAsync(user, false);
             }
 
-            string admin = _adminService.AdminLoggedInFromGoogle(email);
+            string admin = _accountService.AdminLoggedInFromGoogle(email);
 
             if (!string.IsNullOrEmpty(admin))
             {
-                _sessionService.SetString(RoleConstants.Admin, admin);
-                await SetRole(email, RoleConstants.Admin);
+                _sessionService.SetString(RoleConstant.Admin, admin);
+                await SetRole(email, RoleConstant.Admin);
+                await _accountService.AddLoggedInUser(email, LoggedInType.GOOGLEAUTH, RoleConstant.AdminText);
                 return RedirectToAction("Index", "Review");
             }
 
@@ -83,7 +68,8 @@ namespace localshopyNew.Controllers
 
             if (shopDetails == null || shopDetails.Shop == null)
             {
-                await SetRole(email, RoleConstants.User);
+                await SetRole(email, RoleConstant.User);
+                await _accountService.AddLoggedInUser(email, LoggedInType.GOOGLEAUTH, RoleConstant.UserText);
                 return RedirectToAction("Products", "Customer");
             }
             else
@@ -92,9 +78,10 @@ namespace localshopyNew.Controllers
 
                 if (shopDetails.Shop.OwnerEmailId != "")
                 {
-                    _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
-                    await SetRole(email, RoleConstants.Shopkeeper);
+                    _sessionService.SetString(RoleConstant.IsShopkeeper, "TRUE");
+                    await SetRole(email, RoleConstant.Shopkeeper);
                 }
+                await _accountService.AddLoggedInUser(email, LoggedInType.GOOGLEAUTH, RoleConstant.ShopkeeperText);
                 return RedirectToAction("OrdersToServe", "Order");
             }
         }
@@ -112,14 +99,14 @@ namespace localshopyNew.Controllers
             {
                 return View();
             }
-            string admin = _adminService.AdminLoggedIn(model.Email, model.Password);
+            string admin = _accountService.AdminLoggedIn(model.Email, model.Password);
 
             if (!string.IsNullOrEmpty(admin))
             {
-                _sessionService.SetString(RoleConstants.Admin, admin);
+                _sessionService.SetString(RoleConstant.Admin, admin);
 
-                await SetRole(model.Email, RoleConstants.Admin);
-
+                await SetRole(model.Email, RoleConstant.Admin);
+                await _accountService.AddLoggedInUser(model.Email, LoggedInType.EMAILID, RoleConstant.AdminText);
                 return RedirectToAction("Index", "Review");
             }
 
@@ -134,9 +121,10 @@ namespace localshopyNew.Controllers
 
             if (model.Email != "")
             {
-                _sessionService.SetString(RoleConstants.IsShopkeeper, "TRUE");
-                await SetRole(model.Email, RoleConstants.Shopkeeper);
+                _sessionService.SetString(RoleConstant.IsShopkeeper, "TRUE");
+                await SetRole(model.Email, RoleConstant.Shopkeeper);
             }
+            await _accountService.AddLoggedInUser(model.Email, LoggedInType.EMAILID, RoleConstant.ShopkeeperText);
             return RedirectToAction("OrdersToServe", "Order");
         }
 
@@ -152,9 +140,9 @@ namespace localshopyNew.Controllers
             // Create claims
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, email),
-                new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, role)
+                new(ClaimTypes.Name, email),
+                new(ClaimTypes.Email, email),
+                new(ClaimTypes.Role, role)
             };
 
             var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
@@ -162,6 +150,26 @@ namespace localshopyNew.Controllers
 
             // Sign in using ASP.NET Core Identity cookie scheme
             await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal);
+        }
+
+        public async Task<IActionResult> LoggedInUsers()
+        {
+            var users = await _accountService.GetLoggedInUsersAsync();
+            return View(users);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteLoggedInUser(Guid id)
+        {
+            var result = await _accountService.DeleteLoggedInUserAsync(id);
+
+            if (result)
+                TempData["Success"] = "Logged in user deleted successfully.";
+            else
+                TempData["Error"] = "Record not found.";
+
+            return RedirectToAction(nameof(LoggedInUsers));
         }
     }
 }
