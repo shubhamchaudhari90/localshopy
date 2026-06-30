@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "कथासंग्रह";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <div class="display-4 fw-bold text-primary">
+            📚 कथासंग्रह
+        </div>
+        <div class="text-muted fs-5">
+            आपल्या आवडत्या गोष्टी निवडा
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Story 1 -->
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100 rounded-4">
+                <div class="card-body text-center">
+                    <div class="display-3">
+                        🧢🐒
+                    </div>
+                    <h4 class="mt-3 fw-bold">
+                        टोपीवाला आणि माकडे
+                    </h4>
+                    <a asp-controller="Story"
+                       asp-action="Topiwala"
+                       class="btn btn-primary rounded-pill px-4">
+                        📖 कथा वाचा
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story 2 -->
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100 rounded-4">
+                <div class="card-body text-center">
+                    <div class="display-3">
+                        🐇🐢
+                    </div>
+                    <h4 class="mt-3 fw-bold">
+                        ससा आणि कासव
+                    </h4>
+                    <a asp-controller="Story"
+                       asp-action="SasaKasav"
+                       class="btn btn-primary rounded-pill px-4">
+                        📖 कथा वाचा
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story 1 -->
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100 rounded-4">
+                <div class="card-body text-center">
+                    <div class="display-3">
+                        🪓🌳
+                    </div>
+                    <h4 class="mt-3 fw-bold">                        
+                        प्रामाणिक लाकूडतोड्या
+                    </h4>
+                    <a asp-controller="Story"
+                       asp-action="Lakudtodya"
+                       class="btn btn-primary rounded-pill px-4">
+                        📖 कथा वाचा
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story 4 -->
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100 rounded-4">
+                <div class="card-body text-center">
+                    <div class="display-3">
+                        🎣🐟
+                    </div>
+                    <h4 class="mt-3 fw-bold">
+                        हुशार मासा
+                    </h4>
+                    <a asp-controller="Story"
+                       asp-action="HusharMasa"
+                       class="btn btn-primary rounded-pill px-4">
+                        📖 कथा वाचा
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

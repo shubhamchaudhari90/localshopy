@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "ससा आणि कासव";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <div class="display-5 fw-bold text-primary">
+            🐇 ससा आणि कासव 🐢
+        </div>
+
+        <div class="text-muted fs-5 mt-2">
+            एक प्रेरणादायी बोधकथा
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4">
+
+        <div class="card-header bg-warning text-dark text-center fs-4 fw-bold rounded-top-4">
+            📖 कथा
+        </div>
+
+        <div class="card-body p-5">
+
+            <p class="fs-5 lh-lg text-dark">
+                अनेक वर्षांपूर्वीची गोष्ट आहे. एका घनदाट जंगलात एक ससा राहत होता.
+                त्याला आपल्या वेगाचा खूप अहंकार होता. जंगलात त्याला जो कोणी भेटायचा,
+                त्याच्याशी तो शर्यत लावायचा आणि सहज जिंकायचा.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                प्रत्येक वेळी जिंकल्यानंतर तो स्वतःचे खूप कौतुक करायचा
+                आणि इतरांचा अपमान करायचा.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                एकदा जंगलात फिरत असताना त्याला एक कासव दिसले.
+                त्याचा हळूपणा पाहून सश्याने त्याच्याशी शर्यत लावण्याचे ठरवले.
+                जंगलातील डोंगरावर जो आधी पोहोचेल तो विजेता असे ठरले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                कासवानेही शर्यतीसाठी होकार दिला.
+                जंगलातील सर्व प्राणी ही अनोखी शर्यत पाहण्यासाठी जमले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                शर्यत सुरू होताच ससा वेगाने धावू लागला,
+                तर कासव शांतपणे आणि हळूहळू चालत राहिले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                काही अंतर गेल्यावर सश्याने मागे वळून पाहिले,
+                पण कासव त्याला कुठेच दिसले नाही.
+                त्याने विचार केला,
+                <strong>"कासव खूप हळू चालते आहे. ते येईपर्यंत मी थोडा आराम करतो."</strong>
+            </p>
+
+            <p class="fs-5 lh-lg">
+                थंडगार वाऱ्यामुळे सश्याला झाडाखाली गाढ झोप लागली.
+                त्या दरम्यान कासव मात्र थांबले नाही.
+                ते हळूहळू पण सतत चालत राहिले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                अखेर कासव डोंगरावर पोहोचले आणि शर्यत जिंकले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                काही वेळाने सश्याला जाग आली.
+                त्याने घाईघाईने डोंगराकडे धाव घेतली,
+                पण तोपर्यंत खूप उशीर झाला होता.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                डोंगरावर पोहोचल्यावर त्याने पाहिले की
+                कासव आधीच विजयी झाले होते.
+                सर्व जंगलातील प्राण्यांनी टाळ्या वाजवून कासवाचे अभिनंदन केले.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                सश्यालाही आपली चूक समजली.
+                त्याने कासवाच्या चिकाटीचे कौतुक केले
+                आणि स्वतःचा अहंकार सोडण्याचा निर्णय घेतला.
+            </p>
+
+        </div>
+
+        <div class="card-footer bg-success text-white text-center rounded-bottom-4">
+
+            <div class="fs-4 fw-bold mb-2">
+                🌟 बोध 🌟
+            </div>
+
+            <div class="fs-5">
+                <strong>
+                    सातत्य, मेहनत आणि संयम यांच्या बळावर यश मिळते.
+                    अहंकार आणि अतिआत्मविश्वासामुळे नेहमीच नुकसान होते.
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Story"
+           asp-action="Index"
+           class="btn btn-outline-primary btn-lg rounded-pill px-4">
+            ← कथासंग्रहाकडे परत जा
+        </a>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg,#f8f9fa,#fff8e1);
+    }
+
+    .card {
+        animation: fadeIn .7s ease-in-out;
+    }
+
+    p {
+        text-align: justify;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "हुशार मासा";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <div class="display-5 fw-bold text-primary">
+            🎣 हुशार मासा 🐟
+        </div>
+        <div class="text-muted fs-5 mt-2">
+            संकटसमयी चातुर्याचे महत्त्व सांगणारी बोधकथा
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-warning text-dark text-center fs-4 fw-bold rounded-top-4">
+            📖 कथा
+        </div>
+        <div class="card-body p-5">
+            <p class="fs-5 lh-lg text-dark">
+                एकेकाळी एक मच्छीमार होता. तो रोज तलावात जाऊन मासे पकडत असे.
+                मासे विकून तो आपल्या कुटुंबाचा उदरनिर्वाह करत असे.
+                कधी त्याच्या जाळ्यात भरपूर मासे सापडत, तर कधी फारच कमी.
+            </p>
+            <p class="fs-5 lh-lg">
+                एके दिवशी तो नेहमीप्रमाणे तलावावर मासेमारीसाठी गेला.
+                त्याने जाळे पाण्यात टाकले आणि काही वेळ शांतपणे वाट पाहू लागला.
+                थोड्या वेळाने त्याने जाळे बाहेर काढले, तेव्हा त्यात भरपूर मासे अडकले होते.
+                हे पाहून तो खूप आनंदी झाला.
+            </p>
+            <p class="fs-5 lh-lg">
+                त्याने ते सर्व मासे बाजारात विकले आणि त्याला चांगले पैसे मिळाले.
+                दुसऱ्या दिवशीही तो त्याच उत्साहाने तलावावर गेला.
+                पुन्हा जाळे टाकून तो वाट पाहू लागला.
+            </p>
+            <p class="fs-5 lh-lg">
+                काही वेळाने जाळ्यात हालचाल जाणवू लागली.
+                त्याने जाळे बाहेर काढले, पण यावेळी त्यात फक्त एकच लहानसा मासा होता.
+            </p>
+            <p class="fs-5 lh-lg">
+                मच्छीमार त्या माशाला बाहेर काढू लागला,
+                तेव्हा मासा विनवणी करत म्हणाला,
+                <strong>
+                    "जर तू मला आज सोडलेस,
+                    तर उद्या मी माझ्या इतर मित्रांना तुझ्या जाळ्याकडे पाठवीन.
+                    तुला भरपूर मासे मिळतील."
+                </strong>
+            </p>
+            <p class="fs-5 lh-lg">
+                मच्छीमाराला हा सौदा फायदेशीर वाटला.
+                त्याने विचार केला की,
+                एका छोट्या माशाला सोडल्याने उद्या खूप मासे मिळाले,
+                तर त्याचाच फायदा होईल.
+                म्हणून त्याने त्या माशाला परत पाण्यात सोडून दिले.
+            </p>
+            <p class="fs-5 lh-lg">
+                आपला जीव वाचल्यामुळे मासा खूप आनंदी झाला
+                आणि तो पोहत पोहत खूप दूर निघून गेला.
+            </p>
+            <p class="fs-5 lh-lg">
+                दुसऱ्या दिवशी मच्छीमार मोठ्या आशेने पुन्हा तलावावर आला.
+                पण दिवसभर प्रयत्न करूनही त्याच्या जाळ्यात एकही मासा सापडला नाही.
+                तेव्हा त्याला समजले की त्या हुशार माशाने
+                आपल्या चातुर्याने स्वतःचा जीव वाचवला.
+            </p>
+        </div>
+
+        <div class="card-footer bg-success text-white text-center rounded-bottom-4">
+
+            <div class="fs-4 fw-bold mb-2">
+                🌟 शिकवण 🌟
+            </div>
+
+            <div class="fs-5">
+                <strong>
+                    संकटाच्या वेळी घाबरून न जाता शांतपणे विचार करून
+                    चातुर्याने निर्णय घेतल्यास कोणतेही संकट टाळता येते.
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Story"
+           asp-action="Index"
+           class="btn btn-outline-primary btn-lg rounded-pill px-4">
+            ← कथासंग्रहाकडे परत जा
+        </a>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f8f9fa, #fff8e1);
+    }
+
+    .card {
+        animation: fadeIn .7s ease-in-out;
+    }
+
+    p {
+        text-align: justify;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

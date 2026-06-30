@@ -197,6 +197,11 @@
                                     Contact Us
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light fw-bold me-3" asp-controller="Story" asp-action="Index">
+                                    Stories
+                                </a>
+                            </li>
                             @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                             {
                                 <li class="nav-item">

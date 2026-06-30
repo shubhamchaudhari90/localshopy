@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "टोपीवाला आणि माकडे";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <div class="display-5 fw-bold text-primary">
+            🧢 टोपीवाला आणि माकडे 🐒
+        </div>
+
+        <div class="text-muted fs-5 mt-2">
+            एक मनोरंजक बोधकथा
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4">
+
+        <div class="card-header bg-warning text-dark text-center fs-4 fw-bold rounded-top-4">
+            📖 कथा
+        </div>
+
+        <div class="card-body p-5">
+
+            <p class="fs-5 lh-lg text-dark">
+                एक टोपीवाला होता. तो रोज टोप्या विकायला शेजारच्या गावात जात असे.
+                जाताना त्याला जंगलातून जावे लागे.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                एकदा दुपारी जंगलातून जात असताना त्याला खूप भूक लागली.
+                म्हणून तो एका मोठ्या झाडाखाली थांबला आणि थोडा वेळ विश्रांती घेण्यासाठी
+                झोपून गेला.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                त्या झाडावर अनेक माकडे राहत होती.
+                टोपीवाला गाढ झोपला आहे हे पाहून ती खाली उतरली.
+                त्यांनी त्याची पेटी उघडली आणि त्यातील सगळ्या टोप्या काढून
+                आपल्या डोक्यावर घातल्या.
+                मग ती पुन्हा झाडाच्या टोकावर जाऊन बसली.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                काही वेळाने टोपीवाल्याला जाग आली.
+                त्याने पेटीकडे पाहिले तर त्यातील सगळ्या टोप्या गायब झाल्या होत्या.
+                तो इकडे-तिकडे शोधू लागला,
+                पण त्याला कुठेच टोप्या दिसल्या नाहीत.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                शेवटी त्याने वर पाहिले तर
+                झाडावरील प्रत्येक माकडाच्या डोक्यावर त्याची टोपी होती.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                तो खूप चिंतेत पडला.
+                त्याने माकडांना दगड मारण्याचा प्रयत्न केला,
+                माकडांनी त्याच्यावर झाडावरील फळे फेकायला सुरुवात केली.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                शेवटी वैतागून टोपीवाल्याने आपल्या डोक्यावरची टोपी
+                काढली आणि रागाने खाली फेकून दिली.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                माकडे त्याची प्रत्येक कृती नक्कल करत होती.
+                त्यांनीही आपल्या डोक्यावरच्या सगळ्या टोप्या खाली फेकून दिल्या.
+            </p>
+
+            <p class="fs-5 lh-lg">
+                टोपीवाल्याने लगेच सर्व टोप्या गोळा केल्या,
+                पेटीत भरल्या आणि आनंदाने तेथून निघून गेला.
+            </p>
+
+        </div>
+
+        <div class="card-footer bg-success text-white text-center rounded-bottom-4">
+
+            <div class="fs-4 fw-bold mb-2">
+                🌟 बोध 🌟
+            </div>
+
+            <div class="fs-5">
+                <strong>
+                    संकटाच्या वेळी घाबरून न जाता शांतपणे विचार केल्यास
+                    योग्य मार्ग सापडतो.
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Story"
+           asp-action="Index"
+           class="btn btn-outline-primary btn-lg rounded-pill px-4">
+            ← कथासंग्रहाकडे परत जा
+        </a>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg,#f8f9fa,#fff8e1);
+    }
+
+    .card {
+        animation: fadeIn .7s ease-in-out;
+    }
+
+    p {
+        text-align: justify;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
