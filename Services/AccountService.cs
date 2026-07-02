@@ -48,7 +48,7 @@ namespace localshopyNew.Services
 
         public async Task AddLoggedInUser(string emailId, string loggedInType, string role)
         {
-            LoggedInUsers loggedInUser = new()
+            LoggedInUser loggedInUser = new()
             {
                 EmailId = emailId,
                 Id = Guid.NewGuid(),
@@ -60,7 +60,7 @@ namespace localshopyNew.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<LoggedInUsers>> GetLoggedInUsersAsync()
+        public async Task<List<LoggedInUser>> GetLoggedInUsersAsync()
         {
             return await _context.LoggedInUsers.OrderByDescending(x => x.LoggedInTime).ToListAsync();
         }

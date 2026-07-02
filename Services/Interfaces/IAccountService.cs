@@ -7,7 +7,7 @@ namespace localshopyNew.Services.Interfaces
         string AdminLoggedIn(string username, string password);
         string AdminLoggedInFromGoogle(string userEmailId);
         Task AddLoggedInUser(string emailId, string loggedInType, string role);
-        Task<List<LoggedInUsers>> GetLoggedInUsersAsync();
+        Task<List<LoggedInUser>> GetLoggedInUsersAsync();
         Task<bool> DeleteLoggedInUserAsync(Guid id);
     }
 }

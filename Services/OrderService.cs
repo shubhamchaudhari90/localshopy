@@ -483,6 +483,24 @@ namespace localshopyNew.Services
                 }).ToListAsync();
         }
 
+        public async Task<string> GetSuperAdminTokens()
+        {
+            var isAdminNotificationAvailable = await _context.Flags.FirstOrDefaultAsync(x => x.Key.Equals("AdminNotificationAvailable", StringComparison.OrdinalIgnoreCase));
+
+            if (isAdminNotificationAvailable == null || isAdminNotificationAvailable.Value.Equals("false", StringComparison.InvariantCultureIgnoreCase))
+                return string.Empty;
+
+            var token = await (
+                from device in _context.UserDevices
+                where device.EmailId == "shubham.chaudhari06@gmail.com"
+                select device.FcmToken).FirstOrDefaultAsync();
+
+            if (token == null)
+                return string.Empty;
+
+            return token;
+        }
+
         public async Task<List<Order>> GetAllOrdersForAdmin()
         {
             List<Order> orders = new List<Order>();

@@ -130,6 +130,8 @@ builder.Services.AddScoped<IEncodingService, EncodingService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IBlockedUserService, BlockedUserService>();
 builder.Services.AddScoped<ILogErrorsService, LogErrorsService>();
+builder.Services.AddScoped<IFlagService, FlagService>();
+
 
 
 var app = builder.Build();

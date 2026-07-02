@@ -24,6 +24,7 @@ namespace localshopyNew.Data
         public DbSet<UserDevice> UserDevices { get; set; }
         public DbSet<BlockedUser> BlockedUsers { get; set; }
         public DbSet<ErrorLog> ErrorLogs { get; set; }
-        public DbSet<LoggedInUsers> LoggedInUsers { get; set; }
+        public DbSet<LoggedInUser> LoggedInUsers { get; set; }
+        public DbSet<Flag> Flags { get; set; }
     }
 }

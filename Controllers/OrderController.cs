@@ -103,10 +103,14 @@ namespace localshopyNew.Controllers
             try
             {
                 List<ShopkeeperNotificationViewModel> tokens = await _orderService.GetShopkeeperTokens(orderIds);
+                string adminToken = await _orderService.GetSuperAdminTokens();
 
                 foreach (ShopkeeperNotificationViewModel token in tokens)
                 {
                     await _notification.SendNotificationAsync(token.FcmToken, "New Order", $"You have received a new order.\nOrder no.: {token.OrderNumber}");
+
+                    if (!string.IsNullOrEmpty(adminToken))
+                        await _notification.SendNotificationAsync(adminToken, "New Order", $"New order.\nOrder no.: {token.OrderNumber}");
                 }
             }
             catch (Exception ex)

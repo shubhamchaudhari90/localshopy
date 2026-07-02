@@ -2,7 +2,7 @@
 
 namespace localshopyNew.Models
 {
-    public class LoggedInUsers
+    public class LoggedInUser
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
