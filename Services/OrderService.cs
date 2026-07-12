@@ -464,7 +464,7 @@ namespace localshopyNew.Services
                 join d in _context.UserDevices.AsNoTracking()
                 on o.EmailId equals d.EmailId
                 where o.Id == orderID
-                select d.FcmToken).ToListAsync();
+                select d.FcmToken).Distinct().ToListAsync();
         }
 
         public async Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens(List<Guid> orderIds)
