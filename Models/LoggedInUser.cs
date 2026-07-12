@@ -13,6 +13,6 @@ namespace localshopyNew.Models
         [Required]
         public string Role { get; set; } = string.Empty;
         [Required]
-        public DateTime LoggedInTime { get; set; } = DateTime.UtcNow;
+        public DateTime LoggedInTime { get; set; } = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata"));
     }
 }

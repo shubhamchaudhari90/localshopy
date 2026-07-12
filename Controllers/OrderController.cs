@@ -113,7 +113,7 @@ namespace localshopyNew.Controllers
                         await _notification.SendNotificationAsync(adminToken, "New Order", $"New order.\nOrder no.: {token.OrderNumber}");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }

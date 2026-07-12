@@ -480,7 +480,7 @@ namespace localshopyNew.Services
                 {
                     FcmToken = device.FcmToken,
                     OrderNumber = order.OrderNumber
-                }).ToListAsync();
+                }).Distinct().ToListAsync();
         }
 
         public async Task<string> GetSuperAdminTokens()
