@@ -487,10 +487,12 @@ namespace localshopyNew.Services
         {
             var isAdminNotificationAvailable = await _context.Flags.FirstOrDefaultAsync(x => x.Key.Equals("AdminNotificationAvailable", StringComparison.OrdinalIgnoreCase));
 
-            if (isAdminNotificationAvailable == null || isAdminNotificationAvailable.Value.Equals("false", StringComparison.InvariantCultureIgnoreCase))
+            if (isAdminNotificationAvailable == null || isAdminNotificationAvailable.Value != "true")
                 return string.Empty;
 
-            var token = await (
+            string? token = string.Empty;
+
+            token = await (
                 from device in _context.UserDevices
                 where device.EmailId == "shubham.chaudhari06@gmail.com"
                 select device.FcmToken).FirstOrDefaultAsync();
