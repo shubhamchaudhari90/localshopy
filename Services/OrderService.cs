@@ -464,7 +464,7 @@ namespace localshopyNew.Services
                 join d in _context.UserDevices.AsNoTracking()
                 on o.EmailId equals d.EmailId
                 where o.Id == orderID
-                select d.FcmToken).ToListAsync();
+                select d.FcmToken).Distinct().ToListAsync();
         }
 
         public async Task<List<ShopkeeperNotificationViewModel>> GetShopkeeperTokens(List<Guid> orderIds)
@@ -480,17 +480,19 @@ namespace localshopyNew.Services
                 {
                     FcmToken = device.FcmToken,
                     OrderNumber = order.OrderNumber
-                }).ToListAsync();
+                }).Distinct().ToListAsync();
         }
 
         public async Task<string> GetSuperAdminTokens()
         {
             var isAdminNotificationAvailable = await _context.Flags.FirstOrDefaultAsync(x => x.Key.Equals("AdminNotificationAvailable", StringComparison.OrdinalIgnoreCase));
 
-            if (isAdminNotificationAvailable == null || isAdminNotificationAvailable.Value.Equals("false", StringComparison.InvariantCultureIgnoreCase))
+            if (isAdminNotificationAvailable == null || isAdminNotificationAvailable.Value != "true")
                 return string.Empty;
 
-            var token = await (
+            string? token = string.Empty;
+
+            token = await (
                 from device in _context.UserDevices
                 where device.EmailId == "shubham.chaudhari06@gmail.com"
                 select device.FcmToken).FirstOrDefaultAsync();

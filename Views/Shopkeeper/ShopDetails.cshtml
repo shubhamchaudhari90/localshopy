@@ -172,7 +172,7 @@
                    href="@Url.Action("AddProduct", "Shopkeeper")">
                     <i class="bi bi-plus-circle me-1"></i> Add Product
                 </a>
-                @if (Model.Products.Any())
+                @if (Model != null && Model.Products != null && Model.Products.Any())
                 {
                     <!-- Right: Collapse / Expand -->
                     <button id="toggleAllBtn" class="btn  border-dark btn-outline-warning btn-sm">
