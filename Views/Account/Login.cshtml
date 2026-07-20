@@ -6,138 +6,276 @@
 }
 
 <style>
-    /* Page background */
+
     body {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        background: linear-gradient(-45deg,#f3f4f6,#e0ecff,#fff8e6,#f7f2ff);
+        background-size: 400% 400%;
+        animation: bgMove 15s ease infinite;
+        font-family: 'Segoe UI',sans-serif;
     }
 
-    /* Center the login area vertically and horizontally */
     .login-section {
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 2rem 0;
+        padding: 30px 15px;
     }
 
-    /* Card appearance and consistent sizing */
     .login-card {
-        border-radius: 1rem;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border: none;
+        border-radius: 25px;
         overflow: hidden;
-        height: 100%;
+        background: rgba(255,255,255,.88);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 15px 45px rgba(0,0,0,.15);
+        transition: .35s;
+        animation: fadeInUp .8s ease;
     }
 
-        /* Make card body stretch so that buttons sit consistently at bottom on larger screens */
-        .login-card .card-body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1.5rem;
+        .login-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 55px rgba(0,0,0,.20);
         }
 
-            /* Alert inside card centered and compact */
-            .login-card .card-body .info-alert {
-                margin: 0;
-                width: 100%;
-            }
+    .card-body {
+        padding: 35px;
+    }
 
-    /* Google button style */
+    .login-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #fff3cd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        font-size: 42px;
+        color: #ff9800;
+        animation: float 3s ease-in-out infinite;
+        box-shadow: 0 10px 25px rgba(255,193,7,.35);
+    }
+
+    .login-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #ff9800;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .info-alert {
+        border-radius: 15px;
+        animation: pulse 2s infinite;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        height: 52px;
+        border: 1px solid #dee2e6;
+        transition: .3s;
+    }
+
+        .form-control:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 15px rgba(255,193,7,.35);
+            transform: scale(1.02);
+        }
+
+    .input-group-text {
+        background: white;
+        border-right: none;
+    }
+
+    .form-control {
+        border-left: none;
+    }
+
+    .auth-btn {
+        height: 52px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: .3s;
+    }
+
     .btn-google {
         background: #db4437;
         color: white;
-        border: none;
     }
 
-        .btn-google:hover,
-        .btn-google:focus {
-            background: #c33d30;
-            color: #fff;
+        .btn-google:hover {
+            background: #c23321;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(219,68,55,.35);
         }
 
-    /* Ensure good touch targets and consistent button sizing */
-    .auth-btn {
-        padding: 0.65rem 1rem;
-        font-weight: 700;
+    .btn-warning:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(255,193,7,.45);
     }
 
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #999;
+        margin: 20px 0;
     }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: 10px;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: 10px;
+        }
+
 </style>
 
 <div class="container login-section">
-    <div class="row justify-content-center g-4 align-items-stretch">
+
+    <div class="row justify-content-center g-4 w-100">
 
         <!-- Google Login -->
-        <div class="col-12 col-md-10 col-lg-5">
+
+        <div class="col-lg-5 col-md-10">
+
             <div class="card login-card h-100">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                    <div class="alert alert-danger info-alert fw-bold rounded-3" role="alert">
-                        Please log in to use cart and place an order.
+
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+
+                    <div class="login-icon mb-4">
+                        <i class="bi bi-bag-check-fill"></i>
                     </div>
 
-                    <a asp-controller="Account" asp-action="GoogleLogin" class="btn btn-google auth-btn w-100 btn-lg shadow-sm mt-2">
-                        <i class="bi bi-google me-2" aria-hidden="true"></i>
+                    <h2 class="login-title">Welcome</h2>
+
+                    <p class="login-subtitle mb-4">
+                        Login using your Google account to continue shopping.
+                    </p>
+
+                    <div class="alert alert-danger info-alert fw-semibold">
+                        Please login to use Cart & Place Orders.
+                    </div>
+
+                    <a asp-controller="Account"
+                       asp-action="GoogleLogin"
+                       class="btn btn-google auth-btn mt-3">
+
+                        <i class="bi bi-google me-2"></i>
+
                         Continue with Google
+
                     </a>
+
                 </div>
+
             </div>
+
         </div>
 
         <!-- Manual Login -->
-        <div class="col-12 col-md-10 col-lg-5">
+
+        <div class="col-lg-5 col-md-10">
+
             <div class="card login-card h-100">
-                <div class="card-body d-flex flex-column">
-                    <h3 class="text-center text-warning fw-bold mb-2">Shopkeeper Login</h3>
+
+                <div class="card-body">
+
+                    <h2 class="login-title text-center">
+                        Shopkeeper Login
+                    </h2>
+
+                    <p class="login-subtitle text-center mb-4">
+                        Sign in to manage your shop.
+                    </p>
 
                     @if (ViewData["ErrorMessage"] != null)
                     {
-                        <div class="alert alert-danger" role="alert">
+                        <div class="alert alert-danger">
                             @ViewData["ErrorMessage"]
                         </div>
                     }
 
-                    <form asp-action="Login" method="post" class="needs-validation d-flex flex-column flex-grow-1" novalidate>
+                    <form asp-action="Login" method="post" class="needs-validation" novalidate>
+
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
-                            <input asp-for="Email" class="form-control" placeholder="Enter your email" type="email" required />
+
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope-fill"></i>
+                                </span>
+
+                                <input asp-for="Email"
+                                       class="form-control"
+                                       placeholder="Enter Email"
+                                       required />
+
+                            </div>
+
                             <span asp-validation-for="Email" class="text-danger"></span>
+
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
-                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required />
+                        <div class="mb-4">
+
+                            <label asp-for="Password" class="form-label fw-semibold"></label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+
+                                <input asp-for="Password"
+                                       type="password"
+                                       class="form-control"
+                                       placeholder="Enter Password"
+                                       required />
+
+                            </div>
+
                             <span asp-validation-for="Password" class="text-danger"></span>
+
                         </div>
 
-                        <div class="mt-auto">
-                            <button type="submit" class="btn btn-warning w-100 fw-bold border-dark shadow-sm auth-btn">Login</button>
-                        </div>
+                        <button type="submit"
+                                class="btn btn-warning auth-btn w-100">
+
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                            Login
+
+                        </button>
+
                     </form>
+
                 </div>
+
             </div>
+
         </div>
 
     </div>
+
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        // Simple bootstrap-style validation handler to improve UX
-        (function () {
-            'use strict';
-            var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        })();
-    </script>
 }
