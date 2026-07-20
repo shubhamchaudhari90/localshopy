@@ -132,7 +132,7 @@ builder.Services.AddScoped<IBlockedUserService, BlockedUserService>();
 builder.Services.AddScoped<ILogErrorsService, LogErrorsService>();
 builder.Services.AddScoped<IFlagService, FlagService>();
 
-
+builder.Services.AddScoped<SqliteBackupService>();
 
 var app = builder.Build();
 
