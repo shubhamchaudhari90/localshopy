@@ -38,6 +38,11 @@
 	<ItemGroup>
 	  <Folder Include="wwwroot\images\products\" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Update="home\Data\app.db">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 
 
 </Project>

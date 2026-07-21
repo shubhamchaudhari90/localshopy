@@ -1,12 +1,9 @@
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using localshopyNew.Data;
-using localshopyNew.Middleware;
-using localshopyNew.Models;
 using localshopyNew.Services;
 using localshopyNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -166,49 +163,49 @@ using (var scope = app.Services.CreateScope())
 // ERROR HANDLING + STATIC FILES
 // =======================
 
-// Global Exception Handler
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+//// Global Exception Handler
+//app.UseExceptionHandler(errorApp =>
+//{
+//    errorApp.Run(async context =>
+//    {
+//        var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
 
-        if (exceptionFeature?.Error != null)
-        {
-            try
-            {
-                using var scope = context.RequestServices.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+//        if (exceptionFeature?.Error != null)
+//        {
+//            try
+//            {
+//                using var scope = context.RequestServices.CreateScope();
+//                var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
 
-                var ex = exceptionFeature.Error;
+//                var ex = exceptionFeature.Error;
 
-                var log = new ErrorLog
-                {
-                    Message = ex.Message,
-                    StackTrace = ex.StackTrace + " || " + ex.InnerException + "" + ex.Message,
-                    Path = exceptionFeature.Path,
-                    Method = context.Request.Method,
-                    CreatedAt = DateTime.UtcNow
-                };
+//                var log = new ErrorLog
+//                {
+//                    Message = ex.Message,
+//                    StackTrace = ex.StackTrace + " || " + ex.InnerException + "" + ex.Message,
+//                    Path = exceptionFeature.Path,
+//                    Method = context.Request.Method,
+//                    CreatedAt = DateTime.UtcNow
+//                };
 
-                db.ErrorLogs.Add(log);
-                await db.SaveChangesAsync();
+//                db.ErrorLogs.Add(log);
+//                await db.SaveChangesAsync();
 
-                context.Response.Clear();
-                context.Response.Redirect("/Account/Logout");
-            }
-            catch
-            {
-                // Avoid crashing if logging fails
-            }
-        }
+//                context.Response.Clear();
+//                context.Response.Redirect("/Account/Logout");
+//            }
+//            catch
+//            {
+//                // Avoid crashing if logging fails
+//            }
+//        }
 
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json";
+//        context.Response.StatusCode = 500;
+//        context.Response.ContentType = "application/json";
 
-        await context.Response.WriteAsync("{\"error\":\"Internal Server Error\"}");
-    });
-});
+//        await context.Response.WriteAsync("{\"error\":\"Internal Server Error\"}");
+//    });
+//});
 
 // Optional: HTTPS redirection
 app.UseHttpsRedirection();
@@ -222,19 +219,19 @@ app.UseHttpsRedirection();
 app.UseHttpsRedirection();
 
 // Add middleware early in pipeline
-app.UseMiddleware<GlobalExceptionMiddleware>();
+//app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseStaticFiles();
 
-app.UseStatusCodePages(async context =>
-{
-    var response = context.HttpContext.Response;
+//app.UseStatusCodePages(async context =>
+//{
+//    var response = context.HttpContext.Response;
 
-    if (response.StatusCode == StatusCodes.Status404NotFound)
-    {
-        context.HttpContext.Response.Redirect("/Account/Logout");
-    }
-});
+//    if (response.StatusCode == StatusCodes.Status404NotFound)
+//    {
+//        context.HttpContext.Response.Redirect("/Account/Logout");
+//    }
+//});
 
 // =======================
 // PIPELINE
